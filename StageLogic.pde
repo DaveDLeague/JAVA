@@ -4,8 +4,8 @@ class Variable {
   float y;
   float w;
   float h;
-  
-  public Variable(String name, float x, float y){
+
+  public Variable(String name, float x, float y) {
     textFont(courier);
     this.name = name;
     this.x = x;
@@ -13,22 +13,30 @@ class Variable {
     this.h = 24;
     textSize(this.h);
     this.w = textWidth(name);
-    println(this.w);
     textFont(arial);
   }
 }
 
 class VariableCave {
-  Variable[] variables = new Variable[1];
-
+  public ArrayList<Variable> variables = new ArrayList<Variable>();
+  public ArrayList<Variable> collectedVariables = new ArrayList<Variable>();
+  public String[] correctAnswers = {
+    "my_variable", "$mooth_operator", "$__$__$123"
+  };
+  
   public PImage host;
   public color variableColor;
   public float hostX = 500;
   public float hostY = 500;
-
+  
   public TextBox dialog1;
   public TextBox dialog2;
   public TextBox dialog3;
+  public TextBox dialog4;
+  public TextBox dialog5;
+  public TextBox dialog6;
+  public TextBox dialog7;
+  public TextBox dialog8;
 
   public DialogChoice choice1;
   public DialogChoice choice2;
@@ -37,15 +45,10 @@ class VariableCave {
   public final int greetingState = 1;
   public final int inquireState = 2;
   public final int gatherState = 3;
+  public final int checkState = 4;
   public int currentState = searchState;
-}
 
-boolean checkIntersection(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2) {
-  if (x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2) {
-    return false;
-  }
-
-  return true;
+  public boolean collected = false;
 }
 
 Stage checkPlayerStageIntersection() {
@@ -75,28 +78,64 @@ void initializeVariableCave() {
   variableCave.dialog1 = new TextBox("Bring me all of the variable names that are valid in Java.");
   variableCave.dialog2 = new TextBox("Java variables can only consist of numbers, letters, underscores,");
   variableCave.dialog3 = new TextBox("and currency symbols. They absolutely cannot begin with a number!");
+  variableCave.dialog4 = new TextBox("The cannot have spaces and cannot have the same name as a reserved Java keyword.");
+  variableCave.dialog5 = new TextBox("Thank you! You got them all!");
+  variableCave.dialog6 = new TextBox("What is this? You trying to give me bad variables?");
+  variableCave.dialog7 = new TextBox("Come back when you're ready to give me what I ask for.");
+  variableCave.dialog8 = new TextBox("Now leave me alone with my variables!");
   variableCave.choice1 = new DialogChoice("OK!");
   variableCave.choice2 = new DialogChoice("How do I know which ones are valid?");
 
   variableCave.variableColor = color(200, 200, 255);
 
-  variableCave.variables[0] = new Variable("THIS IS A VARIABLE", 100, 100);
+  variableCave.variables.add(new Variable("my variable", 100, 100));
+  variableCave.variables.add(new Variable("my_variable", 1000, 700));
+  variableCave.variables.add(new Variable("$mooth_operator", 100, 300));
+  variableCave.variables.add( new Variable("1Int4U", 500, 900));
+  variableCave.variables.add(new Variable("$__$__$123", 700, 1000));
 }
 
-void updateVariables(){
+void updateVariables() {
   textFont(courier);
 
- for(int i = 0; i < variableCave.variables.length; i++){
-    Variable v = variableCave.variables[i];
+  for (int i = 0; i < variableCave.variables.size(); i++) {
+    Variable v = variableCave.variables.get(i);
     textSize(v.h);
     float nx = v.x - camera.x;
     float ny = v.y - camera.y;
     fill(75, 75, 75, 200);
-    rect(nx, ny - v.h, v.w, v.h);
+    rect(nx - 5, ny - v.h, v.w + 10, v.h * 2, 3);
     fill(variableCave.variableColor);
     text(v.name, nx, ny);
- }
- textFont(arial);
+
+    if (checkIntersection(player.x, player.y, player.w, player.h, nx, ny, v.w, v.h)) {
+      textFont(arial);
+      textSize(10);
+      fill(255);
+      text("Press SPACE to collect variable", nx, ny - 20);   
+      textFont(courier);
+
+      if (keyPressed && key == ' ') {
+        variableCave.variables.remove(v); 
+        variableCave.collectedVariables.add(v);
+      }
+    }
+  }
+  textFont(arial);
+}
+
+boolean checkForAllCollectedVariables() {
+  if(variableCave.collectedVariables.size() != variableCave.correctAnswers.length) return false; //<>//
+  for(int i = 0; i < variableCave.correctAnswers.length; i++){
+    boolean found = false;
+    for(Variable v : variableCave.collectedVariables){
+      if(v.name.equals(variableCave.correctAnswers[i])){
+        found = true; 
+      }
+    }
+    if(!found) return false;
+  }
+  return true;
 }
 
 void updateVariableCave() {
@@ -135,6 +174,7 @@ void updateVariableCave() {
     {
       variableCave.dialog2.render();
       variableCave.dialog3.render();
+      variableCave.dialog4.render();
       if (variableCave.choice1.update()) {
         variableCave.currentState = variableCave.gatherState;
       }
@@ -143,6 +183,31 @@ void updateVariableCave() {
   case 3:
     {
       updateVariables();
+      if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, variableCave.host.width, variableCave.host.height)) {
+        fill(255);
+        textSize(10);
+        text("Press SPACE to give the variables to the Octopus", cx, cy); 
+        if (keyPressed && key == ' ') {
+          key = 0;
+          if (checkForAllCollectedVariables()) {
+            variableCave.collected = true;
+          } else {
+            variableCave.collected = false;
+          }
+          variableCave.currentState = variableCave.checkState;
+        }
+      }
+      break;
+    }
+  case 4:
+    {
+      if(variableCave.collected){
+        variableCave.dialog5.render(); 
+        variableCave.dialog8.render(); 
+      }else{
+        variableCave.dialog6.render();
+        variableCave.dialog7.render();
+      }
       break;
     }
   }
@@ -150,7 +215,7 @@ void updateVariableCave() {
 
   if (checkForExit(stages[0])) {
     if (keyPressed && key == ' ') {
-      variableCave.currentState = variableCave.searchState;
+      variableCave = null;
       currentState = GameStates.WORLD_MAP_STATE;
       key = 0;
     }

@@ -19,18 +19,15 @@ class TextBox {
   }
   
   public void render(){
-    y = textBoxYPos;
-    textSize(h);
-    fill(boxColor);
-    rect(x - 5, y - h / 2, w + 10, h * 2, 7);
-    fill(textColor);
-    text(text, x, y + h);
+    render(textBoxYPos);
     textBoxYPos += textBoxYIncrement;
   }
   
   public void render(float ny){
     y = ny;
     textSize(h);
+    w = textWidth(text);
+    x = width / 2 - w / 2;
     fill(boxColor);
     rect(x - 5, y - h / 2, w + 10, h * 2, 7);
     fill(textColor);

@@ -24,14 +24,14 @@ ArrayList<Stage> completedStages;
 void setup() {
   arial = createFont("arial.ttf", 32);
   courier = createFont("cour.ttf", 32);
-  
+
   player = new Player();
   worldMapBackground = new Background();
   camera = new Camera();
   stages = new Stage[totalStages];
   stages[0] = new Stage();
 
-  fullScreen();
+  fullScreen(P2D);
   toggleFullScreen();
   checkForWindowResize();
 
@@ -55,7 +55,7 @@ void setup() {
   stages[0].w = stages[0].image.width;
   stages[0].h = stages[0].image.height;
   stages[0].state = GameStates.VARIABLES_CAVE_STATE;
-  
+
   currentBackground = worldMapBackground;
 }
 
@@ -86,7 +86,7 @@ void draw() {
         fill(255);
         textSize(10);
         text("Press Space to Begin Stage", c.x - camera.x, c.y - camera.y);
-        if(keyPressed && key == ' '){
+        if (keyPressed && key == ' ') {
           key = 0;
           currentState = c.state;
         }
@@ -98,8 +98,8 @@ void draw() {
     }
   case VARIABLES_CAVE_STATE:
     {
-      if(variableCave == null){
-        initializeVariableCave(); 
+      if (variableCave == null) {
+        initializeVariableCave();
       }
       background(0);
       updateVariableCave();
@@ -142,6 +142,14 @@ void toggleFullScreen() {
   fullScreen = !fullScreen;
 }
 
+boolean checkIntersection(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2) {
+  if (x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2) {
+    return false;
+  }
+
+  return true;
+}
+
 void keyPressed() {
   switch(keyCode) {
   case ESC: 
@@ -156,8 +164,8 @@ void keyPressed() {
     }
   case ENTER: 
     {
-      if(currentState == GameStates.TITLE_STATE){
-         currentState = GameStates.WORLD_MAP_STATE; 
+      if (currentState == GameStates.TITLE_STATE) {
+        currentState = GameStates.WORLD_MAP_STATE;
       }
       //toggleFullScreen();
       break;
@@ -182,6 +190,13 @@ void keyPressed() {
   case 'd':
     {
       player.right = true;
+      break;
+    }
+  case ' ':
+    {
+      if (currentState == GameStates.TITLE_STATE) {
+        currentState = GameStates.WORLD_MAP_STATE;
+      }
       break;
     }
   }
