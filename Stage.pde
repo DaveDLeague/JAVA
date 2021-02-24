@@ -1,24 +1,24 @@
 abstract class Stage {
-  public GameStates state;
-  public Background background;
-  public StageImage image;
-  public PImage host;
-  public float hostX;
-  public float hostY;
-  public float x;
-  public float y;
-  public float w;
-  public float h;
-  public float exitX;
-  public float exitY;
-  public float exitW;
-  public float exitH;
-  public int currentStageState = 0;
+  GameStates state;
+  Background background;
+  StageImage image;
+  PImage host;
+  float hostX;
+  float hostY;
+  float x;
+  float y;
+  float w;
+  float h;
+  float exitX;
+  float exitY;
+  float exitW;
+  float exitH;
+  int currentStageState = 0;
 
   abstract void initialize();
   abstract boolean update();
 
-  public Stage(StageImage image){
+  Stage(StageImage image){
     this.image = image;
   }
 

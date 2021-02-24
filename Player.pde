@@ -1,22 +1,22 @@
 class Player {
   PImage image;
-  public static final float MAX_SPEED = 7;
-  public static final float ACCELERATION = 1;
-  public static final float FRICTION = 0.5;
+  static final float MAX_SPEED = 7;
+  static final float ACCELERATION = 1;
+  static final float FRICTION = 0.5;
   
-  public float x;
-  public float y;
-  public float w;
-  public float h;
-  public float xSpeed;
-  public float ySpeed;
+  float x;
+  float y;
+  float w;
+  float h;
+  float xSpeed;
+  float ySpeed;
 
-  public boolean up;
-  public boolean down;
-  public boolean left;
-  public boolean right;
+  boolean up;
+  boolean down;
+  boolean left;
+  boolean right;
 
-  public void update() {
+  void update() {
     if (up) {
       ySpeed -= ACCELERATION;
       if (ySpeed < -MAX_SPEED) {

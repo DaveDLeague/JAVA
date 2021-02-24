@@ -6,7 +6,7 @@ class VariablesCave extends Stage { //<>//
     float w;
     float h;
 
-    public Variable(String name, float x, float y) {
+    Variable(String name, float x, float y) {
       textFont(courier);
       this.name = name;
       this.x = x;
@@ -17,28 +17,28 @@ class VariablesCave extends Stage { //<>//
       textFont(arial);
     }
   }
-  public ArrayList<Variable> variables = new ArrayList<Variable>();
-  public ArrayList<Variable> collectedVariables = new ArrayList<Variable>();
-  public String[] correctAnswers = {
+  ArrayList<Variable> variables = new ArrayList<Variable>();
+  ArrayList<Variable> collectedVariables = new ArrayList<Variable>();
+  String[] correctAnswers = {
     "my_variable", "$mooth_operator", "$__$__$123"
   };
 
-  public color variableColor;
+  color variableColor;
 
-  public final int searchState = 0;
-  public final int greetingState = 1;
-  public final int inquireState = 2;
-  public final int gatherState = 3;
-  public final int checkState = 4;
+  final int searchState = 0;
+  final int greetingState = 1;
+  final int inquireState = 2;
+  final int gatherState = 3;
+  final int checkState = 4;
 
-  public boolean collected = false;
+  boolean collected = false;
 
-  public VariablesCave(StageImage image) {
+  VariablesCave(StageImage image) {
     super(image); 
     initialize();
   }
 
-  public void initialize() {
+  void initialize() {
     x = 1200;
     y = 350;
     hostX = 500;
@@ -62,7 +62,7 @@ class VariablesCave extends Stage { //<>//
     variables.add(new Variable("$__$__$123", 700, 1000));
   }
 
-  public boolean update() {
+  boolean update() {
     boolean ret = true;
 
     float cx = hostX - camera.x;
@@ -196,105 +196,3 @@ class VariablesCave extends Stage { //<>//
     return true;
   }
 }
-
-//VariablesCave variableCave;
-
-//void initializeVariableCave() {
-//  variableCave = new VariablesCave();
-//  variableCave.host = loadImage("octopus.png");
-
-//  variableCave.variableColor = color(200, 200, 255);
-
-//  variableCave.variables.add(new Variable("my variable", 100, 100));
-//  variableCave.variables.add(new Variable("my_variable", 1000, 700));
-//  variableCave.variables.add(new Variable("$mooth_operator", 100, 300));
-//  variableCave.variables.add( new Variable("1Int4U", 500, 900));
-//  variableCave.variables.add(new Variable("$__$__$123", 700, 1000));
-//}
-
-//void updateVariableCave() {
-//  if (variableCave == null) {
-//      initializeVariableCave();
-//    }
-//  float cx = variableCave.hostX - camera.x;
-//  float cy = variableCave.hostY - camera.y;
-//  fill(200);
-//  rect(stages[0].exitX - camera.x, stages[0].exitY - camera.y, stages[0].exitW, stages[0].exitH, 18, 18, 0, 0);
-//  image(variableCave.host, cx, cy, variableCave.host.width, variableCave.host.height);
-
-//  switch(variableCave.currentState) {
-//  case 0:
-//    {
-//      if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, variableCave.host.width, variableCave.host.height)) {
-//        fill(255);
-//        textSize(promptTextSize);
-//        text("Press SPACE to talk to the Octopus", cx, cy); 
-//        if (keyPressed && key == ' ') {
-//          key = 0;
-//          variableCave.currentState = variableCave.greetingState;
-//        }
-//      }
-//      break;
-//    }
-//  case 1:
-//    {
-//      renderTextBox("Bring me all of the variable names that are valid in Java.");
-//      if (renderDialogChoice("Okay!")) {
-//        variableCave.currentState = variableCave.gatherState;
-//      }
-//      if (renderDialogChoice("How do I know which ones are valid?")) {
-//        variableCave.currentState = variableCave.inquireState;
-//      }
-//      break;
-//    }
-//  case 2:
-//    {
-//      renderTextBox("Java variables can only consist of numbers, letters, underscores,", 
-//                                     "and currency symbols. They absolutely cannot begin with a number!",
-//                                     "They cannot have spaces and cannot have the same name as a reserved Java keyword.");
-//      if (renderDialogChoice("Okay!")) {
-//        variableCave.currentState = variableCave.gatherState;
-//      }
-//      break;
-//    }
-//  case 3:
-//    {
-//      updateVariables();
-//      if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, variableCave.host.width, variableCave.host.height)) {
-//        fill(255);
-//        textSize(promptTextSize);
-//        text("Press SPACE to give the variables to the Octopus", cx, cy); 
-//        if (keyPressed && key == ' ') {
-//          key = 0;
-//          if (checkForAllCollectedVariables()) {
-//            variableCave.collected = true;
-//          } else {
-//            variableCave.collected = false;
-//          }
-//          variableCave.currentState = variableCave.checkState;
-//        }
-//      }
-//      break;
-//    }
-//  case 4:
-//    {
-//      if(variableCave.collected){
-//        renderTextBox("Great! You got them all!", "Now leave me alone with my variables!"); 
-//        stages[0].completed = true;
-//      }else{
-//        renderTextBox("What is this? You trying to give me bad variables?", 
-//                                     "Come back when you're ready to give me what I ask for.");
-//      }
-//      break;
-//    }
-//  }
-
-
-//  if (checkForExit(stages[0])) {
-//    if (keyPressed && key == ' ') {
-//      variableCave = null;
-//      currentState = GameStates.WORLD_MAP_STATE;
-//      key = 0;
-//    }
-//  }
-//}

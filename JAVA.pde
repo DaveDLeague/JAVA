@@ -70,18 +70,6 @@ void setup() {
   currentBackground = worldMapBackground;
 }
 
-void drawCheck(float xp, float yp) {
-  strokeWeight(7);
-  stroke(0);
-  line(xp - 5, yp - 5, xp, yp);
-  line(xp, yp, xp + 10, yp - 10);
-  strokeWeight(3);
-  stroke(0, 255, 0);
-  line(xp - 5, yp - 5, xp, yp);
-  line(xp, yp, xp + 10, yp - 10);
-  strokeWeight(1);
-  stroke(0);
-}
 
 void draw() {
   resetDialogChoiceYPos();
@@ -91,10 +79,18 @@ void draw() {
     {
       background(50, 100, 200);
       textSize(72);
+      fill(255);
       text("Journey", 200, 150);
       text("Across", 180, 220);
       text("Various", 180, 290);
       text("Adventures", 180, 360);
+      
+      if(renderDialogChoice("Start New Game")){
+        currentState = GameStates.WORLD_MAP_STATE;
+      }
+      if(renderDialogChoice("Continue")){
+        currentState = GameStates.WORLD_MAP_STATE;
+      }
       break;
     }
   case WORLD_MAP_STATE:
@@ -151,13 +147,7 @@ void draw() {
   }
 }
 
-boolean checkIntersection(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2) {
-  if (x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2) {
-    return false;
-  }
 
-  return true;
-}
 
 void keyPressed() {
   switch(keyCode) {

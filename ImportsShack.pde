@@ -1,26 +1,55 @@
 class ImportsShack extends Stage {
-  public final int searchState = 0;
-  public final int greetingState = 1;
-  public final int tutorialState = 2;
-  public final int tutorialState2 = 3;
-  public final int tutorialState3 = 4;
-  public final int doorSearchState = 5;
-  public final int packageGameState1 = 6;
-  public boolean skipTutorial;
-  
-  Background gameBackground = new Background(resolutionWidth, resolutionHeight * 5);
-  
-  float bx = 400;
-  float by = 750;
-  float bw = 50;
-  float bh = 50;
-  
-  public ImportsShack(StageImage image) {
+  class CodeLine extends PushBox {
+    final float size = 24;
+    final color boxColor = color(0, 0, 64);
+    final color textColor = color(255, 196, 196);
+    String text;
+    int order;
+
+    CodeLine(float x, float y, String text, int order) {
+      this.order = order;
+      textFont(courier);
+      this.text = text;
+      this.x = x;
+      this.y = y;
+      textSize(size);
+      this.w = textWidth(text);
+      this.h = size;
+      textFont(arial);
+    }
+
+    void render() {
+      textFont(courier);
+      textSize(size);
+      fill(boxColor);
+      rect(x - camera.x, y - camera.y, w, h);
+      fill(textColor);
+      text(text, x - camera.x, y - camera.y + h - 4);
+      textFont(arial);
+    }
+  }
+
+  final int searchState = 0;
+  final int greetingState = 1;
+  final int tutorialState = 2;
+  final int tutorialState2 = 3;
+  final int tutorialState3 = 4;
+  final int doorSearchState = 5;
+  final int packageGameState1 = 6;
+  boolean skipTutorial;
+  boolean stageComplete;
+  boolean incorrectAnswer;
+
+  Background gameBackground = new Background(resolutionWidth, resolutionHeight * 2);
+
+  ArrayList<CodeLine> code = new ArrayList<CodeLine>();
+
+  ImportsShack(StageImage image) {
     super(image); 
     initialize();
   }
 
-  public void initialize() {
+  void initialize() {
     x = 400;
     y = 750;
     exitX = x;
@@ -33,12 +62,19 @@ class ImportsShack extends Stage {
     h = image.image.height;
     state = GameStates.IMPORTS_SHACK_STATE;
     host = loadImage("sloth.png");
-    
+
     currentStageState = packageGameState1;
     currentBackground = gameBackground;
+
+    code.add(new CodeLine(350, 400, "//made by robots", -1));
+    code.add(new CodeLine(100, 200, "package animal;", 0));
+    code.add(new CodeLine(200, 500, "import java.util.ArrayList;", 1));
+    code.add(new CodeLine(350, 100, "public class Dog {", 2));
+    code.add(new CodeLine(140, 400, "int a = 24;", 3));
+    code.add(new CodeLine(700, 100, "}", 4));
   }
 
-  public boolean update() {
+  boolean update() {
     boolean ret = true;
     float cx = hostX - camera.x;
     float cy = hostY - camera.y;
@@ -112,10 +148,10 @@ class ImportsShack extends Stage {
 
         break;
       }
-   
+
     case doorSearchState:
       {
-        if(skipTutorial){
+        if (skipTutorial) {
           renderTextBox("Oh! Um. Okay. Well, you better get to it then.");
         }
         fill(128, 40, 75);
@@ -124,31 +160,67 @@ class ImportsShack extends Stage {
         float dw = 50;
         float dh = 100;
         rect(dx, dy, dw, dh, 18, 18, 0, 0);
-        
-        if(checkIntersection(player.x, player.y, player.w, player.h, dx, dy, dw, dh)){
-           textSize(promptTextSize);
-           fill(255);
-           text("Press SPACE to Begin Sorting Packages", dx, dy);
-           if(keyPressed && key == ' '){
-             key = 0;
-             currentStageState = packageGameState1;
-           }
+
+        if (checkIntersection(player.x, player.y, player.w, player.h, dx, dy, dw, dh)) {
+          textSize(promptTextSize);
+          fill(255);
+          text("Press SPACE to Begin Sorting Packages", dx, dy);
+          if (keyPressed && key == ' ') {
+            key = 0;
+            currentStageState = packageGameState1;
+          }
         }
         break;
       }
-      case packageGameState1:
+    case packageGameState1:
       {
         background(128, 40, 75);
-       
-        fill(80);
-        float nx = bx - camera.x;
-        float ny = by - camera.y;
-        handlePushableBoxCollision(nx, ny, bw, bh);
-        rect(nx, ny, bw, bh);
-        
-        fill(255);
-        rect(300 - camera.x, 500 - camera.y, 25, 25);
-        
+
+        if (stageComplete) {
+          renderTextBox("You did it!", "Move to the exit for the next stage.");
+          rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
+          if (checkForExit()) {
+            if (keyPressed && key == ' ') {
+              stageComplete = false; 
+              key = 0;
+              currentBackground = worldMapBackground;
+              currentState = GameStates.WORLD_MAP_STATE;
+            }
+          }
+          for (CodeLine c : code) {
+            c.render();
+          }
+        } else {
+
+          if (renderPlayerButton("SUBMIT ANSWER", 100, 700)) {
+            if (checkForStageWin()) {
+              exitX = 300;
+              exitY = 800;
+              stageComplete = true;
+              incorrectAnswer = false;
+              image.completed = true;
+            } else {
+              incorrectAnswer = true;
+            }
+          }
+          if (renderPlayerButton("RESET BLOCKS", 500, 700)) {
+            incorrectAnswer = false;
+          }
+          if (renderPlayerButton("RETURN TO WOLD MAP", 200, 900)) {
+            currentBackground = worldMapBackground;
+            currentState = GameStates.WORLD_MAP_STATE;
+          }
+
+          for (CodeLine c : code) {
+            handlePushBoxCollision(c);
+            c.render();
+          }
+
+          if (incorrectAnswer) {
+            renderTextBox("Not quite. Try again.");
+          }
+        }
+
         break;
       }
     }
@@ -162,48 +234,24 @@ class ImportsShack extends Stage {
     return ret;
   }
 
-  public void render() {
-  }
-  
-  boolean handlePushableBoxCollision(float bx, float by, float bw, float bh){
-    boolean ret = false;
-    
-    float nx = player.x + player.xSpeed;
-    float ny = player.y + player.ySpeed;
-    
-    if(player.xSpeed > 0 && nx < bx && nx + player.w > bx && ny + player.h > by && ny < by + bh){
-      this.bx += player.xSpeed;
-      if(this.bx + bw > currentBackground.w){
-        this.bx = currentBackground.w - bw;
-        player.xSpeed = 0;
-        player.x = this.bx - player.w - camera.x;
-      }
-      
-    }else if(player.xSpeed < 0 && nx + player.w > bx + bw && nx < bx + bw && ny + player.h > by && ny < by + bh){
-      this.bx += player.xSpeed;
-      if(this.bx < 0){
-       this.bx = 0;
-       player.xSpeed = 0;
-       player.x = this.bx + bw;
+  boolean checkForStageWin() {
+    boolean ret = true;
+
+    for (int i = 0; i < code.size() - 1; i++) {
+      CodeLine c1 = code.get(i);
+      if (c1.order < 0) continue;
+      for (int j = i + 1; j < code.size(); j++) {
+        CodeLine c2 = code.get(j);
+        if (c2.order < 0) continue;
+        if (c2.order > c1.order && c2.y > c1.y) continue;
+        else {
+          ret = false;
+          i = code.size();
+          break;
+        }
       }
     }
-    
-    if(player.ySpeed > 0 && ny < by && ny + player.h > by && nx < bx + bw && nx + player.w > bx){
-      this.by += player.ySpeed;
-      if(this.by + bh > currentBackground.h){
-       this.by = currentBackground.h - bh;
-       player.ySpeed = 0;
-       player.y = this.by - bh - camera.y;
-      }
-    }else if(player.ySpeed < 0 && ny + player.h > by + bh && ny < by + bh && nx < bx + bw && nx + player.w > bx){
-      this.by += player.ySpeed;
-      if(this.by < 0){
-       this.by = 0;
-       player.ySpeed = 0;
-       player.y = this.by + bh;
-      }
-    }
-    
+
     return ret;
   }
 }
