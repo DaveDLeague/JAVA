@@ -4,9 +4,6 @@ class Player {
   public static final float ACCELERATION = 1;
   public static final float FRICTION = 0.5;
   
-  public float maxSpeed = 7;
-  public float acceleration = 1;
-  public float friction = 0.5;
   public float x;
   public float y;
   public float w;
@@ -21,42 +18,42 @@ class Player {
 
   public void update() {
     if (up) {
-      ySpeed -= acceleration;
-      if (ySpeed < -maxSpeed) {
-        ySpeed = -maxSpeed;
+      ySpeed -= ACCELERATION;
+      if (ySpeed < -MAX_SPEED) {
+        ySpeed = -MAX_SPEED;
       }
     }
     if (down) {
-      ySpeed += acceleration;
-      if (ySpeed > maxSpeed) {
-        ySpeed = maxSpeed;
+      ySpeed += ACCELERATION;
+      if (ySpeed > MAX_SPEED) {
+        ySpeed = MAX_SPEED;
       }
     }
     if (left) {
-      xSpeed -= acceleration;
-      if (xSpeed < -maxSpeed) {
-        xSpeed = -maxSpeed;
+      xSpeed -= ACCELERATION;
+      if (xSpeed < -MAX_SPEED) {
+        xSpeed = -MAX_SPEED;
       }
     }
     if (right) {
-      xSpeed += acceleration;
-      if (xSpeed > maxSpeed) {
-        xSpeed = maxSpeed;
+      xSpeed += ACCELERATION;
+      if (xSpeed > MAX_SPEED) {
+        xSpeed = MAX_SPEED;
       }
     }
     if(xSpeed > 0){
-       xSpeed -= friction; 
+       xSpeed -= FRICTION; 
     }else if(xSpeed < 0){
-       xSpeed += friction; 
+       xSpeed += FRICTION; 
     }
     if(ySpeed > 0){
-       ySpeed -= friction; 
+       ySpeed -= FRICTION; 
     }else if(ySpeed < 0){
-       ySpeed += friction; 
+       ySpeed += FRICTION; 
     }
     
-    x += xSpeed * xRatio;
-    y += ySpeed * yRatio;
+    x += xSpeed;
+    y += ySpeed;
     
     if(x < 0) x = 0;
     else if(x > width - w) x = width - w;
