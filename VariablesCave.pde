@@ -1,4 +1,4 @@
-class VariablesCave extends Stage { //<>//
+class VariablesCave extends Stage {
   class Variable {
     String name;
     float x;
@@ -35,10 +35,6 @@ class VariablesCave extends Stage { //<>//
 
   VariablesCave(StageImage image) {
     super(image); 
-    initialize();
-  }
-
-  void initialize() {
     x = 1200;
     y = 350;
     hostX = 500;

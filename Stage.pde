@@ -15,7 +15,6 @@ abstract class Stage {
   float exitH;
   int currentStageState = 0;
 
-  abstract void initialize();
   abstract boolean update();
 
   Stage(StageImage image){

@@ -1,8 +1,8 @@
 class Player {
   PImage image;
-  static final float MAX_SPEED = 7;
-  static final float ACCELERATION = 1;
-  static final float FRICTION = 0.5;
+  float maxSpeed = 7;
+  float acceleration = 1;
+  float friction = 0.5;
   
   float x;
   float y;
@@ -18,46 +18,46 @@ class Player {
 
   void update() {
     if (up) {
-      ySpeed -= ACCELERATION;
-      if (ySpeed < -MAX_SPEED) {
-        ySpeed = -MAX_SPEED;
+      ySpeed -= acceleration;
+      if (ySpeed < -maxSpeed) {
+        ySpeed = -maxSpeed;
       }
     }
     if (down) {
-      ySpeed += ACCELERATION;
-      if (ySpeed > MAX_SPEED) {
-        ySpeed = MAX_SPEED;
+      ySpeed += acceleration;
+      if (ySpeed > maxSpeed) {
+        ySpeed = maxSpeed;
       }
     }
     if (left) {
-      xSpeed -= ACCELERATION;
-      if (xSpeed < -MAX_SPEED) {
-        xSpeed = -MAX_SPEED;
+      xSpeed -= acceleration;
+      if (xSpeed < -maxSpeed) {
+        xSpeed = -maxSpeed;
       }
     }
     if (right) {
-      xSpeed += ACCELERATION;
-      if (xSpeed > MAX_SPEED) {
-        xSpeed = MAX_SPEED;
+      xSpeed += acceleration;
+      if (xSpeed > maxSpeed) {
+        xSpeed = maxSpeed;
       }
     }
     if(xSpeed > 0){
-       xSpeed -= FRICTION; 
+       xSpeed -= friction; 
     }else if(xSpeed < 0){
-       xSpeed += FRICTION; 
+       xSpeed += friction; 
     }
     if(ySpeed > 0){
-       ySpeed -= FRICTION; 
+       ySpeed -= friction; 
     }else if(ySpeed < 0){
-       ySpeed += FRICTION; 
+       ySpeed += friction; 
     }
     
     x += xSpeed;
     y += ySpeed;
     
     if(x < 0) x = 0;
-    else if(x > width - w) x = width - w;
+    else if(x > resolutionWidth - w) x = resolutionWidth - w;
     if(y < 0) y = 0;
-    else if(y > height - h) y = height - h;
+    else if(y > resolutionHeight - h) y = resolutionHeight - h;
   }
 }

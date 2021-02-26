@@ -29,6 +29,59 @@ class ImportsShack extends Stage {
     }
   }
 
+  class Level {
+    ArrayList<CodeLine> code = new ArrayList<CodeLine>();
+    float[] codeXPositions;
+    float[] codeYPositions;
+
+    Level() {
+      code.add(new CodeLine(350, 400, "//made by robots", -1));
+      code.add(new CodeLine(100, 200, "package animal;", 0));
+      code.add(new CodeLine(200, 500, "import java.util.ArrayList;", 1));
+      code.add(new CodeLine(350, 100, "public class Dog {", 2));
+      code.add(new CodeLine(140, 400, "int a = 24;", 3));
+      code.add(new CodeLine(700, 100, "}", 4));
+
+      codeXPositions = new float[code.size()];
+      codeYPositions = new float[code.size()];
+
+      for (int i = 0; i < code.size(); i++) {
+        CodeLine c = code.get(i);
+        codeXPositions[i] = c.x;
+        codeYPositions[i] = c.y;
+      }
+    }
+
+    void resetLevel() {
+      for (int i = 0; i < code.size(); i++) {
+        CodeLine c = code.get(i);
+        c.x = codeXPositions[i];
+        c.y = codeYPositions[i];
+      }
+    }
+
+    boolean checkForWin() {
+      boolean ret = true;
+
+      for (int i = 0; i < code.size() - 1; i++) {
+        CodeLine c1 = code.get(i);
+        if (c1.order < 0) continue;
+        for (int j = i + 1; j < code.size(); j++) {
+          CodeLine c2 = code.get(j);
+          if (c2.order < 0) continue;
+          if (c2.order > c1.order && c2.y > c1.y) continue;
+          else {
+            ret = false;
+            i = code.size();
+            break;
+          }
+        }
+      }
+
+      return ret;
+    }
+  }
+
   final int searchState = 0;
   final int greetingState = 1;
   final int tutorialState = 2;
@@ -41,15 +94,10 @@ class ImportsShack extends Stage {
   boolean incorrectAnswer;
 
   Background gameBackground = new Background(resolutionWidth, resolutionHeight * 2);
-
-  ArrayList<CodeLine> code = new ArrayList<CodeLine>();
+  Level level;
 
   ImportsShack(StageImage image) {
     super(image); 
-    initialize();
-  }
-
-  void initialize() {
     x = 400;
     y = 750;
     exitX = x;
@@ -62,25 +110,20 @@ class ImportsShack extends Stage {
     h = image.image.height;
     state = GameStates.IMPORTS_SHACK_STATE;
     host = loadImage("sloth.png");
-
-    currentStageState = packageGameState1;
-    currentBackground = gameBackground;
-
-    code.add(new CodeLine(350, 400, "//made by robots", -1));
-    code.add(new CodeLine(100, 200, "package animal;", 0));
-    code.add(new CodeLine(200, 500, "import java.util.ArrayList;", 1));
-    code.add(new CodeLine(350, 100, "public class Dog {", 2));
-    code.add(new CodeLine(140, 400, "int a = 24;", 3));
-    code.add(new CodeLine(700, 100, "}", 4));
   }
+
 
   boolean update() {
     boolean ret = true;
+    background(153, 93, 3);
     float cx = hostX - camera.x;
     float cy = hostY - camera.y;
     fill(200);
-    image(host, cx, cy, host.width, host.height);
-    rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
+    if(currentStageState < packageGameState1){
+      image(host, cx, cy, host.width, host.height);
+      rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
+    }
+    
 
     switch(currentStageState) {
     case searchState:
@@ -109,11 +152,12 @@ class ImportsShack extends Stage {
       }
     case tutorialState:
       {
-        renderTextBox("Java classes are placed into packages.", 
-          "A package is really just a folder on the computer.", 
-          "In order for one class to make objects of another class,", 
-          "it has to declare what package that class is in.", 
-          "Unless the two classes are in the same package, that is.");
+        renderTextBox("Java code has to go in order.", 
+          "Package declarations always come first.", 
+          "Import statements must come next, if there are any.", 
+          "After import statements come class declarations.", 
+          "There can be only one public class per java file.",
+          "Comments can go anywhere.");
         if (renderDialogChoice("Uh huh.")) {
           currentStageState = tutorialState2;
         }
@@ -122,17 +166,15 @@ class ImportsShack extends Stage {
       }
     case tutorialState2:
       {
-        renderTextBox("There's a package named java.lang that is, ", 
-          "imported automatically for every Java program.", 
-          "That means any class can use the classes in that package", 
-          "without importing or declaring that package.", 
-          "This package has the String class, the primitive", 
-          "Data types wrapper classes, and all the other", 
-          "commonly used classes, You can look it", 
-          "up in the docs to get a full list of ", 
-          "classes in this package.");
-        if (renderDialogChoice("I'm with you so far")) {
+        renderTextBox("All method declarations must be written inside of a class.", 
+          "Variables can be created and initialized outside of a", 
+          "method, but any calls to a method must be done",
+          "from inside a method.");
+        if (renderDialogChoice("I'm with you so far.")) {
           currentStageState = tutorialState3;
+        }
+        if(renderDialogChoice("Wait. I'm confused.")){
+          currentStageState = tutorialState; 
         }
 
         break;
@@ -140,7 +182,7 @@ class ImportsShack extends Stage {
     case tutorialState3:
       {
         renderTextBox("Go through the door to the right to start.", 
-          "Put all the classes in the correct packages to finish.", 
+          "Put the code in the correct order from top to bottom.", 
           "Got it?");
         if (renderDialogChoice("Got it.")) {
           currentStageState = doorSearchState;
@@ -168,16 +210,15 @@ class ImportsShack extends Stage {
           if (keyPressed && key == ' ') {
             key = 0;
             currentStageState = packageGameState1;
+            currentBackground = gameBackground;
+            level = new Level();
           }
         }
         break;
       }
     case packageGameState1:
       {
-        background(128, 40, 75);
-
         if (stageComplete) {
-          renderTextBox("You did it!", "Move to the exit for the next stage.");
           rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
           if (checkForExit()) {
             if (keyPressed && key == ' ') {
@@ -185,15 +226,17 @@ class ImportsShack extends Stage {
               key = 0;
               currentBackground = worldMapBackground;
               currentState = GameStates.WORLD_MAP_STATE;
+              return false;
             }
           }
-          for (CodeLine c : code) {
+          for (CodeLine c : level.code) {
             c.render();
           }
+          renderTextBox("You did it!", "Move to the exit for the next stage.");
         } else {
 
-          if (renderPlayerButton("SUBMIT ANSWER", 100, 700)) {
-            if (checkForStageWin()) {
+          if (renderPlayerButton("SUBMIT", 100, 700)) {
+            if (level.checkForWin()) {
               exitX = 300;
               exitY = 800;
               stageComplete = true;
@@ -203,15 +246,16 @@ class ImportsShack extends Stage {
               incorrectAnswer = true;
             }
           }
-          if (renderPlayerButton("RESET BLOCKS", 500, 700)) {
+          if (renderPlayerButton("RESET", 500, 700)) {
+            level.resetLevel();
             incorrectAnswer = false;
           }
-          if (renderPlayerButton("RETURN TO WOLD MAP", 200, 900)) {
+          if (renderPlayerButton("EXIT", 200, 900)) {
             currentBackground = worldMapBackground;
             currentState = GameStates.WORLD_MAP_STATE;
           }
 
-          for (CodeLine c : code) {
+          for (CodeLine c : level.code) {
             handlePushBoxCollision(c);
             c.render();
           }
@@ -231,27 +275,6 @@ class ImportsShack extends Stage {
         ret = false;
       }
     }
-    return ret;
-  }
-
-  boolean checkForStageWin() {
-    boolean ret = true;
-
-    for (int i = 0; i < code.size() - 1; i++) {
-      CodeLine c1 = code.get(i);
-      if (c1.order < 0) continue;
-      for (int j = i + 1; j < code.size(); j++) {
-        CodeLine c2 = code.get(j);
-        if (c2.order < 0) continue;
-        if (c2.order > c1.order && c2.y > c1.y) continue;
-        else {
-          ret = false;
-          i = code.size();
-          break;
-        }
-      }
-    }
-
     return ret;
   }
 }

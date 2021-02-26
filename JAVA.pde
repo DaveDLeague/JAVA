@@ -1,13 +1,21 @@
 /* //<>//
-TODO:
+ TODO:
+ fix door enter exit bug
  finish imports shack
  finish variables cave
  refactor stages
  make main method maze
  code challenges
+ add save and load games
+ add player selection
+ add how-to-play screen
+ add order of operations bridge
  */
 
+import java.util.Stack;
 import javax.swing.JOptionPane;
+
+PImage frame;
 
 GameStates currentState = GameStates.TITLE_STATE;
 
@@ -17,6 +25,9 @@ PFont courier;
 final int resolutionWidth = 1024;
 final int resolutionHeight = 576;
 final int promptTextSize = 14;
+
+int scaledMouseX;
+int scaledMouseY;
 
 int currentWidth = 0;
 int currentHeight = 0;
@@ -29,13 +40,14 @@ Camera camera;
 
 Stage variablesCaveStage;
 Stage importsShackStage;
+Stage mainMethodsMazeStage;
 
 ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
 
 void setup() {
-  arial = createFont("arial.ttf", 96);
-  courier = createFont("cour.ttf", 96);
+  arial = createFont("Arial", 96);//createFont("arial.ttf", 96);
+  courier = createFont("Courier New", 96);
 
   player = new Player();
   worldMapBackground = new Background();
@@ -44,21 +56,22 @@ void setup() {
   stageImages = new ArrayList<StageImage>();
   stageImages.add(new StageImage("cave.png", GameStates.VARIABLES_CAVE_STATE, 1200, 350));
   stageImages.add(new StageImage("shack.png", GameStates.IMPORTS_SHACK_STATE, 400, 750));
+  stageImages.add(new StageImage("hedge.png", GameStates.MAIN_METHODS_MAZE_STATE, 200, 550));
 
   fullScreen(P2D);
   surface.setSize(resolutionWidth, resolutionHeight);
-  int nx = (displayWidth / 2) - (width / 2);
-  int ny = (displayHeight / 2) - (height / 2);
+  int nx = (displayWidth / 2) - (resolutionWidth / 2);
+  int ny = (displayHeight / 2) - (resolutionHeight / 2);
   surface.setLocation(nx + displayWidth, ny);
-  
-  camera.xMargin = ((float)width / 2.5f);
-  camera.yMargin = ((float)height / 2.5f);
-  
-  currentWidth = width;
-  currentHeight = height;
 
-  player.x = width / 2;
-  player.y = height / 2;
+  camera.xMargin = ((float)resolutionWidth / 2.5f);
+  camera.yMargin = ((float)resolutionHeight / 2.5f);
+
+  currentWidth = resolutionWidth;
+  currentHeight = resolutionHeight;
+
+  player.x = resolutionWidth / 2;
+  player.y = resolutionHeight / 2;
   player.image = loadImage("robot.png");
   player.w = player.image.width;
   player.h = player.image.height;
@@ -72,6 +85,9 @@ void setup() {
 
 
 void draw() {
+  scaledMouseX = (int)((float)mouseX * (float)resolutionWidth / (float)width);
+  scaledMouseY = (int)((float)mouseY * (float)resolutionHeight / (float)height);
+
   resetDialogChoiceYPos();
   resetTextBoxYPos();
   switch(currentState) {
@@ -80,16 +96,45 @@ void draw() {
       background(50, 100, 200);
       textSize(72);
       fill(255);
-      text("Journey", 200, 150);
-      text("Across", 180, 220);
-      text("Various", 180, 290);
-      text("Adventures", 180, 360);
-      
-      if(renderDialogChoice("Start New Game")){
+      text("Journey", 350, 150);
+      text("Across", 330, 220);
+      text("Various", 330, 290);
+      text("Adventures", 330, 360);
+
+      dialogChoiceYPos -= 30;
+      if (renderDialogChoice("Start New Game")) {
         currentState = GameStates.WORLD_MAP_STATE;
       }
-      if(renderDialogChoice("Continue")){
+      if (renderDialogChoice("Continue")) {
         currentState = GameStates.WORLD_MAP_STATE;
+      }
+      if (renderDialogChoice("How To Play")) {
+        currentState = GameStates.HOW_TO_PLAY_STATE;
+      }
+      break;
+    }
+  case HOW_TO_PLAY_STATE:
+    {
+      background(50, 100, 200);
+      textSize(72);
+      fill(255);
+      textBoxYPos = 50;
+      renderTextBox("w: move up");
+      renderTextBox("a: move left");
+      renderTextBox("s: move down");
+      renderTextBox("d: move right");
+      renderTextBox("SPACE BAR: perform action");
+      renderTextBox("ENTER: toggle full screen mode");
+      renderTextBox("ESCAPE: bring up options");
+      renderTextBox("use the mouse to select options");
+      fill(255);
+      textSize(24);
+      String t = "press any key to return";
+      text(t, resolutionWidth / 2 - textWidth(t) / 2, resolutionHeight - 30);
+
+
+      if (keyPressed) {
+        currentState = GameStates.TITLE_STATE;
       }
       break;
     }
@@ -126,9 +171,9 @@ void draw() {
       if (variablesCaveStage == null) {
         variablesCaveStage = new VariablesCave(stageImages.get(0));
       }
-      if (!variablesCaveStage.update()) variablesCaveStage = null;
       player.update();
       camera.update();
+      if (!variablesCaveStage.update()) variablesCaveStage = null;
       image(player.image, player.x, player.y, player.w, player.h);
       break;
     }
@@ -138,12 +183,30 @@ void draw() {
       if (importsShackStage == null) {
         importsShackStage = new ImportsShack(stageImages.get(1));
       }
-      if (!importsShackStage.update()) importsShackStage = null;
       player.update();
       camera.update();
+      if (!importsShackStage.update()) importsShackStage = null;
       image(player.image, player.x, player.y, player.w, player.h);
       break;
     }
+
+  case MAIN_METHODS_MAZE_STATE:
+    {
+      background(0);
+      if (mainMethodsMazeStage == null) {
+        mainMethodsMazeStage = new MainMethodsMaze(stageImages.get(2));
+      }
+      player.update();
+      camera.update();
+      if (!mainMethodsMazeStage.update()) mainMethodsMazeStage = null;
+      image(player.image, player.x, player.y, player.w, player.h);
+      break;
+    }
+  }
+
+  if (fullScreen) {
+    frame = get(0, 0, resolutionWidth, resolutionHeight);
+    image(frame, 0, 0, width, height);
   }
 }
 
@@ -166,7 +229,7 @@ void keyPressed() {
       if (currentState == GameStates.TITLE_STATE) {
         currentState = GameStates.WORLD_MAP_STATE;
       }
-      //toggleFullScreen();
+      toggleFullScreen();
       break;
     }
   }
@@ -223,5 +286,18 @@ void keyReleased() {
       player.right = false;
       break;
     }
+  }
+}
+
+void toggleFullScreen() {
+  fullScreen = !fullScreen;
+  if (fullScreen) {
+    surface.setSize(displayWidth, displayHeight);
+    surface.setLocation(displayWidth, 0);
+  } else {
+    surface.setSize(resolutionWidth, resolutionHeight);
+    int nx = (displayWidth / 2) - (resolutionWidth / 2);
+    int ny = (displayHeight / 2) - (resolutionHeight / 2);
+    surface.setLocation(nx + displayWidth, ny);
   }
 }
