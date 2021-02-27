@@ -272,6 +272,10 @@ void renderTextBox(float y, color boxColor, color textColor, String... text) {
 }
 
 boolean renderPlayerButton(String text, float x, float y) {
+  return renderPlayerButton(text, "Press SPACE to " + text, x, y); 
+}
+
+boolean renderPlayerButton(String text, String prompt, float x, float y) {
   boolean ret = false;
 
   float h = 36;
@@ -287,7 +291,7 @@ boolean renderPlayerButton(String text, float x, float y) {
   if (checkIntersection(player.x, player.y, player.w, player.w, nx, ny, w, h)) {
     textSize(promptTextSize);
     fill(255);
-    text("Press SPACE to " + text, nx, ny);
+    text(prompt, nx, ny);
     if (keyPressed && key == ' ') {
       key = 0;
       ret = true;

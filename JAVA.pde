@@ -1,6 +1,7 @@
 /* //<>//
  TODO:
  fix door enter exit bug
+ fix hedge maze bug
  finish imports shack
  finish variables cave
  refactor stages
@@ -8,7 +9,6 @@
  code challenges
  add save and load games
  add player selection
- add how-to-play screen
  add order of operations bridge
  */
 
@@ -22,9 +22,9 @@ GameStates currentState = GameStates.TITLE_STATE;
 PFont arial;
 PFont courier;
 
-final int resolutionWidth = 1024;
-final int resolutionHeight = 576;
-final int promptTextSize = 14;
+final static int resolutionWidth = 1024;
+final static int resolutionHeight = 576;
+final static int promptTextSize = 14;
 
 int scaledMouseX;
 int scaledMouseY;
@@ -226,9 +226,6 @@ void keyPressed() {
     }
   case ENTER: 
     {
-      if (currentState == GameStates.TITLE_STATE) {
-        currentState = GameStates.WORLD_MAP_STATE;
-      }
       toggleFullScreen();
       break;
     }

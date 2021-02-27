@@ -167,9 +167,10 @@ class ImportsShack extends Stage {
     case tutorialState2:
       {
         renderTextBox("All method declarations must be written inside of a class.", 
-          "Variables can be created and initialized outside of a", 
-          "method, but any calls to a method must be done",
-          "from inside a method.");
+          "Variables can be created and initialized inside or", 
+          "outside of a method, but any calls to a method,",
+          "but it must be done inside of a class. Any calls to",
+          "a method must be done from inside a method.");
         if (renderDialogChoice("I'm with you so far.")) {
           currentStageState = tutorialState3;
         }
@@ -186,6 +187,9 @@ class ImportsShack extends Stage {
           "Got it?");
         if (renderDialogChoice("Got it.")) {
           currentStageState = doorSearchState;
+        }
+        if(renderDialogChoice("No.")){
+          currentStageState = tutorialState; 
         }
 
         break;
