@@ -320,8 +320,7 @@ class VariablesCave extends Stage {
           fill(255);
           textSize(promptTextSize);
           text("Press SPACE to talk to the Octopus", cx, cy); 
-          if (keyPressed && key == ' ') {
-            key = 0;
+          if (checkInteraction()) {
             currentStageState = greetingState;
           }
         }
@@ -357,8 +356,7 @@ class VariablesCave extends Stage {
           fill(255);
           textSize(promptTextSize);
           text("Press SPACE to give the variables to the Octopus", cx, cy); 
-          if (keyPressed && key == ' ') {
-            key = 0;
+          if (checkInteraction()) {
             if (checkForAllCollectedVariables()) {
               collected = true;
             } else {
@@ -413,7 +411,7 @@ class VariablesCave extends Stage {
 
 
     if (checkForExit()) {
-      if (keyPressed && key == ' ') {
+      if (checkInteraction()){//(keyPressed && key == ' ') {
         currentState = GameStates.WORLD_MAP_STATE;
         currentBackground = worldMapBackground;
         camera.x = 0;
@@ -423,7 +421,6 @@ class VariablesCave extends Stage {
 
 
         ret = false;
-        key = 0;
       }
     }
     return ret;
@@ -455,8 +452,7 @@ class VariablesCave extends Stage {
         text("Press SPACE to collect variable", nx, ny - 20);   
         textFont(courier);
 
-        if (keyPressed && key == ' ') {
-          key = 0;
+        if (checkInteraction()) {
           variables.remove(v); 
           collectedVariables.add(v);
         }

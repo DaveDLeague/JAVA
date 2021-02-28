@@ -1,8 +1,7 @@
 /* //<>//
  TODO:
- fix door enter exit bug
  finish imports shack
- refactor stages
+ refactor stages?
  code challenges
  add save and load games
  add third player option
@@ -11,6 +10,14 @@
  */
 
 import java.util.Stack;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.swing.JOptionPane;
 
 PImage frame;
@@ -20,6 +27,7 @@ GameStates currentState = GameStates.TITLE_STATE;
 PFont arial;
 PFont courier;
 
+final static int F1_KEY = 97;
 final static int resolutionWidth = 1024;
 final static int resolutionHeight = 576;
 final static int promptTextSize = 14;
@@ -30,6 +38,9 @@ int scaledMouseY;
 int currentWidth = 0;
 int currentHeight = 0;
 boolean fullScreen = false;
+boolean canSave = true;
+
+String dataFolderPath;
 
 PImage robotImage;
 PImage alienImage;
@@ -46,7 +57,10 @@ Stage mainMethodsMazeStage;
 ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
 
+SaveState saveState = new SaveState();
+
 void setup() {
+  dataFolderPath = dataPath("");
   arial = createFont("Arial", 96);
   courier = createFont("Courier New bold", 96);
 
@@ -87,9 +101,6 @@ void setup() {
 
 
 void draw() {
-  scaledMouseX = (int)((float)mouseX * (float)resolutionWidth / (float)width);
-  scaledMouseY = (int)((float)mouseY * (float)resolutionHeight / (float)height);
-
   resetDialogChoiceYPos();
   resetTextBoxYPos();
   switch(currentState) {
@@ -115,67 +126,66 @@ void draw() {
       }
       break;
     }
-    case CHARACTER_SELECT_STATE:
+  case CHARACTER_SELECT_STATE:
     {
       int rx = 200;
       int ry = 200;
       int rw = robotImage.width;
       int rh = robotImage.height;
       PImage ri;
-      
+
       int ax = 600;
       int ay = 200;
       int aw = alienImage.width;
       int ah = alienImage.height;
       PImage ai;
-       
-      if(checkMouseInBounds(rx, ry, rw * 5, rh * 5)){
+
+      if (checkMouseInBounds(rx, ry, rw * 5, rh * 5)) {
         background(100, 150, 255); 
         image(robotImage, rx, ry, rw, rh);
         ri = get(rx, ry, rw, rh / 2);
-        
-        if(mousePressed && mouseButton == LEFT){
+
+        if (mousePressed && mouseButton == LEFT) {
           mousePressed = false;
           mouseButton = 0;
           player.setImage(robotImage);
           currentState = GameStates.WORLD_MAP_STATE;
         }
-      }else{
+      } else {
         background(70, 120, 220);
         image(robotImage, rx, ry, rw, rh);
         ri = get(rx, ry, rw, rh / 2);
-        
-        if(mousePressed && mouseButton == LEFT){
+      }
+
+      if (checkMouseInBounds(ax, ay, aw * 5, ah * 5)) {
+        background(100, 150, 255);
+        image(alienImage, ax, ay, aw, ah);
+        ai = get(ax, ay, aw, ah - 15);
+        if (mousePressed && mouseButton == LEFT) {
           mousePressed = false;
           mouseButton = 0;
           player.setImage(alienImage);
           currentState = GameStates.WORLD_MAP_STATE;
         }
-      }
-      
-      if(checkMouseInBounds(ax, ay, aw * 5, ah * 5)){
-        background(100, 150, 255);
-        image(alienImage, ax, ay, aw, ah);
-        ai = get(ax, ay, aw, ah - 15);
-      }else{
+      } else {
         background(70, 120, 220);
         image(alienImage, ax, ay, aw, ah);
         ai = get(ax, ay, aw, ah - 15);
       }
-      
-      
-      
-      
-     background(50, 100, 200);
+
+
+
+
+      background(50, 100, 200);
       String text = "Choose Your Character";
       renderTextBox(100, text);
       strokeWeight(5);
       rect(rx, ry, rw * 5, rh * 5);
       image(ri, rx, ry, rw * 5, rh * 5);
-      
+
       rect(ax, ay, aw * 5, ah * 5);
       image(ai, ax, ay, aw * 5, ah * 5);
-      
+
       strokeWeight(1);
       break;
     }
@@ -186,13 +196,13 @@ void draw() {
       fill(255);
       textBoxYPos = 50;
       renderTextBox("w: move up", 
-                    "a: move left",
-                    "s: move down",
-                    "d: move right", 
-                    "SPACE BAR: interact",
-                    "ENTER: toggle full screen mode",
-                    "ESCAPE: bring up options",
-                    "use the mouse to select options");
+        "a: move left", 
+        "s: move down", 
+        "d: move right", 
+        "SPACE BAR: interact", 
+        "ENTER: toggle full screen mode", 
+        "ESCAPE: bring up options", 
+        "use the mouse to select options");
 
       fill(255);
       textSize(24);
@@ -218,8 +228,7 @@ void draw() {
         fill(255);
         textSize(promptTextSize);
         text("Press Space to Begin Stage", c.x - camera.x, c.y - camera.y);
-        if (keyPressed && key == ' ') {
-          key = 0;
+        if (checkInteraction()) {
           currentState = c.state;
         }
       }
@@ -234,7 +243,7 @@ void draw() {
     }
   case VARIABLES_CAVE_STATE:
     {
-      
+
       if (variablesCaveStage == null) {
         variablesCaveStage = new VariablesCave(stageImages.get(0));
       }
@@ -268,7 +277,7 @@ void draw() {
       camera.update();
       if (!mainMethodsMazeStage.update()) mainMethodsMazeStage = null;
       image(player.image, player.x, player.y, player.w, player.h);
-      
+
       break;
     }
   }
@@ -276,6 +285,11 @@ void draw() {
   if (fullScreen) {
     frame = get(0, 0, resolutionWidth, resolutionHeight);
     image(frame, 0, 0, width, height);
+    scaledMouseX = (int)((float)mouseX * (float)resolutionWidth / (float)width);
+    scaledMouseY = (int)((float)mouseY * (float)resolutionHeight / (float)height);
+  } else {
+    scaledMouseX = mouseX;
+    scaledMouseY = mouseY;
   }
 }
 
@@ -296,6 +310,15 @@ void keyPressed() {
   case ENTER: 
     {
       toggleFullScreen();
+      break;
+    }
+  case F1_KEY:
+    {
+      if (canSave) {
+        saveState.player = 0;
+        saveGame(saveState);
+        canSave = false;
+      }
       break;
     }
   }
@@ -325,12 +348,20 @@ void keyPressed() {
       if (currentState == GameStates.TITLE_STATE) {
         currentState = GameStates.WORLD_MAP_STATE;
       }
+      interaction = true;
       break;
     }
   }
 }
 
 void keyReleased() {
+  switch(keyCode) {
+  case F1_KEY: 
+    {
+      canSave = true;
+      break;
+    }
+  }
   switch(key) {
     case (int)'w':
     {
@@ -350,6 +381,12 @@ void keyReleased() {
     case (int)'d':
     {
       player.right = false;
+      break;
+    }
+    case (int)' ':
+    {
+      interaction = false;
+      canInteract = true;
       break;
     }
   }

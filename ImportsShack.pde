@@ -132,8 +132,8 @@ class ImportsShack extends Stage {
           fill(255);
           textSize(promptTextSize);
           text("Press SPACE to talk to the Sloth", cx, cy); 
-          if (keyPressed && key == ' ') {
-            key = 0;
+          if (checkInteraction()) {
+
             currentStageState = greetingState;
           }
         }
@@ -211,8 +211,7 @@ class ImportsShack extends Stage {
           textSize(promptTextSize);
           fill(255);
           text("Press SPACE to Begin Sorting Packages", dx, dy);
-          if (keyPressed && key == ' ') {
-            key = 0;
+          if (checkInteraction()) {
             currentStageState = packageGameState1;
             currentBackground = gameBackground;
             level = new Level();
@@ -225,9 +224,8 @@ class ImportsShack extends Stage {
         if (stageComplete) {
           rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
           if (checkForExit()) {
-            if (keyPressed && key == ' ') {
+            if (checkInteraction()) {
               stageComplete = false; 
-              key = 0;
               currentBackground = worldMapBackground;
               currentState = GameStates.WORLD_MAP_STATE;
               return false;
@@ -273,8 +271,7 @@ class ImportsShack extends Stage {
       }
     }
     if (currentStageState < packageGameState1 && checkForExit()) {
-      if (keyPressed && key == ' ') {
-        key = 0;
+      if (checkInteraction()) {
         currentState = GameStates.WORLD_MAP_STATE;
         ret = false;
       }

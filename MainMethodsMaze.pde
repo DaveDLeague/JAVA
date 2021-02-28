@@ -284,8 +284,7 @@ class MainMethodsMaze extends Stage {
           fill(255);
           textSize(promptTextSize);
           text("Press SPACE to talk to the Snail", cx, cy); 
-          if (keyPressed && key == ' ') {
-            key = 0;
+          if (checkInteraction()) {
             currentStageState = greetingState;
           }
         }
@@ -322,7 +321,7 @@ class MainMethodsMaze extends Stage {
       }
     case tutorialState:
       {
-        renderTextBox("Select only the proper main methods to escape .",
+        renderTextBox("Select only the proper main methods to escape.",
                       "Be vary carful! 3 wrong answers will reset the maze.");
         if (renderDialogChoice("What maze?")) {
           currentStageState = mazeSearchState;
@@ -372,8 +371,7 @@ class MainMethodsMaze extends Stage {
           fill(255);
           textSize(promptTextSize);
           text("Press SPACE to Exit the Maze", mex - 100, mey);
-          if (keyPressed && key == ' ') {
-            key = 0;
+          if (checkInteraction()) {
             camera.x = image.x - camera.xMargin;
             camera.y = image.y - resolutionHeight + image.image.height;
             player.x = image.x + image.image.width;
@@ -466,13 +464,12 @@ class MainMethodsMaze extends Stage {
     }
 
     if (checkForExit()) {
-      if (keyPressed && key == ' ') {
+      if (checkInteraction()) {
         currentState = GameStates.WORLD_MAP_STATE;
         currentBackground = worldMapBackground;
         player.x = image.x;
         player.y = image.y;
         ret = false;
-        key = 0;
       }
     }
     return ret;
