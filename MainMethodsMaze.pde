@@ -3,7 +3,7 @@ class MainMethodsMaze extends Stage {
     String[] returnTypes = {"void ", "Void ", "int ", "String ", "" };
     String[] methodNames = {"main(", "Main(", "mian("};
     String[] parameterTypes = {"String[] ", "String... ", "String ", "void "};
-    String[] parameterNames = {"args){}", "arg){}", "x){}", "main){}", "$tuff){}", "input_parameters){}", "int){}", "public){}", "do){}"};
+    String[] parameterNames = {"args){}", "arg){}", "x){}", "main){}", "$tuff){}", "input_parameters){}"};
     String method;
     boolean valid;
 
@@ -38,7 +38,7 @@ class MainMethodsMaze extends Stage {
           }
         case 3:
           {
-            pn = parameterNames[(int)random(6, 9)];
+            pn = JAVA_KEYWORDS[(int)random(JAVA_KEYWORDS.length)] + "){}";
             break;
           }
         }
@@ -47,17 +47,22 @@ class MainMethodsMaze extends Stage {
       this.method = rt + mn + pt + pn;
     }
 
-    void render(int cellX, int cellY) {
-      fill(50, 100, 200);
+    void render(int cellX, int cellY, color c) {
+      fill(c);
       textFont(courier);
       float h = 36;
       textSize(h);
       float w = textWidth(method);
       float xp = (cellX * resolutionWidth) + resolutionWidth / 2 - w / 2 - camera.x;
       float yp = (cellY * resolutionHeight) + 200 - camera.y;
-      rect(xp, yp, w, h + (h / 2));
+      rect(xp - 2, yp, w, h + (h / 2));
       fill(255);
       text(method, xp, yp + h);
+      textFont(arial);
+    }
+
+    void render(int cellX, int cellY) {
+      render(cellX, cellY, color(50, 100, 200));
     }
   }
 
@@ -208,13 +213,17 @@ class MainMethodsMaze extends Stage {
   final int mazeInquireState = 5;
   int mazeWidth = 5;
   int mazeHeight = 5;
-  
+
   int mazeExitX;
   int mazeExitY;
+  
+  int wrongAnswers;
 
   int cellX;
   int cellY;
   boolean[][] completedCells;
+
+  boolean wrongAnswer;
 
   Background background;
 
@@ -237,7 +246,7 @@ class MainMethodsMaze extends Stage {
     exitH = 90;
     hostX = 500;
     hostY = 300;
-    
+
     mazeExitX = resolutionWidth * mazeWidth - 200;
     mazeExitY = resolutionHeight * mazeHeight - 200;
 
@@ -257,12 +266,12 @@ class MainMethodsMaze extends Stage {
     blockWalls[2] = new SolidBlock(0, 0, Maze.WALL_THICKNESS, resolutionHeight);
     blockWalls[3] = new SolidBlock(resolutionWidth, 0, Maze.WALL_THICKNESS, resolutionHeight);
     background = new Background(resolutionWidth, resolutionHeight);
+    background.clr = color(0, 128, 32);
     currentBackground = background;
   }
 
   boolean update() {
     boolean ret = true;
-    background(0, 128, 32);
     fill(200);
     float cx = hostX - camera.x;
     float cy = hostY - camera.y;
@@ -301,7 +310,7 @@ class MainMethodsMaze extends Stage {
           "running a Java program. So every Java program must have a main method.", 
           "Since the main method is so important, it must follow a certain standard.", 
           "Main methods must be public, static, and have a return type of void.", 
-          "The name of the method must me \"main\" with a lowercase \'m\'. The", 
+          "The name of the method must be \"main\" with a lowercase \'m\'. The", 
           "parameters must either be an array of Strings or String variable", 
           "arguments (String... x). The name of the parameter can be any valid", 
           "Java variable name. Talk to the Octopus to learn more about those.");
@@ -313,7 +322,8 @@ class MainMethodsMaze extends Stage {
       }
     case tutorialState:
       {
-        renderTextBox("Select only the proper main methods to escape the maze.");
+        renderTextBox("Select only the proper main methods to escape .",
+                      "Be vary carful! 3 wrong answers will reset the maze.");
         if (renderDialogChoice("What maze?")) {
           currentStageState = mazeSearchState;
           background.w = resolutionWidth * maze.mw;
@@ -328,19 +338,17 @@ class MainMethodsMaze extends Stage {
     case mazeSearchState:
       {
         boolean changedCell = false;
-        int xb = 100;
-        int yb = 50;
-        if (player.x + camera.x - xb> cellX * resolutionWidth + resolutionWidth) {
+        if (player.x + camera.x > cellX * resolutionWidth + resolutionWidth) {
           cellX++; 
           changedCell = true;
-        } else if (player.x + camera.x + xb < cellX * resolutionWidth) {
+        } else if (player.x + camera.x + player.w < cellX * resolutionWidth) {
           cellX--;
           changedCell = true;
         }
-        if (player.y + camera.y - yb > cellY * resolutionHeight + resolutionHeight) {
+        if (player.y + camera.y > cellY * resolutionHeight + resolutionHeight) {
           cellY++; 
           changedCell = true;
-        } else if (player.y + camera.y + xb < cellY * resolutionHeight) {
+        } else if (player.y + camera.y + player.h < cellY * resolutionHeight) {
           cellY--;
           changedCell = true;
         }
@@ -360,34 +368,81 @@ class MainMethodsMaze extends Stage {
 
         float mex = mazeExitX - camera.x;
         float mey = mazeExitY - camera.y;
-        if(checkIntersection(player.x, player.y, player.w, player.h, mex, mey, 50, 100)){
-           fill(255);
-           textSize(promptTextSize);
-           text("Press SPACE to Exit the Maze", mex - 100, mey);
-           if(keyPressed && key == ' '){
-             key = 0;
-             camera.x = image.x - camera.xMargin;
-             camera.y = image.y - resolutionHeight + image.image.height;
-             player.x = image.x + image.image.width;
-             player.y = image.y + image.image.height;
-             println(image.x + "  " + image.y + " " + image.image.width + " " + image.image.height + " " + player.y);
-             currentBackground = worldMapBackground;
-             currentState = GameStates.WORLD_MAP_STATE;
-             image.completed = true;
-             ret = false;
-           }
+        if (checkIntersection(player.x, player.y, player.w, player.h, mex, mey, 50, 100)) {
+          fill(255);
+          textSize(promptTextSize);
+          text("Press SPACE to Exit the Maze", mex - 100, mey);
+          if (keyPressed && key == ' ') {
+            key = 0;
+            camera.x = image.x - camera.xMargin;
+            camera.y = image.y - resolutionHeight + image.image.height;
+            player.x = image.x + image.image.width;
+            player.y = image.y + image.image.height;
+            currentBackground = worldMapBackground;
+            currentState = GameStates.WORLD_MAP_STATE;
+            image.completed = true;
+            ret = false;
+          }
         }
 
         renderMaze();
-        
+
         fill(200);
         rect(mazeExitX - camera.x, mazeExitY - camera.y, 50, 100);
         break;
       }
     case mazeInquireState:
       {
-        mainMethod.render(cellX, cellY);
-
+        if (wrongAnswer) {
+          mainMethod.render(cellX, cellY, color(220, 70, 70));
+          if (renderPlayerButton("TRY AGAIN", "Press Space to Try Again", (cellX * resolutionWidth) + 380, cellY * resolutionHeight + 400)) {
+            mainMethod = new MainMethod();
+            wrongAnswer = false;
+          }
+        } else {
+          mainMethod.render(cellX, cellY);
+          if (renderPlayerButton("VALID", "Press Space if Main Method is Good", (cellX * resolutionWidth) + 300, cellY * resolutionHeight + 400)) {
+            if (mainMethod.valid) {
+              completedCells[cellX][cellY] = true;
+              currentStageState = mazeSearchState;
+              mainMethod = null;
+            } else {
+              wrongAnswer = true;
+              wrongAnswers++;
+            }
+          }
+          if (renderPlayerButton("INVALID", "Press Space if Main Method is Bad", (cellX * resolutionWidth) + 600, cellY * resolutionHeight + 400)) {
+            if (!mainMethod.valid) {
+              completedCells[cellX][cellY] = true;
+              currentStageState = mazeSearchState;
+              mainMethod = null;
+            } else {
+              wrongAnswer = true;
+              wrongAnswers++;
+            }
+          }
+          
+          if(wrongAnswers >= 3){
+            maze = new Maze(mazeWidth, mazeHeight); 
+            player.x = 100;
+            player.y = 100;
+            camera.x = 0;
+            camera.y = 0;
+            cellX = 0;
+            cellY = 0;
+            mainMethod = null;
+            wrongAnswers = 0;
+            wrongAnswer = false;
+            currentStageState = mazeSearchState;
+            for(int i = 0; i < mazeWidth; i++){
+              for(int j = 0; j < mazeHeight; j++){
+                completedCells[i][j] = false; 
+              }
+            }
+            completedCells[0][0] = true;
+            completedCells[mazeWidth - 1][mazeHeight - 1] = true;
+          }
+        }
         for (int i = 0; i < blockWalls.length; i++) {
           SolidBlock w = blockWalls[i];
           image(hedgeWall, w.x - camera.x, w.y - camera.y, w.w, w.h);
@@ -404,23 +459,7 @@ class MainMethodsMaze extends Stage {
         //    mainMethod = null;
         //}
 
-        if (renderPlayerButton("VALID", "Press Space if Main Method is Good", (cellX * resolutionWidth) + 300, cellY * resolutionHeight + 400)) {
-          if (mainMethod.valid) {
-            completedCells[cellX][cellY] = true;
-            currentStageState = mazeSearchState;
-            mainMethod = null;
-          }else{
-            mainMethod = new MainMethod();
-          }
-        }
-        if (renderPlayerButton("INVALID", "Press Space if Main Method is Bad", (cellX * resolutionWidth) + 600, cellY * resolutionHeight + 400)) {
-          if (!mainMethod.valid) {
-            completedCells[cellX][cellY] = true;
-            currentStageState = mazeSearchState;
-          }else{
-            mainMethod = new MainMethod();
-          }
-        }
+
 
         break;
       }

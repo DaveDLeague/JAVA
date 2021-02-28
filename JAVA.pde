@@ -1,15 +1,13 @@
 /* //<>//
  TODO:
  fix door enter exit bug
- fix hedge maze bug
  finish imports shack
- finish variables cave
  refactor stages
- make main method maze
  code challenges
  add save and load games
- add player selection
+ add third player option
  add order of operations bridge
+ dialog choice selection with keyboard
  */
 
 import java.util.Stack;
@@ -33,6 +31,9 @@ int currentWidth = 0;
 int currentHeight = 0;
 boolean fullScreen = false;
 
+PImage robotImage;
+PImage alienImage;
+
 Player player;
 Background worldMapBackground;
 Background currentBackground;
@@ -46,15 +47,18 @@ ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
 
 void setup() {
-  arial = createFont("Arial", 96);//createFont("arial.ttf", 96);
-  courier = createFont("Courier New", 96);
+  arial = createFont("Arial", 96);
+  courier = createFont("Courier New bold", 96);
+
+  robotImage = loadImage("robot.png");
+  alienImage = loadImage("alien.png");
 
   player = new Player();
   worldMapBackground = new Background();
 
   camera = new Camera();
   stageImages = new ArrayList<StageImage>();
-  stageImages.add(new StageImage("cave.png", GameStates.VARIABLES_CAVE_STATE, 1200, 350));
+  stageImages.add(new StageImage("cave.png", GameStates.VARIABLES_CAVE_STATE, 400, 350));
   stageImages.add(new StageImage("shack.png", GameStates.IMPORTS_SHACK_STATE, 400, 750));
   stageImages.add(new StageImage("hedge.png", GameStates.MAIN_METHODS_MAZE_STATE, 200, 550));
 
@@ -72,9 +76,7 @@ void setup() {
 
   player.x = resolutionWidth / 2;
   player.y = resolutionHeight / 2;
-  player.image = loadImage("robot.png");
-  player.w = player.image.width;
-  player.h = player.image.height;
+  player.setImage(robotImage);
 
   worldMapBackground.image = loadImage("terrain.png");
   worldMapBackground.w = 1920;
@@ -103,7 +105,7 @@ void draw() {
 
       dialogChoiceYPos -= 30;
       if (renderDialogChoice("Start New Game")) {
-        currentState = GameStates.WORLD_MAP_STATE;
+        currentState = GameStates.CHARACTER_SELECT_STATE;
       }
       if (renderDialogChoice("Continue")) {
         currentState = GameStates.WORLD_MAP_STATE;
@@ -113,20 +115,85 @@ void draw() {
       }
       break;
     }
+    case CHARACTER_SELECT_STATE:
+    {
+      int rx = 200;
+      int ry = 200;
+      int rw = robotImage.width;
+      int rh = robotImage.height;
+      PImage ri;
+      
+      int ax = 600;
+      int ay = 200;
+      int aw = alienImage.width;
+      int ah = alienImage.height;
+      PImage ai;
+       
+      if(checkMouseInBounds(rx, ry, rw * 5, rh * 5)){
+        background(100, 150, 255); 
+        image(robotImage, rx, ry, rw, rh);
+        ri = get(rx, ry, rw, rh / 2);
+        
+        if(mousePressed && mouseButton == LEFT){
+          mousePressed = false;
+          mouseButton = 0;
+          player.setImage(robotImage);
+          currentState = GameStates.WORLD_MAP_STATE;
+        }
+      }else{
+        background(70, 120, 220);
+        image(robotImage, rx, ry, rw, rh);
+        ri = get(rx, ry, rw, rh / 2);
+        
+        if(mousePressed && mouseButton == LEFT){
+          mousePressed = false;
+          mouseButton = 0;
+          player.setImage(alienImage);
+          currentState = GameStates.WORLD_MAP_STATE;
+        }
+      }
+      
+      if(checkMouseInBounds(ax, ay, aw * 5, ah * 5)){
+        background(100, 150, 255);
+        image(alienImage, ax, ay, aw, ah);
+        ai = get(ax, ay, aw, ah - 15);
+      }else{
+        background(70, 120, 220);
+        image(alienImage, ax, ay, aw, ah);
+        ai = get(ax, ay, aw, ah - 15);
+      }
+      
+      
+      
+      
+     background(50, 100, 200);
+      String text = "Choose Your Character";
+      renderTextBox(100, text);
+      strokeWeight(5);
+      rect(rx, ry, rw * 5, rh * 5);
+      image(ri, rx, ry, rw * 5, rh * 5);
+      
+      rect(ax, ay, aw * 5, ah * 5);
+      image(ai, ax, ay, aw * 5, ah * 5);
+      
+      strokeWeight(1);
+      break;
+    }
   case HOW_TO_PLAY_STATE:
     {
       background(50, 100, 200);
       textSize(72);
       fill(255);
       textBoxYPos = 50;
-      renderTextBox("w: move up");
-      renderTextBox("a: move left");
-      renderTextBox("s: move down");
-      renderTextBox("d: move right");
-      renderTextBox("SPACE BAR: perform action");
-      renderTextBox("ENTER: toggle full screen mode");
-      renderTextBox("ESCAPE: bring up options");
-      renderTextBox("use the mouse to select options");
+      renderTextBox("w: move up", 
+                    "a: move left",
+                    "s: move down",
+                    "d: move right", 
+                    "SPACE BAR: interact",
+                    "ENTER: toggle full screen mode",
+                    "ESCAPE: bring up options",
+                    "use the mouse to select options");
+
       fill(255);
       textSize(24);
       String t = "press any key to return";
@@ -167,10 +234,11 @@ void draw() {
     }
   case VARIABLES_CAVE_STATE:
     {
-      background(0);
+      
       if (variablesCaveStage == null) {
         variablesCaveStage = new VariablesCave(stageImages.get(0));
       }
+      background(currentBackground.clr);
       player.update();
       camera.update();
       if (!variablesCaveStage.update()) variablesCaveStage = null;
@@ -192,14 +260,15 @@ void draw() {
 
   case MAIN_METHODS_MAZE_STATE:
     {
-      background(0);
       if (mainMethodsMazeStage == null) {
         mainMethodsMazeStage = new MainMethodsMaze(stageImages.get(2));
       }
+      background(currentBackground.clr);
       player.update();
       camera.update();
       if (!mainMethodsMazeStage.update()) mainMethodsMazeStage = null;
       image(player.image, player.x, player.y, player.w, player.h);
+      
       break;
     }
   }
