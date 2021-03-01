@@ -239,7 +239,7 @@ class VariablesCave extends Stage {
   final int gatherState = 3;
   final int checkState = 4;
 
-  int totalValid;
+  int totalValid; 
 
   boolean collected = false;
 
@@ -274,13 +274,13 @@ class VariablesCave extends Stage {
     variables.clear();
 
     boolean va = false;
-
+    totalValid = 0;
     final float bf = 100;
     float vx = bf;
     float vy = bf;
     while (!va) {
       Variable v = new Variable(vx, vy);
-      vx += v.w + 100;
+      vx += v.w + bf;
 
       if (checkIntersection(v.x - bf, v.y - bf, v.w + bf, v.h + bf, hostX, hostY - 100, host.width, host.height)) {
         vy += v.h + bf; 
@@ -411,7 +411,7 @@ class VariablesCave extends Stage {
 
 
     if (checkForExit()) {
-      if (checkInteraction()){//(keyPressed && key == ' ') {
+      if (checkInteraction()){
         currentState = GameStates.WORLD_MAP_STATE;
         currentBackground = worldMapBackground;
         camera.x = 0;

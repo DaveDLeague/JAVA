@@ -6,7 +6,7 @@
  add save and load games
  add third player option
  add order of operations bridge
- dialog choice selection with keyboard
+ character direction facing
  */
 
 import java.util.Stack;
@@ -32,13 +32,21 @@ final static int resolutionWidth = 1024;
 final static int resolutionHeight = 576;
 final static int promptTextSize = 14;
 
+final static int MOUSE_STATE = 0;
+final static int KEYBOARD_STATE = 1;
+int currentInputState = KEYBOARD_STATE;
+
 int scaledMouseX;
 int scaledMouseY;
+
+int totalCharacters = 2;
+int selectedCharacter = 0;
 
 int currentWidth = 0;
 int currentHeight = 0;
 boolean fullScreen = false;
 boolean canSave = true;
+boolean ctrlDown = false;
 
 String dataFolderPath;
 
@@ -56,8 +64,6 @@ Stage mainMethodsMazeStage;
 
 ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
-
-SaveState saveState = new SaveState();
 
 void setup() {
   dataFolderPath = dataPath("");
@@ -80,7 +86,7 @@ void setup() {
   surface.setSize(resolutionWidth, resolutionHeight);
   int nx = (displayWidth / 2) - (resolutionWidth / 2);
   int ny = (displayHeight / 2) - (resolutionHeight / 2);
-  surface.setLocation(nx + displayWidth, ny);
+  surface.setLocation(nx, ny);
 
   camera.xMargin = ((float)resolutionWidth / 2.5f);
   camera.yMargin = ((float)resolutionHeight / 2.5f);
@@ -98,7 +104,6 @@ void setup() {
 
   currentBackground = worldMapBackground;
 }
-
 
 void draw() {
   resetDialogChoiceYPos();
@@ -128,14 +133,16 @@ void draw() {
     }
   case CHARACTER_SELECT_STATE:
     {
+
+
       int rx = 200;
-      int ry = 200;
+      int ry = 150;
       int rw = robotImage.width;
       int rh = robotImage.height;
       PImage ri;
 
       int ax = 600;
-      int ay = 200;
+      int ay = 150;
       int aw = alienImage.width;
       int ah = alienImage.height;
       PImage ai;
@@ -148,8 +155,7 @@ void draw() {
         if (mousePressed && mouseButton == LEFT) {
           mousePressed = false;
           mouseButton = 0;
-          player.setImage(robotImage);
-          currentState = GameStates.WORLD_MAP_STATE;
+          selectedCharacter = 0;
         }
       } else {
         background(70, 120, 220);
@@ -164,8 +170,7 @@ void draw() {
         if (mousePressed && mouseButton == LEFT) {
           mousePressed = false;
           mouseButton = 0;
-          player.setImage(alienImage);
-          currentState = GameStates.WORLD_MAP_STATE;
+          selectedCharacter = 1;
         }
       } else {
         background(70, 120, 220);
@@ -173,20 +178,37 @@ void draw() {
         ai = get(ax, ay, aw, ah - 15);
       }
 
-
-
-
       background(50, 100, 200);
-      String text = "Choose Your Character";
-      renderTextBox(100, text);
+
+      int b = 15;
+      fill(255, 255, 0);
+      if (selectedCharacter == 0) {
+        rect(rx - b, ry - b, rw * 5 + b * 2, rh * 5 + b * 2);
+      } else if (selectedCharacter == 1) {
+        rect(ax - b, ay - b, aw * 5 + b * 2, ah * 5 + b * 2);
+      }
+
       strokeWeight(5);
       rect(rx, ry, rw * 5, rh * 5);
       image(ri, rx, ry, rw * 5, rh * 5);
-
       rect(ax, ay, aw * 5, ah * 5);
       image(ai, ax, ay, aw * 5, ah * 5);
-
       strokeWeight(1);
+      String text = "Choose Your Character";
+      renderTextBox(50, text);
+      String np = "Type Your Name and Press ENTER To Begin";
+      textSize(24);
+      float npw = textWidth(np);
+      fill(255);
+      text(np, resolutionWidth / 2 - npw / 2, resolutionHeight - 85);
+
+      String input = renderInputBox();
+      if (input != null && !input.trim().equals("")) {
+        if(selectedCharacter == 0) player.setImage(robotImage);
+        else if(selectedCharacter == 1) player.setImage(alienImage);
+        player.name = input;
+        currentState = GameStates.WORLD_MAP_STATE;
+      }
       break;
     }
   case HOW_TO_PLAY_STATE:
@@ -196,21 +218,23 @@ void draw() {
       fill(255);
       textBoxYPos = 50;
       renderTextBox("w: move up", 
-        "a: move left", 
-        "s: move down", 
-        "d: move right", 
-        "SPACE BAR: interact", 
-        "ENTER: toggle full screen mode", 
-        "ESCAPE: bring up options", 
-        "use the mouse to select options");
+                    "a: move left", 
+                    "s: move down", 
+                    "d: move right", 
+                    "SPACE: interact", 
+                    "F1: toggle full screen mode", 
+                    "ESCAPE: exit program", 
+                    "You can use either the MOUSE",
+                    "or the ARROW KEYS + ENTER to",
+                    "select options");
 
       fill(255);
       textSize(24);
-      String t = "press any key to return";
+      String t = "Press SPACE to Return to the Previous Screen";
       text(t, resolutionWidth / 2 - textWidth(t) / 2, resolutionHeight - 30);
 
 
-      if (keyPressed) {
+      if (checkInteraction()) {
         currentState = GameStates.TITLE_STATE;
       }
       break;
@@ -243,7 +267,6 @@ void draw() {
     }
   case VARIABLES_CAVE_STATE:
     {
-
       if (variablesCaveStage == null) {
         variablesCaveStage = new VariablesCave(stageImages.get(0));
       }
@@ -256,10 +279,10 @@ void draw() {
     }
   case IMPORTS_SHACK_STATE:
     {
-      background(0);
       if (importsShackStage == null) {
         importsShackStage = new ImportsShack(stageImages.get(1));
       }
+      background(currentBackground.clr);
       player.update();
       camera.update();
       if (!importsShackStage.update()) importsShackStage = null;
@@ -293,9 +316,10 @@ void draw() {
   }
 }
 
-
-
 void keyPressed() {
+  if (recievingTextInput && key != CODED && keyCode != BACKSPACE && keyCode != ENTER) {
+    inputBoxString += key;
+  }
   switch(keyCode) {
   case ESC: 
     {
@@ -309,19 +333,98 @@ void keyPressed() {
     }
   case ENTER: 
     {
-      toggleFullScreen();
+      enterInput = true;
+      break;
+    }
+  case CONTROL: 
+    {
+      ctrlDown = true;
+      break;
+    }
+  case BACKSPACE: 
+    {
+      if (recievingTextInput) {
+        if (ctrlDown) {
+          inputBoxString = "";
+        } else {
+          if (inputBoxString.length() > 0) {
+            inputBoxString = inputBoxString.substring(0, inputBoxString.length() - 1);
+          }
+        }
+      }
+      break;
+    }
+  case UP:
+    {
+      if (currentState == GameStates.CHARACTER_SELECT_STATE) {
+        selectedCharacter++;
+        if (selectedCharacter >= totalCharacters) {
+          selectedCharacter = 0;
+        }
+      } else {
+        highlightededDialogChoice--;
+        if (highlightededDialogChoice < 0) {
+          highlightededDialogChoice = dialogMax - 1;
+        }
+      }
+      currentInputState = KEYBOARD_STATE;
+      break;
+    }
+  case DOWN:
+    {
+      if (currentState == GameStates.CHARACTER_SELECT_STATE) {
+        selectedCharacter--;
+        if (selectedCharacter < 0) {
+          selectedCharacter = totalCharacters - 1;
+        }
+      } else {
+        highlightededDialogChoice++;
+        if (highlightededDialogChoice >= dialogMax) {
+          highlightededDialogChoice = 0;
+        }
+      }
+      currentInputState = KEYBOARD_STATE;
+      break;
+    }
+  case RIGHT:
+    {
+      if (currentState == GameStates.CHARACTER_SELECT_STATE) {
+        selectedCharacter++;
+        if (selectedCharacter >= totalCharacters) {
+          selectedCharacter = 0;
+        }
+      } else {
+        highlightededDialogChoice--;
+        if (highlightededDialogChoice < 0) {
+          highlightededDialogChoice = dialogMax - 1;
+        }
+      }
+      currentInputState = KEYBOARD_STATE;
+      break;
+    }
+  case LEFT:
+    {
+      if (currentState == GameStates.CHARACTER_SELECT_STATE) {
+        selectedCharacter--;
+        if (selectedCharacter < 0) {
+          selectedCharacter = totalCharacters - 1;
+        }
+      } else {
+        highlightededDialogChoice++;
+        if (highlightededDialogChoice >= dialogMax) {
+          highlightededDialogChoice = 0;
+        }
+      }
+      currentInputState = KEYBOARD_STATE;
       break;
     }
   case F1_KEY:
     {
-      if (canSave) {
-        saveState.player = 0;
-        saveGame(saveState);
-        canSave = false;
-      }
+      toggleFullScreen();
       break;
     }
   }
+
   switch(key) {
   case 'w':
     {
@@ -345,20 +448,25 @@ void keyPressed() {
     }
   case ' ':
     {
-      if (currentState == GameStates.TITLE_STATE) {
-        currentState = GameStates.WORLD_MAP_STATE;
-      }
+      //if (currentState == GameStates.TITLE_STATE) {
+      //  currentState = GameStates.WORLD_MAP_STATE;
+      //}
       interaction = true;
       break;
     }
   }
 }
 
-void keyReleased() {
+void keyReleased() { 
   switch(keyCode) {
-  case F1_KEY: 
+  case ENTER: 
     {
-      canSave = true;
+      enterInput = false;
+      break;
+    }
+  case CONTROL: 
+    {
+      ctrlDown = false;
       break;
     }
   }
@@ -386,21 +494,28 @@ void keyReleased() {
     case (int)' ':
     {
       interaction = false;
-      canInteract = true;
       break;
     }
   }
+}
+
+void mouseMoved(){
+   currentInputState = MOUSE_STATE;
+}
+
+void mousePressed(){
+  currentInputState = MOUSE_STATE;
 }
 
 void toggleFullScreen() {
   fullScreen = !fullScreen;
   if (fullScreen) {
     surface.setSize(displayWidth, displayHeight);
-    surface.setLocation(displayWidth, 0);
+    surface.setLocation(0, 0);
   } else {
     surface.setSize(resolutionWidth, resolutionHeight);
     int nx = (displayWidth / 2) - (resolutionWidth / 2);
     int ny = (displayHeight / 2) - (resolutionHeight / 2);
-    surface.setLocation(nx + displayWidth, ny);
+    surface.setLocation(nx, ny);
   }
 }

@@ -367,6 +367,9 @@ class MainMethodsMaze extends Stage {
 
         float mex = mazeExitX - camera.x;
         float mey = mazeExitY - camera.y;
+        renderMaze();
+        fill(200);
+        rect(mazeExitX - camera.x, mazeExitY - camera.y, 50, 100);
         if (checkIntersection(player.x, player.y, player.w, player.h, mex, mey, 50, 100)) {
           fill(255);
           textSize(promptTextSize);
@@ -383,10 +386,7 @@ class MainMethodsMaze extends Stage {
           }
         }
 
-        renderMaze();
-
-        fill(200);
-        rect(mazeExitX - camera.x, mazeExitY - camera.y, 50, 100);
+        
         break;
       }
     case mazeInquireState:

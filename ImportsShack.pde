@@ -41,6 +41,14 @@ class ImportsShack extends Stage {
       code.add(new CodeLine(350, 100, "public class Dog {", 2));
       code.add(new CodeLine(140, 400, "int a = 24;", 3));
       code.add(new CodeLine(700, 100, "}", 4));
+      //code.add(new CodeLine(150, 0, "//made by robots", -1));
+      //code.add(new CodeLine(100, 100, "package animal;", 0));
+      //code.add(new CodeLine(100, 200, "import java.util.ArrayList;", 1));
+      //code.add(new CodeLine(150, 300, "public class Dog {", 2));
+      //code.add(new CodeLine(100, 400, "int a = 24;", 3));
+      //code.add(new CodeLine(100, 500, "public void meth(){", 3));
+      //code.add(new CodeLine(100, 600, "}", 4));
+      //code.add(new CodeLine(700, 700, "}", 4));
 
       codeXPositions = new float[code.size()];
       codeYPositions = new float[code.size()];
@@ -70,6 +78,7 @@ class ImportsShack extends Stage {
           CodeLine c2 = code.get(j);
           if (c2.order < 0) continue;
           if (c2.order > c1.order && c2.y > c1.y) continue;
+          else if(c2.order == c1.order) continue;
           else {
             ret = false;
             i = code.size();
@@ -100,8 +109,12 @@ class ImportsShack extends Stage {
     super(image); 
     x = 400;
     y = 750;
-    exitX = x;
-    exitY = y;
+    exitX = 100;
+    exitY = 100;
+    player.x = exitX;
+    player.y = exitY;
+    camera.x = 0;
+    camera.y = 0;
     exitW = 50;
     exitH = 90;
     hostX = exitX + 200;
@@ -110,12 +123,24 @@ class ImportsShack extends Stage {
     h = image.image.height;
     state = GameStates.IMPORTS_SHACK_STATE;
     host = loadImage("sloth.png");
+    
+    background = new Background(resolutionWidth, resolutionHeight);
+    background.clr = color(153, 93, 3);
+    currentBackground = background;
   }
 
+  void exitStage(){
+    currentState = GameStates.WORLD_MAP_STATE;
+    currentBackground = worldMapBackground;
+    player.x = image.x;
+    player.y = image.y;
+    camera.x = image.x - 400;
+    camera.y = image.y - 500;
+  }
 
   boolean update() {
     boolean ret = true;
-    background(153, 93, 3);
+    
     float cx = hostX - camera.x;
     float cy = hostY - camera.y;
     fill(200);
@@ -123,7 +148,6 @@ class ImportsShack extends Stage {
       image(host, cx, cy, host.width, host.height);
       rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
     }
-    
 
     switch(currentStageState) {
     case searchState:
@@ -197,12 +221,9 @@ class ImportsShack extends Stage {
 
     case doorSearchState:
       {
-        if (skipTutorial) {
-          renderTextBox("Oh! Um. Okay. Well, you better get to it then.");
-        }
         fill(128, 40, 75);
         float dx = hostX + 400 - camera.x;
-        float dy = hostY - camera.y;
+        float dy = hostY + 200 - camera.y;
         float dw = 50;
         float dh = 100;
         rect(dx, dy, dw, dh, 18, 18, 0, 0);
@@ -217,10 +238,14 @@ class ImportsShack extends Stage {
             level = new Level();
           }
         }
+        if (skipTutorial) {
+          renderTextBox("Oh! Um. Okay. Well, you better get to it then.");
+        }
         break;
       }
     case packageGameState1:
       {
+        background(background.clr);
         if (stageComplete) {
           rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
           if (checkForExit()) {
@@ -253,8 +278,8 @@ class ImportsShack extends Stage {
             incorrectAnswer = false;
           }
           if (renderPlayerButton("EXIT", 200, 900)) {
-            currentBackground = worldMapBackground;
-            currentState = GameStates.WORLD_MAP_STATE;
+            exitStage();
+            ret = false;
           }
 
           for (CodeLine c : level.code) {
@@ -272,7 +297,7 @@ class ImportsShack extends Stage {
     }
     if (currentStageState < packageGameState1 && checkForExit()) {
       if (checkInteraction()) {
-        currentState = GameStates.WORLD_MAP_STATE;
+        exitStage();
         ret = false;
       }
     }
