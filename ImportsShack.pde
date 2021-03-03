@@ -1,15 +1,73 @@
 class ImportsShack extends Stage {
   class CodeLine extends PushBox {
-    final float size = 24;
+
+
+    final static float size = 24;
     final color boxColor = color(0, 0, 64);
     final color textColor = color(255, 196, 196);
-    String text;
-    int order;
 
-    CodeLine(float x, float y, String text, int order) {
-      this.order = order;
+    final static int COMMENT_LINE = 0;
+    final static int PACKAGE_LINE = 1;
+    final static int IMPORT_LINE = 2;
+    final static int PUBLIC_CLASS_LINE = 3;
+    final static int CLASS_LINE = 4;
+    final static int METHOD_LINE = 5;
+    final static int VAR_CREATE_LINE = 6;
+    final static int totalCodeLineTypes = 7;
+
+    String text;
+    int type;
+
+    CodeLine(float x, float y, int type) {
+      this.type = type;
+      switch(type) {
+      case COMMENT_LINE:
+        {
+          String c = COMMENTS[(int)random(COMMENTS.length)];
+          if ((int)random(2) == 0) {
+            text = "//" + c;
+          } else {
+            text = "/*" + c + "*/";
+          }
+          break;
+        }
+      case PACKAGE_LINE:
+        {
+          text = "package " + WORD_LIST[(int)random(WORD_LIST.length)] + ";";
+          break;
+        }
+      case IMPORT_LINE:
+        {
+          text = "import " + WILDCARD_IMPORTS[(int)random(WILDCARD_IMPORTS.length)] + ";";
+          break;
+        }
+      case PUBLIC_CLASS_LINE:
+        {
+          String cn = WORD_LIST[(int)random(WORD_LIST.length)];
+          cn = Character.toUpperCase(cn.charAt(0)) + cn.substring(1);
+          text = "public class " + cn + "{";
+          break;
+        }
+      case CLASS_LINE:
+        {
+          String cn = WORD_LIST[(int)random(WORD_LIST.length)];
+          cn = Character.toUpperCase(cn.charAt(0)) + cn.substring(1);
+          text = "class " + cn + "{";
+          break;
+        }
+      case METHOD_LINE:
+        {
+          text = "public void " + WORD_LIST[(int)random(WORD_LIST.length)] + "(){";
+          break;
+        }
+      case VAR_CREATE_LINE:
+        {
+          text = JAVA_DATA_TYPES[(int)random(JAVA_DATA_TYPES.length)] + " " + WORD_LIST[(int)random(WORD_LIST.length)] + ";";
+          break;
+        }
+      }
+
       textFont(courier);
-      this.text = text;
       this.x = x;
       this.y = y;
       textSize(size);
@@ -35,20 +93,12 @@ class ImportsShack extends Stage {
     float[] codeYPositions;
 
     Level() {
-      code.add(new CodeLine(350, 400, "//made by robots", -1));
-      code.add(new CodeLine(100, 200, "package animal;", 0));
-      code.add(new CodeLine(200, 500, "import java.util.ArrayList;", 1));
-      code.add(new CodeLine(350, 100, "public class Dog {", 2));
-      code.add(new CodeLine(140, 400, "int a = 24;", 3));
-      code.add(new CodeLine(700, 100, "}", 4));
-      //code.add(new CodeLine(150, 0, "//made by robots", -1));
-      //code.add(new CodeLine(100, 100, "package animal;", 0));
-      //code.add(new CodeLine(100, 200, "import java.util.ArrayList;", 1));
-      //code.add(new CodeLine(150, 300, "public class Dog {", 2));
-      //code.add(new CodeLine(100, 400, "int a = 24;", 3));
-      //code.add(new CodeLine(100, 500, "public void meth(){", 3));
-      //code.add(new CodeLine(100, 600, "}", 4));
-      //code.add(new CodeLine(700, 700, "}", 4));
+      for (int i = 1; i < CodeLine.totalCodeLineTypes; i++) {
+        if ((int)random(CodeLine.totalCodeLineTypes) == 0) {
+          code.add(new CodeLine(0, 0, CodeLine.COMMENT_LINE));
+        }
+        code.add(new CodeLine(0, 0, i));
+      }
 
       codeXPositions = new float[code.size()];
       codeYPositions = new float[code.size()];
@@ -57,6 +107,42 @@ class ImportsShack extends Stage {
         CodeLine c = code.get(i);
         codeXPositions[i] = c.x;
         codeYPositions[i] = c.y;
+      }
+
+      int[] pickedRand = new int[code.size()];
+      int totalRandomized = 0;
+      while (totalRandomized < code.size()) {
+        int r = (int)random(code.size());
+        boolean picked = false;
+        for (int i = 0; i < totalRandomized; i++) {
+          if (r == pickedRand[i]) {
+            picked = true;
+            break;
+          }
+        }
+        if (!picked) {
+          pickedRand[totalRandomized] = r;
+          totalRandomized++;
+        }
+      }
+      for (int i : pickedRand) {
+        println(i);
+      }
+
+      float cx = random(100, 300);
+      float cy = 100;
+      for (int i = 0; i < pickedRand.length; i++) {
+        CodeLine cl = code.get(pickedRand[i]);
+        if (cx + cl.w + 100 > resolutionWidth) {
+          cx = random(100, 300);
+          cy += random(100, 150);
+        }
+        codeXPositions[i] = cx;
+        codeYPositions[i] = cy;
+        cl.x = codeXPositions[i]; 
+        cl.y = codeYPositions[i];
+
+        cx += cl.w + 100;
       }
     }
 
@@ -73,12 +159,12 @@ class ImportsShack extends Stage {
 
       for (int i = 0; i < code.size() - 1; i++) {
         CodeLine c1 = code.get(i);
-        if (c1.order < 0) continue;
+        if (c1.type == 0) continue;
         for (int j = i + 1; j < code.size(); j++) {
           CodeLine c2 = code.get(j);
-          if (c2.order < 0) continue;
-          if (c2.order > c1.order && c2.y > c1.y) continue;
-          else if(c2.order == c1.order) continue;
+          if (c2.type == 0) continue;
+          if (c2.type > c1.type && c2.y > c1.y) continue;
+          else if (c2.type == c1.type) continue;
           else {
             ret = false;
             i = code.size();
@@ -98,6 +184,8 @@ class ImportsShack extends Stage {
   final int tutorialState3 = 4;
   final int doorSearchState = 5;
   final int packageGameState1 = 6;
+
+  int currentLevel = 0;
   boolean skipTutorial;
   boolean stageComplete;
   boolean incorrectAnswer;
@@ -123,13 +211,13 @@ class ImportsShack extends Stage {
     h = image.image.height;
     state = GameStates.IMPORTS_SHACK_STATE;
     host = loadImage("sloth.png");
-    
+
     background = new Background(resolutionWidth, resolutionHeight);
     background.clr = color(153, 93, 3);
     currentBackground = background;
   }
 
-  void exitStage(){
+  void exitStage() {
     currentState = GameStates.WORLD_MAP_STATE;
     currentBackground = worldMapBackground;
     player.x = image.x;
@@ -140,11 +228,11 @@ class ImportsShack extends Stage {
 
   boolean update() {
     boolean ret = true;
-    
+
     float cx = hostX - camera.x;
     float cy = hostY - camera.y;
     fill(200);
-    if(currentStageState < packageGameState1){
+    if (currentStageState < packageGameState1) {
       image(host, cx, cy, host.width, host.height);
       rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
     }
@@ -180,7 +268,7 @@ class ImportsShack extends Stage {
           "Package declarations always come first.", 
           "Import statements must come next, if there are any.", 
           "After import statements come class declarations.", 
-          "There can be only one public class per java file.",
+          "There can be only one public class per java file.", 
           "Comments can go anywhere.");
         if (renderDialogChoice("Uh huh.")) {
           currentStageState = tutorialState2;
@@ -192,14 +280,14 @@ class ImportsShack extends Stage {
       {
         renderTextBox("All method declarations must be written inside of a class.", 
           "Variables can be created and initialized inside or", 
-          "outside of a method, but any calls to a method,",
-          "but it must be done inside of a class. Any calls to",
+          "outside of a method, but any calls to a method,", 
+          "but it must be done inside of a class. Any calls to", 
           "a method must be done from inside a method.");
         if (renderDialogChoice("I'm with you so far.")) {
           currentStageState = tutorialState3;
         }
-        if(renderDialogChoice("Wait. I'm confused.")){
-          currentStageState = tutorialState; 
+        if (renderDialogChoice("Wait. I'm confused.")) {
+          currentStageState = tutorialState;
         }
 
         break;
@@ -212,8 +300,8 @@ class ImportsShack extends Stage {
         if (renderDialogChoice("Got it.")) {
           currentStageState = doorSearchState;
         }
-        if(renderDialogChoice("No.")){
-          currentStageState = tutorialState; 
+        if (renderDialogChoice("No.")) {
+          currentStageState = tutorialState;
         }
 
         break;
@@ -247,19 +335,28 @@ class ImportsShack extends Stage {
       {
         background(background.clr);
         if (stageComplete) {
+
           rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
           if (checkForExit()) {
             if (checkInteraction()) {
-              stageComplete = false; 
-              currentBackground = worldMapBackground;
-              currentState = GameStates.WORLD_MAP_STATE;
-              return false;
+              if (currentLevel < 6) {
+                level = new Level();
+                stageComplete = false;
+                currentLevel++;
+              } else {
+                stageComplete = false; 
+                currentBackground = worldMapBackground;
+                currentState = GameStates.WORLD_MAP_STATE;
+                return false;
+              }
             }
           }
           for (CodeLine c : level.code) {
             c.render();
           }
-          renderTextBox("You did it!", "Move to the exit for the next stage.");
+          if (currentLevel > 5) {
+            renderTextBox("You did it!", "Move to the exit for the next stage.");
+          }
         } else {
 
           if (renderPlayerButton("SUBMIT", 100, 700)) {

@@ -32,6 +32,11 @@ abstract class Stage {
     }
     return false;
   }
+  
+  void returnToWorld(){
+   currentBackground = worldMapBackground; 
+   currentState = GameStates.WORLD_MAP_STATE;
+  }
 }
 
 StageImage checkPlayerStageIntersection() {

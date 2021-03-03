@@ -1,12 +1,14 @@
 /* //<>//
  TODO:
  finish imports shack
+ finish order of operations bridge
+ add options screen
+ add save and load games
  refactor stages?
  code challenges
- add save and load games
  add third player option
- add order of operations bridge
  character direction facing
+ add a world edit mode
  */
 
 import java.util.Stack;
@@ -48,6 +50,8 @@ boolean fullScreen = false;
 boolean canSave = true;
 boolean ctrlDown = false;
 
+boolean DEBUG = true;
+
 String dataFolderPath;
 
 PImage robotImage;
@@ -61,6 +65,7 @@ Camera camera;
 Stage variablesCaveStage;
 Stage importsShackStage;
 Stage mainMethodsMazeStage;
+Stage oooBridgeStage;
 
 ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
@@ -81,8 +86,10 @@ void setup() {
   stageImages.add(new StageImage("cave.png", GameStates.VARIABLES_CAVE_STATE, 400, 350));
   stageImages.add(new StageImage("shack.png", GameStates.IMPORTS_SHACK_STATE, 400, 750));
   stageImages.add(new StageImage("hedge.png", GameStates.MAIN_METHODS_MAZE_STATE, 200, 550));
+  stageImages.add(new StageImage("bridge.png", GameStates.OOO_BRIDGE_STATE, 600, 600));
 
   fullScreen(P2D);
+  ((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
   surface.setSize(resolutionWidth, resolutionHeight);
   int nx = (displayWidth / 2) - (resolutionWidth / 2);
   int ny = (displayHeight / 2) - (resolutionHeight / 2);
@@ -303,6 +310,18 @@ void draw() {
 
       break;
     }
+    case OOO_BRIDGE_STATE:
+    {
+      if (oooBridgeStage == null) {
+        oooBridgeStage = new OOOBridge(stageImages.get(3));
+      }
+      background(currentBackground.clr);
+      
+      if (!oooBridgeStage.update()) oooBridgeStage = null;
+      image(player.image, player.x, player.y, player.w, player.h);
+
+      break;
+    }
   }
 
   if (fullScreen) {
@@ -448,9 +467,9 @@ void keyPressed() {
     }
   case ' ':
     {
-      //if (currentState == GameStates.TITLE_STATE) {
-      //  currentState = GameStates.WORLD_MAP_STATE;
-      //}
+      if (DEBUG && currentState == GameStates.TITLE_STATE) {
+        currentState = GameStates.WORLD_MAP_STATE;
+      }
       interaction = true;
       break;
     }
