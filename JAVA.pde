@@ -11,6 +11,7 @@
  add a world edit mode
  */
 
+import java.util.Arrays;
 import java.util.Stack;
 import java.io.File;
 import java.io.FileWriter;

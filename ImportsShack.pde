@@ -195,6 +195,8 @@ class ImportsShack extends Stage {
 
   ImportsShack(StageImage image) {
     super(image); 
+    
+    
     x = 400;
     y = 750;
     exitX = 100;

@@ -8,18 +8,24 @@ class OOOBridge extends Stage {
 
     float th;
     float tw;
-
+    
+    int ranking;
+  
     boolean onPath;
     OperationTile(float x, float y, float w, float h) {
       this.x = x;
       this.y = y;
       this.w = w;
       this.h = h;
+      this.ranking = (int)random(totalOperations);
 
-      int r = (int)random(OPERATIONS.length);
-      int s = (int)random(OPERATIONS[r].length);
-      op = OPERATIONS[r][s];
-      textFont(courier);
+      setRanking(ranking);
+    }
+    
+    void setRanking(int ranking){
+     this.ranking = ranking; 
+     this.op = getOperation(ranking);
+     textFont(courier);
       th = 96;
       boolean good = false;
       while (!good) {
@@ -59,13 +65,21 @@ class OOOBridge extends Stage {
 
       int txp = (int)random(tilesPerRow);
       int typ = 0;
-      tileAt(txp, typ).onPath = true;
+      
+      
+  
+      int ctr = 0;
+      ArrayList<OperationTile> pathTiles = new ArrayList<OperationTile>();
+      pathTiles.add(tileAt(txp, typ));
       typ++;
-      tileAt(txp, typ).onPath = true;
-
+      pathTiles.add(tileAt(txp, typ));
+      pathTiles.get(0).onPath = true;
+      pathTiles.get(1).onPath = true;
+      pathTiles.get(0).setRanking(ctr++);
+      pathTiles.get(1).setRanking(ctr++);
       while (typ < tilesPerColumn - 1) {
-        boolean nf = true;
-        while (nf) {
+        boolean nf = true;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        while (nf) {///////////////////////////////////////////////////////////////////////////CHANGE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           int c = (int)random(3);
           int nx = txp;
           int ny = typ;
@@ -82,14 +96,33 @@ class OOOBridge extends Stage {
           else if (!tileAt(nx, ny).onPath) {
             txp = nx;
             typ = ny;
-            tileAt(txp, typ).onPath = true;
+            pathTiles.add(tileAt(txp, typ));
+            pathTiles.get(pathTiles.size() - 1).onPath = true;
             nf = false;
           }
         }
       }
+      int[] rns = new int[pathTiles.size()]; 
+      int at = 0;
+      while(at < rns.length){
+       int rv = (int)random(totalOperations); 
+       boolean fd = false;
+       for(int i = 0; i < at; i++){
+         if(rns[at] == rv){
+          fd = true;
+          break; 
+         }
+       }
+       if(!fd){
+        rns[at] = rv;
+        at++;
+       }
+      }
+      Arrays.sort(rns);
+      for(int i = rns.length - 1; i > -1; i--){    
+        pathTiles.get(i).setRanking(rns[i]); 
+      }
     }
-
-
 
     void render() {
       textFont(courier);
@@ -106,7 +139,9 @@ class OOOBridge extends Stage {
     }
 
     OperationTile tileAt(int x, int y) {
-      return tiles.get(y * tilesPerRow + x);
+      int idx = y * tilesPerRow + x;
+      if(idx >= tiles.size()) return null;
+      else return tiles.get(idx);
     }
   }
 
@@ -129,6 +164,9 @@ class OOOBridge extends Stage {
 
   OOOLevel level;
   OOOLevel plevel;
+  OperationTile currentTile;
+  OperationTile previousTile;
+  
   OOOBridge(StageImage image) {
     super(image);
 
@@ -157,7 +195,7 @@ class OOOBridge extends Stage {
     fill(200);
     rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
     image(host, cx, cy, host.width, host.height);
-
+    
     switch(currentStageState) {
     case searchState:
       {
@@ -203,6 +241,7 @@ class OOOBridge extends Stage {
         if (player.up && uok) {
           playerYDest = player.y - level.tw;
           playerXDest = player.x;
+          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
           currentStageState = playerTransitionState;
           uok = false;
         } else if (!player.up) {
@@ -211,6 +250,7 @@ class OOOBridge extends Stage {
         if (player.down && dok) {
           playerYDest = player.y + level.tw;
           playerXDest = player.x;
+          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
           currentStageState = playerTransitionState;
           dok = false;
         } else if (!player.down) {
@@ -219,6 +259,7 @@ class OOOBridge extends Stage {
         if (player.left && lok) {
           playerXDest = player.x - level.tw;
           playerYDest = player.y;
+          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
           currentStageState = playerTransitionState;
           lok = false;
         } else if (!player.left) {
@@ -227,6 +268,7 @@ class OOOBridge extends Stage {
         if (player.right && rok) {
           playerXDest = player.x + level.tw;
           playerYDest = player.y;
+          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
           currentStageState = playerTransitionState;
           rok = false;
         } else if (!player.right) {
@@ -234,6 +276,7 @@ class OOOBridge extends Stage {
         }
         if (player.y <= 0) {
           currentStageState = cameraPanState;
+          currentTile = null;
           background.h += resolutionHeight;
           plevel = level;
           level = new OOOLevel();
@@ -246,6 +289,7 @@ class OOOBridge extends Stage {
         if (level != null) {
           level.render();
         }
+        
         //if (plevel != null) {
         //  plevel.render();
         //}
@@ -297,13 +341,23 @@ class OOOBridge extends Stage {
         if (fin) {
           player.x = playerXDest;
           player.y = playerYDest;
+          currentTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
+          if(currentTile != null && previousTile != null){
+            if(currentTile.ranking > previousTile.ranking){
+             background.clr = color(255, 0, 0);
+            }
+          }
           currentStageState = playGameState;
         }
         level.render();
         break;
       }
     }
-
+if(currentTile != null){
+    fill(255);
+    textSize(24);
+    text("" + currentTile.ranking, 100, 100);
+    }
     if (checkForExit() && checkInteraction()) {
       returnToWorld();
       ret = false;
