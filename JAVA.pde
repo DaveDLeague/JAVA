@@ -1,7 +1,19 @@
 /* //<>//
  TODO:
+ add "final" to main methods maze
+   -explain JVM and entry points
+   -and explain that other methods can be written called 'main' 
+ add periods to incorrect variables in variables cave
  finish imports shack
+   -make game more procedural and logical, 'na mean?
+   -make dialog explain the game better (explain how many stages)
+   -position buttons better
+   -display current stage
+   -add explanation of semicolon (make funny)
  finish order of operations bridge
+   -make order of operations chart (cheat sheet)
+   -finish bird dialog    
+   -add oder of operations fill in questions in between OOO Bridge stages
  add options screen
  add save and load games
  refactor stages?
@@ -9,7 +21,54 @@
  add third player option
  character direction facing
  add a world edit mode
- */
+*/
+
+/*
+stage ideas:
+volcano 
+tornado
+lake
+river
+pond
+swamp
+
+snake
+shark
+primate
+dinosaur
+
+general which-line-has-the-error game
+default value of variables
+ -multiple variables defined on same line
+ -maybe game on timer, have to get all answers before time expires (fuse to a bomb or something)
+variables with incorrect assignments (ints getting decimal values etc.)
+where variables are valid (inside {}) 
+ - variable scope 
+ - class(static), instance, and local variables
+ - class variables always in scope
+ - static methods using non-static variables
+ - creating local variables with same name as instance variable
+removing unnecessary imports and adding in needed ones (java.lang)
+Command Line compiling and and arguments (.java and .class[bytecode])
+ -main method's String array
+proper package declarations
+ -accessing things from different packages
+ -wildcards
+ -different packages with same class name
+proper ways to write numbers (maybe a visit from Mr. Ocopus's brother?)
+ -underscores and casting f, L, 0xE, 0b, 0B
+objects, references and garbage collection 
+ -memory managed automatically
+ -finalize() method
+constructors (and methods that look a lot like constructors...but aren't)
+comments
+encapsulation and immutability
+method overloading
+inheritance
+ -class extending and interface implementing saves duplicate code
+java being object oriented and platform independant 
+ -.class file can run on any computer with compatible JVM?
+*/
 
 import java.util.Arrays;
 import java.util.Stack;
@@ -44,6 +103,8 @@ int scaledMouseY;
 
 int totalCharacters = 2;
 int selectedCharacter = 0;
+
+int scrollAmount;
 
 int currentWidth = 0;
 int currentHeight = 0;
@@ -319,7 +380,7 @@ void draw() {
       background(currentBackground.clr);
       
       if (!oooBridgeStage.update()) oooBridgeStage = null;
-      image(player.image, player.x, player.y, player.w, player.h);
+      
 
       break;
     }
@@ -334,6 +395,8 @@ void draw() {
     scaledMouseX = mouseX;
     scaledMouseY = mouseY;
   }
+  
+  scrollAmount = 0;
 }
 
 void keyPressed() {
@@ -525,6 +588,10 @@ void mouseMoved(){
 
 void mousePressed(){
   currentInputState = MOUSE_STATE;
+}
+
+void mouseWheel(MouseEvent e){
+  scrollAmount = e.getCount(); 
 }
 
 void toggleFullScreen() {

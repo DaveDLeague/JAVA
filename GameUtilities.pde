@@ -4,8 +4,9 @@ final String[] WILDCARD_IMPORTS = {"java.util.*", "java.awt.*", "java.util.*", "
 final String[] JAVA_MODIFIERS = {"public", "private", "protected", ""};
 final String[] JAVA_DATA_TYPES = {"int", "long", "float", "double", "byte", "char", "short", "String"};
 final String[] COMMENTS = {"made by robots", "todo: put more code", "who wrote this?", "YAGNI", "written by ocelots", "bug or feature?"};
-final String[][] OPERATIONS = {{"[]", ".", "()"}, {"x++", "x--"}, {"++x", "--x", "+x", "-x", "!", "~"}, {"(cast)", "new"}, {"*", "/", "%"}, {"+", "-", "\"x\" + \"y\""}, {"<<", ">>", ">>>"}, {"<", "<=", ">", ">=", "instanceof"}, {"==", "!="}, {"&"}, {"^"}, {"|"}, {"&&"}, {"||"}, {"?:"}, {"=", "+=", "-=", "*=", "/=", "%=", "&=", "^=", "|=", "<<=", ">>=", ">>>="}};
-final int totalOperations = 47;
+final String[][] OPERATIONS = {{"()"}, {"x++", "x--"}, {"++x", "--x", "+x", "-x", "~", "!"}, {"*", "/", "%"}, {"+", "-"}, {"<<", ">>", ">>>"}, {"<", ">", "<=", ">=", "instanceof"}, {"==", "!="}, {"&"}, {"^"}, {"|"}, {"&&"}, {"||"}, {"?:"}, {"=", "+=", "-=", "*=", "/=", "%=", "&=", "^=", "|=", "<<=", ">>=", ">>>="}};
+final int totalOperations = 42;
+final int totalOperationGroups = 15;
 final char[] CURRENCY_SYMBOLS = {'$', '¢', '£', '€', '¥'};
 float dialogChoiceYPos = resolutionHeight - resolutionHeight / 4;
 final float dialogChoiseYIncrement = 60;
@@ -291,6 +292,12 @@ boolean checkIntersection(float x1, float y1, float w1, float h1, float x2, floa
   }
 
   return true;
+}
+
+void centeredText(String text, float xb1, float xb2, float y){
+  float w = xb2 - xb1;
+  float tw = textWidth(text);
+  text(text, xb1 + (w / 2) - (tw / 2), y);
 }
 
 boolean handleSolidBlockCollision(SolidBlock block) {

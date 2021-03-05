@@ -8,9 +8,9 @@ class OOOBridge extends Stage {
 
     float th;
     float tw;
-    
+
     int ranking;
-  
+
     boolean onPath;
     OperationTile(float x, float y, float w, float h) {
       this.x = x;
@@ -21,18 +21,19 @@ class OOOBridge extends Stage {
 
       setRanking(ranking);
     }
-    
-    void setRanking(int ranking){
-     this.ranking = ranking; 
-     this.op = getOperation(ranking);
-     textFont(courier);
-      th = 96;
+
+    void setRanking(int ranking) {
+      this.ranking = ranking; 
+      this.op = getOperation(ranking);
+      textFont(courier);
+      th = 50;
       boolean good = false;
       while (!good) {
         textSize(th);
         tw = textWidth(op);
         if (tw < w - 3 && th < h - 15) good = true;
         else th--;
+        if (th <= 1) good = true;
       }
 
       textFont(arial);
@@ -65,16 +66,14 @@ class OOOBridge extends Stage {
 
       int txp = (int)random(tilesPerRow);
       int typ = 0;
-      
-      
-  
+
+
+
       int ctr = 0;
       ArrayList<OperationTile> pathTiles = new ArrayList<OperationTile>();
       pathTiles.add(tileAt(txp, typ));
       typ++;
       pathTiles.add(tileAt(txp, typ));
-      pathTiles.get(0).onPath = true;
-      pathTiles.get(1).onPath = true;
       pathTiles.get(0).setRanking(ctr++);
       pathTiles.get(1).setRanking(ctr++);
       while (typ < tilesPerColumn - 1) {
@@ -97,30 +96,32 @@ class OOOBridge extends Stage {
             txp = nx;
             typ = ny;
             pathTiles.add(tileAt(txp, typ));
-            pathTiles.get(pathTiles.size() - 1).onPath = true;
+            tileAt(txp, typ).onPath = true;
             nf = false;
           }
         }
       }
+
       int[] rns = new int[pathTiles.size()]; 
       int at = 0;
-      while(at < rns.length){
-       int rv = (int)random(totalOperations); 
-       boolean fd = false;
-       for(int i = 0; i < at; i++){
-         if(rns[at] == rv){
-          fd = true;
-          break; 
-         }
-       }
-       if(!fd){
-        rns[at] = rv;
-        at++;
-       }
+      while (at < rns.length) {
+        int rv = (int)random(totalOperations); 
+        boolean fd = false;
+        for (int i = 0; i < at; i++) {
+          if (rns[i] == rv) {
+            fd = true;
+            break;
+          }
+        }
+        if (!fd) {
+          rns[at] = rv;
+          at++;
+        }
       }
       Arrays.sort(rns);
-      for(int i = rns.length - 1; i > -1; i--){    
-        pathTiles.get(i).setRanking(rns[i]); 
+      for (int i = rns.length - 1; i > -1; i--) {    
+
+        pathTiles.get(i).setRanking(rns[i]);
       }
     }
 
@@ -140,8 +141,22 @@ class OOOBridge extends Stage {
 
     OperationTile tileAt(int x, int y) {
       int idx = y * tilesPerRow + x;
-      if(idx >= tiles.size()) return null;
+      if (idx >= tiles.size()) return null;
       else return tiles.get(idx);
+    }
+  }
+
+  class OOOQuestion {
+    String question;
+    int answer;
+
+    OOOQuestion(int difficulty) {
+      int params = difficulty + 3;
+      for (int i = 0; i < params; i++) {
+      }
+    }
+
+    void render() {
     }
   }
 
@@ -151,22 +166,30 @@ class OOOBridge extends Stage {
   final int playGameState = 3;
   final int cameraPanState = 4;
   final int playerTransitionState = 5;
+  final int playerFallState = 6;
 
+  float startPlayerX;
+  float startPlayerY;
   float playerXDest;
   float playerYDest;
 
   float cameraPanSpeed = 10;
+
+  int opDisplayYOffset;
 
   boolean uok;
   boolean dok;
   boolean lok;
   boolean rok;
 
+  boolean tabOk = true;
+  boolean displayOperatorsMode;
+
   OOOLevel level;
   OOOLevel plevel;
   OperationTile currentTile;
   OperationTile previousTile;
-  
+
   OOOBridge(StageImage image) {
     super(image);
 
@@ -195,7 +218,15 @@ class OOOBridge extends Stage {
     fill(200);
     rect(exitX - camera.x, exitY - camera.y, exitW, exitH, 18, 18, 0, 0);
     image(host, cx, cy, host.width, host.height);
-    
+
+    if (keyPressed && keyCode == TAB && tabOk) {
+      displayOperatorsMode = !displayOperatorsMode;
+      tabOk = false;
+    } else if (!keyPressed) {
+      tabOk = true;
+    }
+
+
     switch(currentStageState) {
     case searchState:
       {
@@ -222,7 +253,7 @@ class OOOBridge extends Stage {
         }
         break;
       }
-      case findStartState:
+    case findStartState:
       {
         player.update();
         camera.update();
@@ -248,28 +279,37 @@ class OOOBridge extends Stage {
           uok = true;
         }
         if (player.down && dok) {
-          playerYDest = player.y + level.tw;
-          playerXDest = player.x;
-          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
-          currentStageState = playerTransitionState;
+          float d = player.y + level.tw;
+          if (d < resolutionHeight) {
+            playerYDest = d;
+            playerXDest = player.x;
+            previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
+            currentStageState = playerTransitionState;
+          }
           dok = false;
         } else if (!player.down) {
           dok = true;
         }
         if (player.left && lok) {
-          playerXDest = player.x - level.tw;
-          playerYDest = player.y;
-          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
-          currentStageState = playerTransitionState;
+          float d = player.x - level.tw;
+          if (d > 0) {
+            playerXDest = d;
+            playerYDest = player.y;
+            previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
+            currentStageState = playerTransitionState;
+          }
           lok = false;
         } else if (!player.left) {
           lok = true;
         }
         if (player.right && rok) {
-          playerXDest = player.x + level.tw;
-          playerYDest = player.y;
-          previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
-          currentStageState = playerTransitionState;
+          float d = player.x + level.tw;
+          if (d < resolutionWidth) {
+            playerXDest = player.x + level.tw;
+            playerYDest = player.y;
+            previousTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
+            currentStageState = playerTransitionState;
+          }
           rok = false;
         } else if (!player.right) {
           rok = true;
@@ -282,17 +322,14 @@ class OOOBridge extends Stage {
           level = new OOOLevel();
           level.y = -resolutionHeight;
         }  
-        //player.update();
-        //camera.update();
-        
 
         if (level != null) {
           level.render();
         }
-        
-        //if (plevel != null) {
-        //  plevel.render();
-        //}
+
+        if (plevel != null) {
+          plevel.render();
+        }
         break;
       }
     case cameraPanState:
@@ -313,6 +350,8 @@ class OOOBridge extends Stage {
           camera.y = 0;
           level.y = 0;
           plevel = null;
+          startPlayerX = player.x;
+          startPlayerY = player.y;
         }
         level.render();
         if (plevel != null) {
@@ -342,25 +381,82 @@ class OOOBridge extends Stage {
           player.x = playerXDest;
           player.y = playerYDest;
           currentTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
-          if(currentTile != null && previousTile != null){
-            if(currentTile.ranking > previousTile.ranking){
-             background.clr = color(255, 0, 0);
+          if (currentTile != null) {
+            if (!currentTile.onPath) {
+              currentTile.onPath = true;
+              if (previousTile != null) {
+                if (currentTile.ranking > previousTile.ranking) {
+                  currentStageState = playerFallState;
+                }
+              }
             }
           }
-          currentStageState = playGameState;
+          if (currentStageState != playerFallState) {
+            currentStageState = playGameState;
+          }
         }
         level.render();
         break;
       }
+    case playerFallState:
+      {
+        float fallSpeed = 0.9f;
+        float tx = (int)(player.x / level.tw) * level.tw;
+        float ty = (int)(player.y / level.tw) * level.tw;
+        if (currentTile.w > 0.001 && currentTile.h > 0.001) {
+          currentTile.w *= fallSpeed;
+          currentTile.h *= fallSpeed;
+          currentTile.x = tx + (level.tw / 2) - (currentTile.w / 2);
+          currentTile.y = ty + (level.tw / 2) - (currentTile.h / 2);
+
+          currentTile.setRanking(currentTile.ranking);
+        }
+
+        //player.w = 0;
+        //player.h = 0;
+        if (player.w > 0.001 && player.h > 0.001) {
+          player.w *= fallSpeed;
+          player.h *= fallSpeed;
+          player.x = tx + (level.tw / 2) - (player.w / 2);
+          player.y = ty + (level.tw / 2) - (player.h / 2);
+        } else {
+          level = new OOOLevel();
+          player.x = startPlayerX;
+          player.y = startPlayerY;
+          player.w = player.image.width;
+          player.h = player.image.height;
+          currentStageState = playGameState;
+        }
+
+        level.render();
+        break;
+      }
     }
-if(currentTile != null){
-    fill(255);
-    textSize(24);
-    text("" + currentTile.ranking, 100, 100);
-    }
+
     if (checkForExit() && checkInteraction()) {
       returnToWorld();
       ret = false;
+    }
+    image(player.image, player.x, player.y, player.w, player.h);
+  
+    if (displayOperatorsMode) {
+      opDisplayYOffset += scrollAmount * 20;
+      fill(0, 0, 0, 200);
+      float margin = 25;
+      float mx2 = margin * 2;
+      float idt = margin * 15;
+      float bw = resolutionWidth - mx2;
+      float br = margin + bw;
+      strokeWeight(10);
+      rect(margin, margin + opDisplayYOffset, bw, resolutionHeight - mx2, 20);
+      strokeWeight(5);
+      line(idt, margin + opDisplayYOffset, idt, margin + opDisplayYOffset + resolutionHeight - mx2);
+      strokeWeight(1);
+      
+      fill(255);
+      textSize(25);
+      centeredText("Operator Type", margin, idt, 60);
+      centeredText("Symbol", idt, br, 60);
     }
 
     return ret;
