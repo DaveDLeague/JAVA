@@ -19,6 +19,10 @@ abstract class Stage {
 
   Stage(StageImage image){
     this.image = image;
+    player.savedX = player.x;
+    player.savedY = player.y;
+    camera.savedX = camera.x;
+    camera.savedY = camera.y;
   }
 
   boolean checkForExit() {
@@ -36,6 +40,10 @@ abstract class Stage {
   void returnToWorld(){
    currentBackground = worldMapBackground; 
    currentState = GameStates.WORLD_MAP_STATE;
+   player.x = player.savedX;
+   player.y = player.savedY;
+   camera.x = camera.savedX;
+   camera.y = camera.savedY;
   }
 }
 

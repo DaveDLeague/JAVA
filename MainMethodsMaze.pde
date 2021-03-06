@@ -43,8 +43,12 @@ class MainMethodsMaze extends Stage {
           }
         }
       }
-
-      this.method = rt + mn + pt + pn;
+      
+      if((int)random(6) == 0){
+        this.method = "public final static " + rt + mn + pt + pn;
+      }else{
+        this.method = "public static " + rt + mn + pt + pn;
+      }
     }
 
     void render(int cellX, int cellY, color c) {

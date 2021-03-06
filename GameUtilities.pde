@@ -29,18 +29,62 @@ int totalDialogChoices;
 int dialogMax;
 
 enum GameStates {
-  TITLE_STATE, WORLD_MAP_STATE, VARIABLES_CAVE_STATE, IMPORTS_SHACK_STATE, MAIN_METHODS_MAZE_STATE, 
+  TITLE_STATE, LOAD_GAME_STATE, MENU_SCREEN_STATE, WORLD_MAP_STATE, VARIABLES_CAVE_STATE, IMPORTS_SHACK_STATE, MAIN_METHODS_MAZE_STATE, 
     HOW_TO_PLAY_STATE, CHARACTER_SELECT_STATE, OOO_BRIDGE_STATE
 }
 
 static class SaveState implements Serializable {
+  int[] completedStages;
+  LocalDateTime time;
+  String name;
+  float playerX;
+  float playerY;
+  float cameraX;
+  float cameraY;
   int player;
 }
 
-void saveGame(SaveState s) {
+void saveGame() {
+  SaveState s = new SaveState();
+  s.time = LocalDateTime.now();
+  if(player.image == robotImage){
+    s.player = 0;
+  }else if(player.image == alienImage){
+    s.player = 1;
+  }
+  s.name = player.name;
+  s.playerX = player.savedX;
+  s.playerY = player.savedY;
+  s.cameraX = camera.savedX;
+  s.cameraY = camera.savedY;
+  ArrayList<Integer> cs = new ArrayList<Integer>();
+  for(int i = 0; i < stageImages.size(); i++){
+    if(stageImages.get(i).completed){
+     cs.add(i);
+    }
+  }
+  s.completedStages = new int[cs.size()];
+  for(int i = 0; i < s.completedStages.length; i++){
+    s.completedStages[i] = cs.get(i); 
+  }
+  ArrayList<SaveState> saveStates = getSavedGameStates();
+  boolean rep = false;
+  for(int i = 0; i < saveStates.size(); i++){
+    SaveState ss = saveStates.get(i);
+   if(ss.player == s.player && ss.name.equals(s.name)){
+      saveStates.set(i, s);
+      rep = true;
+      break;
+   }
+  }
+  if(!rep){
+    saveStates.add(s);
+  }
   try {
     ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dataFolderPath + "/save_data"));
-    oos.writeObject(s);
+    for(SaveState ss : saveStates){
+      oos.writeObject(ss);
+    }
     oos.close();
   }
   catch(IOException e) {
@@ -48,12 +92,23 @@ void saveGame(SaveState s) {
   }
 }
 
-SaveState loadGame() {
-  SaveState s = null;
+ArrayList<SaveState> getSavedGameStates() {
+  ObjectInputStream ois = null;
+  ArrayList<SaveState> saveStates = new ArrayList<SaveState>();
   try {
-    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dataFolderPath + "/save_data"));
-    s = (SaveState)ois.readObject();
-    ois.close();
+    ois = new ObjectInputStream(new FileInputStream(dataFolderPath + "/save_data"));
+    SaveState s = (SaveState)ois.readObject();
+    while (s != null) {
+      saveStates.add(s);
+      s = (SaveState)ois.readObject();
+    }
+  }
+  catch(StreamCorruptedException e) {
+    println(e.getMessage());
+  }
+  catch(EOFException e) {
+  }
+  catch(FileNotFoundException e) {
   }
   catch(IOException e) {
     e.printStackTrace();
@@ -61,14 +116,54 @@ SaveState loadGame() {
   catch(ClassNotFoundException e) {
     e.printStackTrace();
   }
-  return s;
+  if (ois != null) {
+    try {
+      ois.close();
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  return saveStates;
+}
+
+void loadSaveState(int index){
+ ArrayList<SaveState> saveStates = getSavedGameStates(); 
+ SaveState s = saveStates.get(index);
+ player.name = s.name;
+ player.x = s.playerX;
+ player.y = s.playerY;
+ player.savedX = player.x;
+ player.savedY = player.y;
+ camera.x = s.cameraX;
+ camera.y = s.cameraY;
+ camera.savedX = s.cameraX;
+ camera.savedY = s.cameraY;
+ 
+ 
+ if(s.player == 0){
+   player.setImage(robotImage);
+ }else if(s.player == 1){
+   player.setImage(alienImage);
+ }
+ 
+ for(StageImage si : stageImages){
+   si.completed = false; 
+ }
+ for(int i : s.completedStages){
+   stageImages.get(i).completed = true;
+ }
+ 
+ currentState = GameStates.WORLD_MAP_STATE;
+ currentBackground = worldMapBackground;
 }
 
 String getOperation(int v) {
   if (v < 0 || v >= totalOperations) {
     v = (int)random(totalOperations);
   }
-  
+
   int ctr = 0;
   for (String[] s : OPERATIONS) {
     for (String t : s) {
@@ -123,6 +218,9 @@ class Player {
   float h;
   float xSpeed;
   float ySpeed;
+  
+  float savedX;
+  float savedY;
 
   boolean up;
   boolean down;
@@ -182,10 +280,13 @@ class Player {
 }
 
 class Camera {
-  public float x;
-  public float y;
-  public float xMargin;
-  public float yMargin;
+  float x;
+  float y;
+  float xMargin;
+  float yMargin;
+  
+  float savedX;
+  float savedY;
 
   void update() {
     if (x < currentBackground.w - resolutionWidth && player.x > resolutionWidth - xMargin) {
@@ -294,7 +395,7 @@ boolean checkIntersection(float x1, float y1, float w1, float h1, float x2, floa
   return true;
 }
 
-void centeredText(String text, float xb1, float xb2, float y){
+void centeredText(String text, float xb1, float xb2, float y) {
   float w = xb2 - xb1;
   float tw = textWidth(text);
   text(text, xb1 + (w / 2) - (tw / 2), y);

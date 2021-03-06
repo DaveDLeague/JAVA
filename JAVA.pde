@@ -1,82 +1,84 @@
 /* //<>//
  TODO:
  add "final" to main methods maze
-   -explain JVM and entry points
-   -and explain that other methods can be written called 'main' 
+ -explain JVM and entry points
+ -and explain that other methods can be written called 'main' 
  add periods to incorrect variables in variables cave
  finish imports shack
-   -make game more procedural and logical, 'na mean?
-   -make dialog explain the game better (explain how many stages)
-   -position buttons better
-   -display current stage
-   -add explanation of semicolon (make funny)
+ -make game more procedural and logical, 'na mean?
+ -make dialog explain the game better (explain how many stages)
+ -position buttons better
+ -display current stage
+ -add explanation of semicolon (make funny)
  finish order of operations bridge
-   -make order of operations chart (cheat sheet)
-   -finish bird dialog    
-   -add oder of operations fill in questions in between OOO Bridge stages
- add options screen
- add save and load games
+ -finish order of operations chart (cheat sheet)
+ -finish bird dialog    
+ -add order of operations fill in questions in between OOO Bridge stages
  refactor stages?
  code challenges
  add third player option
  character direction facing
  add a world edit mode
-*/
+ */
 
 /*
 stage ideas:
-volcano 
-tornado
-lake
-river
-pond
-swamp
-
-snake
-shark
-primate
-dinosaur
-
-general which-line-has-the-error game
-default value of variables
+ volcano 
+ tornado
+ lake
+ river
+ pond
+ swamp
+ 
+ snake
+ shark
+ primate
+ dinosaur
+ 
+ general which-line-has-the-error game
+ default value of variables
  -multiple variables defined on same line
  -maybe game on timer, have to get all answers before time expires (fuse to a bomb or something)
-variables with incorrect assignments (ints getting decimal values etc.)
-where variables are valid (inside {}) 
+ variables with incorrect assignments (ints getting decimal values etc.)
+ where variables are valid (inside {}) 
  - variable scope 
  - class(static), instance, and local variables
  - class variables always in scope
  - static methods using non-static variables
  - creating local variables with same name as instance variable
-removing unnecessary imports and adding in needed ones (java.lang)
-Command Line compiling and and arguments (.java and .class[bytecode])
+ removing unnecessary imports and adding in needed ones (java.lang)
+ Command Line compiling and and arguments (.java and .class[bytecode])
  -main method's String array
-proper package declarations
+ proper package declarations
  -accessing things from different packages
  -wildcards
  -different packages with same class name
-proper ways to write numbers (maybe a visit from Mr. Ocopus's brother?)
+ proper ways to write numbers (maybe a visit from Mr. Ocopus's brother?)
  -underscores and casting f, L, 0xE, 0b, 0B
-objects, references and garbage collection 
+ objects, references and garbage collection 
  -memory managed automatically
  -finalize() method
-constructors (and methods that look a lot like constructors...but aren't)
-comments
-encapsulation and immutability
-method overloading
-inheritance
+ constructors (and methods that look a lot like constructors...but aren't)
+ comments
+ encapsulation and immutability
+ method overloading
+ inheritance
  -class extending and interface implementing saves duplicate code
-java being object oriented and platform independant 
+ java being object oriented and platform independant 
  -.class file can run on any computer with compatible JVM?
-*/
+ */
 
 import java.util.Arrays;
 import java.util.Stack;
+import java.time.LocalDateTime;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Serializable;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.StreamCorruptedException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -85,11 +87,16 @@ import javax.swing.JOptionPane;
 PImage frame;
 
 GameStates currentState = GameStates.TITLE_STATE;
+GameStates previousState = currentState;
+GameStates cachedState = currentState;
 
 PFont arial;
 PFont courier;
 
 final static int F1_KEY = 97;
+final static int F4_KEY = 100;
+final static int F5_KEY = 101;
+final static int F9_KEY = 105;
 final static int resolutionWidth = 1024;
 final static int resolutionHeight = 576;
 final static int promptTextSize = 14;
@@ -105,12 +112,14 @@ int totalCharacters = 2;
 int selectedCharacter = 0;
 
 int scrollAmount;
+int currentlySelectedSavedGame;
 
 int currentWidth = 0;
 int currentHeight = 0;
 boolean fullScreen = false;
 boolean canSave = true;
 boolean ctrlDown = false;
+boolean altDown = false;
 
 boolean DEBUG = true;
 
@@ -118,6 +127,9 @@ String dataFolderPath;
 
 PImage robotImage;
 PImage alienImage;
+
+PImage robotPortrait;
+PImage alienPortrait;
 
 Player player;
 Background worldMapBackground;
@@ -131,6 +143,8 @@ Stage oooBridgeStage;
 
 ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
+ArrayList<SaveState> savedGames;
+
 
 void setup() {
   dataFolderPath = dataPath("");
@@ -172,6 +186,7 @@ void setup() {
   worldMapBackground.h = 1080;
 
   currentBackground = worldMapBackground;
+  savedGames = getSavedGameStates();
 }
 
 void draw() {
@@ -192,18 +207,94 @@ void draw() {
       if (renderDialogChoice("Start New Game")) {
         currentState = GameStates.CHARACTER_SELECT_STATE;
       }
-      if (renderDialogChoice("Continue")) {
-        currentState = GameStates.WORLD_MAP_STATE;
+      if (savedGames.size() > 0 && renderDialogChoice("Continue")) {
+        currentState = GameStates.LOAD_GAME_STATE;
+        background(50, 100, 200);
+        image(robotImage, 0, 0);
+        robotPortrait = get(0, 0, robotImage.width, robotImage.height / 2);
+        background(50, 100, 200);
+        image(alienImage, 0, 0);
+        alienPortrait = get(0, 0, alienImage.width, alienImage.height - 15);
+        currentlySelectedSavedGame = 0;
+        scrollAmount = 0;
       }
       if (renderDialogChoice("How To Play")) {
+        cachedState = currentState;
+        previousState = currentState;
         currentState = GameStates.HOW_TO_PLAY_STATE;
       }
       break;
     }
+  case LOAD_GAME_STATE:
+    {
+      background(50, 100, 200);
+      strokeWeight(10);
+      float margin = 25;
+      float mx2 = margin * 2;
+      float h = 150;
+      float x = margin;
+      float y = margin;
+      float w = resolutionWidth - mx2;
+      for (int i = 0; i < savedGames.size(); i++) {
+        color boxColor = color(0, 0, 0, 200);
+        color textColor = color(255);
+        if (currentInputState == MOUSE_STATE && checkMouseInBounds(x, y, w, h)) {
+          boxColor = color(50, 50, 50, 200);
+          textColor = color(200, 200, 0);
+          if (mousePressed && mouseButton == LEFT) {
+            loadSaveState(i); 
+            break;
+          }
+        } else if (currentInputState == KEYBOARD_STATE && currentlySelectedSavedGame == i) {
+          boxColor = color(50, 50, 50, 200);
+          textColor = color(200, 200, 0);
+          if (checkEnterInput()) {
+            loadSaveState(i); 
+            break;
+          } else if (keyPressed && keyCode == UP) {
+            keyCode = 0;
+            keyPressed = false;
+            currentlySelectedSavedGame--;
+          } else if (keyPressed && keyCode == DOWN) {
+            keyCode = 0;
+            keyPressed = false;
+            currentlySelectedSavedGame++;
+          } else if (keyPressed && keyCode == LEFT) {
+            keyCode = 0;
+            keyPressed = false;
+            currentlySelectedSavedGame--;
+          } else if (keyPressed && keyCode == RIGHT) {
+            keyCode = 0;
+            keyPressed = false;
+            currentlySelectedSavedGame++;
+          }
+
+          if (currentlySelectedSavedGame < 0) {
+            currentlySelectedSavedGame = savedGames.size() - 1;
+          } else if (currentlySelectedSavedGame > savedGames.size() - 1) {
+            currentlySelectedSavedGame = 0;
+          }
+        }
+        SaveState s = savedGames.get(i);
+        fill(boxColor);
+        rect(x, y, w, h, 20);
+        if (s.player == 0) {
+          image(robotPortrait, mx2, y + (h / 2) - (robotPortrait.height * 3 / 2), robotPortrait.width * 3, robotPortrait.height * 3);
+        } else if (s.player == 1) {
+          image(alienPortrait, mx2, y + (h / 2) - (alienPortrait.height * 3/ 2), alienPortrait.width * 3, alienPortrait.height * 3);
+        }
+
+        fill(textColor);
+        textSize(mx2);
+        text(s.name, x + 150, y + 60);
+        text(s.time + "", x + 150, y + 120);
+        y += h + margin;
+      }
+      strokeWeight(1);
+      break;
+    }
   case CHARACTER_SELECT_STATE:
     {
-
-
       int rx = 200;
       int ry = 150;
       int rw = robotImage.width;
@@ -273,10 +364,30 @@ void draw() {
 
       String input = renderInputBox();
       if (input != null && !input.trim().equals("")) {
-        if(selectedCharacter == 0) player.setImage(robotImage);
-        else if(selectedCharacter == 1) player.setImage(alienImage);
+        if (selectedCharacter == 0) player.setImage(robotImage);
+        else if (selectedCharacter == 1) player.setImage(alienImage);
         player.name = input;
         currentState = GameStates.WORLD_MAP_STATE;
+      }
+      break;
+    }
+  case MENU_SCREEN_STATE:
+    {
+      background(50, 100, 200);
+      dialogChoiceYPos = 200;
+      if (renderDialogChoice("RETURN TO THE GAME")) {
+        currentState = previousState;
+      }
+      if (renderDialogChoice("RETURN TO THE TITLE SCREEN")) {
+         currentState = GameStates.TITLE_STATE;
+      }
+      if (renderDialogChoice("HOW TO PLAY")) {
+         cachedState = currentState;
+         currentState = GameStates.HOW_TO_PLAY_STATE;
+      }
+      if (renderDialogChoice("EXIT THE PROGRAM")) {
+        saveGame();
+        System.exit(0);
       }
       break;
     }
@@ -287,24 +398,24 @@ void draw() {
       fill(255);
       textBoxYPos = 50;
       renderTextBox("w: move up", 
-                    "a: move left", 
-                    "s: move down", 
-                    "d: move right", 
-                    "SPACE: interact", 
-                    "F1: toggle full screen mode", 
-                    "ESCAPE: exit program", 
-                    "You can use either the MOUSE",
-                    "or the ARROW KEYS + ENTER to",
-                    "select options");
+        "a: move left", 
+        "s: move down", 
+        "d: move right", 
+        "SPACE: interact", 
+        "F1: toggle full screen mode", 
+        "ESCAPE: view menu screen", 
+        "You can use either the MOUSE", 
+        "or the ARROW KEYS + ENTER to", 
+        "select options");
 
       fill(255);
       textSize(24);
-      String t = "Press SPACE to Return to the Previous Screen";
+      String t = "Press ENTER, SPACE or Click the Mouse to Return to the Previous Screen";
       text(t, resolutionWidth / 2 - textWidth(t) / 2, resolutionHeight - 30);
 
 
-      if (checkInteraction()) {
-        currentState = GameStates.TITLE_STATE;
+      if (checkInteraction() || checkEnterInput() || mousePressed) {
+        currentState = cachedState;
       }
       break;
     }
@@ -372,15 +483,15 @@ void draw() {
 
       break;
     }
-    case OOO_BRIDGE_STATE:
+  case OOO_BRIDGE_STATE:
     {
       if (oooBridgeStage == null) {
         oooBridgeStage = new OOOBridge(stageImages.get(3));
       }
       background(currentBackground.clr);
-      
+
       if (!oooBridgeStage.update()) oooBridgeStage = null;
-      
+
 
       break;
     }
@@ -395,7 +506,7 @@ void draw() {
     scaledMouseX = mouseX;
     scaledMouseY = mouseY;
   }
-  
+
   scrollAmount = 0;
 }
 
@@ -406,12 +517,14 @@ void keyPressed() {
   switch(keyCode) {
   case ESC: 
     {
-      int res = JOptionPane.YES_OPTION;//JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "", JOptionPane.YES_NO_OPTION);
-      if (res == JOptionPane.YES_OPTION) {
-        System.exit(0);
+      if (currentState != GameStates.MENU_SCREEN_STATE) {
+        cachedState = currentState;
+        previousState = currentState;
+        currentState = GameStates.MENU_SCREEN_STATE;
       } else {
-        key = 0;
+        currentState = cachedState;
       }
+      key = 0;
       break;
     }
   case ENTER: 
@@ -422,6 +535,11 @@ void keyPressed() {
   case CONTROL: 
     {
       ctrlDown = true;
+      break;
+    }
+  case ALT: 
+    {
+      altDown = true;
       break;
     }
   case BACKSPACE: 
@@ -506,6 +624,24 @@ void keyPressed() {
       toggleFullScreen();
       break;
     }
+  case F4_KEY:
+    {
+      if (altDown) {
+        saveGame();
+        System.exit(0);
+      }
+      break;
+    }
+  case F5_KEY:
+    {
+      saveGame(); 
+      break;
+    }
+  case F9_KEY:
+    {
+      loadSaveState(1);
+      break;
+    }
   }
 
   switch(key) {
@@ -533,6 +669,7 @@ void keyPressed() {
     {
       if (DEBUG && currentState == GameStates.TITLE_STATE) {
         currentState = GameStates.WORLD_MAP_STATE;
+        player.name = "";
       }
       interaction = true;
       break;
@@ -550,6 +687,11 @@ void keyReleased() {
   case CONTROL: 
     {
       ctrlDown = false;
+      break;
+    }
+  case ALT: 
+    {
+      altDown = false;
       break;
     }
   }
@@ -582,16 +724,16 @@ void keyReleased() {
   }
 }
 
-void mouseMoved(){
-   currentInputState = MOUSE_STATE;
-}
-
-void mousePressed(){
+void mouseMoved() {
   currentInputState = MOUSE_STATE;
 }
 
-void mouseWheel(MouseEvent e){
-  scrollAmount = e.getCount(); 
+void mousePressed() {
+  currentInputState = MOUSE_STATE;
+}
+
+void mouseWheel(MouseEvent e) {
+  scrollAmount = e.getCount();
 }
 
 void toggleFullScreen() {
