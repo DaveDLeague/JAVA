@@ -1,5 +1,7 @@
 /* //<>//
  TODO:
+ load screen scrolling
+ deleting saved games
  add "final" to main methods maze
  -explain JVM and entry points
  -and explain that other methods can be written called 'main' 
@@ -87,7 +89,7 @@ import javax.swing.JOptionPane;
 PImage frame;
 
 GameStates currentState = GameStates.TITLE_STATE;
-GameStates previousState = currentState;
+GameStates previousState = GameStates.WORLD_MAP_STATE;
 GameStates cachedState = currentState;
 
 PFont arial;
@@ -379,14 +381,16 @@ void draw() {
         currentState = previousState;
       }
       if (renderDialogChoice("RETURN TO THE TITLE SCREEN")) {
-         currentState = GameStates.TITLE_STATE;
+        currentState = GameStates.TITLE_STATE;
       }
       if (renderDialogChoice("HOW TO PLAY")) {
-         cachedState = currentState;
-         currentState = GameStates.HOW_TO_PLAY_STATE;
+        cachedState = currentState;
+        currentState = GameStates.HOW_TO_PLAY_STATE;
       }
       if (renderDialogChoice("EXIT THE PROGRAM")) {
-        saveGame();
+        if (previousState == GameStates.WORLD_MAP_STATE) {
+          saveGame();
+        }
         System.exit(0);
       }
       break;
@@ -519,7 +523,9 @@ void keyPressed() {
     {
       if (currentState != GameStates.MENU_SCREEN_STATE) {
         cachedState = currentState;
+
         previousState = currentState;
+
         currentState = GameStates.MENU_SCREEN_STATE;
       } else {
         currentState = cachedState;
