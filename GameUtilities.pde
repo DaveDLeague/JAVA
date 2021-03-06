@@ -92,6 +92,19 @@ void saveGame() {
   }
 }
 
+void saveGame(ArrayList<SaveState> saveStates) {
+  try {
+    ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dataFolderPath + "/save_data"));
+    for(SaveState ss : saveStates){
+      oos.writeObject(ss);
+    }
+    oos.close();
+  }
+  catch(IOException e) {
+    e.printStackTrace();
+  }
+}
+
 ArrayList<SaveState> getSavedGameStates() {
   ObjectInputStream ois = null;
   ArrayList<SaveState> saveStates = new ArrayList<SaveState>();

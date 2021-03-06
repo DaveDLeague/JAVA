@@ -1,7 +1,6 @@
 /* //<>//
  TODO:
- load screen scrolling
- deleting saved games
+ fix loading bug
  add "final" to main methods maze
  -explain JVM and entry points
  -and explain that other methods can be written called 'main' 
@@ -123,6 +122,11 @@ boolean canSave = true;
 boolean ctrlDown = false;
 boolean altDown = false;
 
+boolean saveGameDeletionVarification;
+int saveGameDeltionIndex;
+
+float loadGameScrollAmt;
+
 boolean DEBUG = true;
 
 String dataFolderPath;
@@ -218,7 +222,6 @@ void draw() {
         image(alienImage, 0, 0);
         alienPortrait = get(0, 0, alienImage.width, alienImage.height - 15);
         currentlySelectedSavedGame = 0;
-        scrollAmount = 0;
       }
       if (renderDialogChoice("How To Play")) {
         cachedState = currentState;
@@ -229,21 +232,39 @@ void draw() {
     }
   case LOAD_GAME_STATE:
     {
+      
       background(50, 100, 200);
       strokeWeight(10);
+      boolean del = false;
+      float delY = 0;
       float margin = 25;
       float mx2 = margin * 2;
+      float ts = 36;
       float h = 150;
       float x = margin;
-      float y = margin;
+      float y = margin - loadGameScrollAmt;
       float w = resolutionWidth - mx2;
+      float dx = resolutionWidth - margin - 100;
+      
       for (int i = 0; i < savedGames.size(); i++) {
         color boxColor = color(0, 0, 0, 200);
         color textColor = color(255);
+        color delColor = color(255);
         if (currentInputState == MOUSE_STATE && checkMouseInBounds(x, y, w, h)) {
           boxColor = color(50, 50, 50, 200);
           textColor = color(200, 200, 0);
-          if (mousePressed && mouseButton == LEFT) {
+          if (checkMouseInBounds(dx, y, resolutionWidth - margin - dx, h)) {
+            fill(255);
+            textSize(14);
+            del = true;
+            delY = y;
+            delColor = color(200, 0, 0);
+            if (mousePressed && mouseButton == LEFT) {
+              saveGameDeletionVarification = true;
+              saveGameDeltionIndex = i;
+            }
+          }
+          if (!saveGameDeletionVarification && mousePressed && mouseButton == LEFT) {
             loadSaveState(i); 
             break;
           }
@@ -276,10 +297,14 @@ void draw() {
           } else if (currentlySelectedSavedGame > savedGames.size() - 1) {
             currentlySelectedSavedGame = 0;
           }
+        } else if (keyPressed && keyCode == DELETE) {
+          keyPressed = false;
+          keyCode = 0;
         }
         SaveState s = savedGames.get(i);
         fill(boxColor);
         rect(x, y, w, h, 20);
+        line(dx, y, dx, y + h);
         if (s.player == 0) {
           image(robotPortrait, mx2, y + (h / 2) - (robotPortrait.height * 3 / 2), robotPortrait.width * 3, robotPortrait.height * 3);
         } else if (s.player == 1) {
@@ -287,12 +312,46 @@ void draw() {
         }
 
         fill(textColor);
-        textSize(mx2);
+        textSize(ts);
         text(s.name, x + 150, y + 60);
         text(s.time + "", x + 150, y + 120);
+        textSize(96);
+        fill(delColor);
+        centeredText("X", dx, resolutionWidth - margin, y + 110);
+        if (del) {
+          textSize(14);
+          fill(255);
+          text("Click to Delete", dx, delY);
+        }
         y += h + margin;
       }
       strokeWeight(1);
+      
+      
+      
+      if(y <= resolutionHeight - margin){
+        loadGameScrollAmt--;
+      }else{
+        loadGameScrollAmt += scrollAmount * 20;
+      }
+      if (loadGameScrollAmt < 0) {
+        loadGameScrollAmt = 0;
+      }
+
+      if (saveGameDeletionVarification) {
+        renderTextBox("Are you sure you want to delete this saved game?");
+        if (renderDialogChoice("Yes. Delete it")) {
+          savedGames.remove(saveGameDeltionIndex);
+          saveGame(savedGames);
+          if (savedGames.size() == 0) {
+            currentState = GameStates.TITLE_STATE;
+          }
+          saveGameDeletionVarification = false;
+        }
+        if (renderDialogChoice("No. Keep it")) {
+          saveGameDeletionVarification = false;
+        }
+      }
       break;
     }
   case CHARACTER_SELECT_STATE:
@@ -633,7 +692,9 @@ void keyPressed() {
   case F4_KEY:
     {
       if (altDown) {
-        saveGame();
+        if (previousState == GameStates.WORLD_MAP_STATE) {
+          saveGame();
+        }
         System.exit(0);
       }
       break;
