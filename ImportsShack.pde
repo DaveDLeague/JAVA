@@ -219,15 +219,6 @@ class ImportsShack extends Stage {
     currentBackground = background;
   }
 
-  void exitStage() {
-    currentState = GameStates.WORLD_MAP_STATE;
-    currentBackground = worldMapBackground;
-    player.x = image.x;
-    player.y = image.y;
-    camera.x = image.x - 400;
-    camera.y = image.y - 500;
-  }
-
   boolean update() {
     boolean ret = true;
 
@@ -377,7 +368,7 @@ class ImportsShack extends Stage {
             incorrectAnswer = false;
           }
           if (renderPlayerButton("EXIT", 200, 900)) {
-            exitStage();
+            returnToWorld();
             ret = false;
           }
 
@@ -396,7 +387,7 @@ class ImportsShack extends Stage {
     }
     if (currentStageState < packageGameState1 && checkForExit()) {
       if (checkInteraction()) {
-        exitStage();
+        returnToWorld();
         ret = false;
       }
     }

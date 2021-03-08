@@ -44,6 +44,9 @@ abstract class Stage {
    player.y = player.savedY;
    camera.x = camera.savedX;
    camera.y = camera.savedY;
+   if(image.completed){
+    saveGame(); 
+   }
   }
 }
 

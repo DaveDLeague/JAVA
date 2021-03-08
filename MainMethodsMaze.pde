@@ -1,25 +1,67 @@
 class MainMethodsMaze extends Stage {
   class MainMethod {
-    String[] returnTypes = {"void ", "Void ", "int ", "String ", "" };
-    String[] methodNames = {"main(", "Main(", "mian("};
-    String[] parameterTypes = {"String[] ", "String... ", "String ", "void "};
-    String[] parameterNames = {"args){}", "arg){}", "x){}", "main){}", "$tuff){}", "input_parameters){}"};
+    final String[] returnTypes = {"void ", "Void ", "int ", "String ", "" };
+    final String[] methodNames = {"main(", "Main(", "mian("};
+    final String[] parameterTypes = {"String[] ", "String... ", "String ", "void "};
+    final String[] parameterNames = {"args){}", "arg){}", "x){}", "main){}", "$tuff){}", "input_parameters){}"};
     String method;
     boolean valid;
 
     MainMethod() {
       this.valid = (int)random(2) == 0 ? true : false;
 
+      String md = "";
       String rt;
       String mn;
       String pt;
       String pn;
+      if ((int)random(6) == 0) {
+        int rv = (int)random(6);
+        switch(rv) {
+        case 0 :
+          {
+            md = "public final static ";
+            break;
+          }
+        case 1 :
+          {
+            md = "public static final ";
+            break;
+          }
+        case 2 :
+          {
+            md = "final public static ";
+            break;
+          }
+        case 3 :
+          {
+            md = "final static public ";
+            break;
+          }
+        case 4 :
+          {
+            md = "static public final ";
+            break;
+          }
+        case 5 :
+          {
+            md = "static final public ";
+            break;
+          }
+        }
+      } else {
+        if ((int)random(5) != 0) {
+          md = "public static ";
+        } else {
+          md = "static public ";
+        }
+      }
       rt = returnTypes[0];
       mn = methodNames[0];
       pt = parameterTypes[(int)random(2)];
       pn = parameterNames[(int)random(6)];
       if (!valid) {
-        int rv = (int)random(4);
+        int rv = (int)random(5);
         switch(rv) {
         case 0:
           {
@@ -41,20 +83,52 @@ class MainMethodsMaze extends Stage {
             pn = JAVA_KEYWORDS[(int)random(JAVA_KEYWORDS.length)] + "){}";
             break;
           }
+        case 4:
+          {
+            int vv = (int)random(6);
+            switch(vv) {
+            case 0 :
+              {
+                md = "static ";
+                break;
+              }
+            case 1 :
+              {
+                md = "public ";
+                break;
+              }
+            case 2 :
+              {
+                md = "final static ";
+                break;
+              }
+            case 3 :
+              {
+                md = "final public ";
+                break;
+              }
+            case 4 :
+              {
+                md = "public final ";
+                break;
+              }
+            case 5 :
+              {
+                md = "static final ";
+                break;
+              }
+            }
+            break;
+          }
         }
       }
-      
-      if((int)random(6) == 0){
-        this.method = "public final static " + rt + mn + pt + pn;
-      }else{
-        this.method = "public static " + rt + mn + pt + pn;
-      }
+      method = md + rt + mn + pt + pn;
     }
 
     void render(int cellX, int cellY, color c) {
       fill(c);
       textFont(courier);
-      float h = 36;
+      float h = 24;
       textSize(h);
       float w = textWidth(method);
       float xp = (cellX * resolutionWidth) + resolutionWidth / 2 - w / 2 - camera.x;
@@ -212,15 +286,16 @@ class MainMethodsMaze extends Stage {
   final int searchState = 0;
   final int greetingState = 1;
   final int inquireState = 2;
-  final int mazeSearchState = 3;
-  final int tutorialState = 4;
-  final int mazeInquireState = 5;
+  final int inquireState2 = 3;
+  final int mazeSearchState = 4;
+  final int tutorialState = 5;
+  final int mazeInquireState = 6;
   int mazeWidth = 5;
   int mazeHeight = 5;
 
   int mazeExitX;
   int mazeExitY;
-  
+
   int wrongAnswers;
 
   int cellX;
@@ -309,14 +384,27 @@ class MainMethodsMaze extends Stage {
       }
     case inquireState:
       {
-        renderTextBox("The main method is how the operating system knows where to start", 
-          "running a Java program. So every Java program must have a main method.", 
-          "Since the main method is so important, it must follow a certain standard.", 
-          "Main methods must be public, static, and have a return type of void.", 
-          "The name of the method must be \"main\" with a lowercase \'m\'. The", 
-          "parameters must either be an array of Strings or String variable", 
-          "arguments (String... x). The name of the parameter can be any valid", 
-          "Java variable name. Talk to the Octopus to learn more about those.");
+        renderTextBox("The main method is how the Java Virtual Machine, or JVM, knows where to start", 
+          "running a Java program. It is called the entry point to the JVM. Every", 
+          "Java program must have a main method. Since the main method", 
+          "is so important, it has to follow a certain standard. Main methods", 
+          "must be public, static, and have a return type of void. They can", 
+          "be final, although it is not a requirement.");
+        if (renderDialogChoice("Okay.")) {
+          currentStageState = inquireState2;
+        }
+
+        break;
+      }
+    case inquireState2:
+      {
+        renderTextBox("The name of the method", 
+          "must be \"main\" with a lowercase \'m\'. The parameters must either", 
+          "be an array of Strings or String variable arguments (String... x).", 
+          "The name of the parameter can be any valid Java variable name. Talk", 
+          "to the Octopus to learn more about those. A Java program can have", 
+          "other methods named \"main\", but if they don't fit all of the previously", 
+          "mentioned criteria, then they won't be a JVM entry point.");
         if (renderDialogChoice("Okay.")) {
           currentStageState = tutorialState;
         }
@@ -325,8 +413,8 @@ class MainMethodsMaze extends Stage {
       }
     case tutorialState:
       {
-        renderTextBox("Select only the proper main methods to escape.",
-                      "Be vary carful! 3 wrong answers will reset the maze.");
+        renderTextBox("Select only the proper main methods to escape.", 
+          "Be vary carful! 3 wrong answers will reset the maze.");
         if (renderDialogChoice("What maze?")) {
           currentStageState = mazeSearchState;
           background.w = resolutionWidth * maze.mw;
@@ -379,22 +467,31 @@ class MainMethodsMaze extends Stage {
           textSize(promptTextSize);
           text("Press SPACE to Exit the Maze", mex - 100, mey);
           if (checkInteraction()) {
-            camera.x = image.x - camera.xMargin;
-            camera.y = image.y - resolutionHeight + image.image.height;
-            player.x = image.x + image.image.width;
-            player.y = image.y + image.image.height;
-            currentBackground = worldMapBackground;
-            currentState = GameStates.WORLD_MAP_STATE;
-            image.completed = true;
+            //camera.x = image.x - camera.xMargin;
+            //camera.y = image.y - resolutionHeight + image.image.height;
+            //player.x = image.x + image.image.width;
+            //player.y = image.y + image.image.height;
+            //currentBackground = worldMapBackground;
+            //currentState = GameStates.WORLD_MAP_STATE;
+            image.completed = true;          
+            returnToWorld();
+
             ret = false;
           }
         }
 
-        
+
         break;
       }
     case mazeInquireState:
       {
+        //if(keyPressed && key == ' '){
+        //  keyPressed = false;
+        //  key = 0;
+        //  completedCells[cellX][cellY] = true;
+        //  currentStageState = mazeSearchState;
+        //  mainMethod = null;
+        //}
         if (wrongAnswer) {
           mainMethod.render(cellX, cellY, color(220, 70, 70));
           if (renderPlayerButton("TRY AGAIN", "Press Space to Try Again", (cellX * resolutionWidth) + 380, cellY * resolutionHeight + 400)) {
@@ -423,8 +520,8 @@ class MainMethodsMaze extends Stage {
               wrongAnswers++;
             }
           }
-          
-          if(wrongAnswers >= 3){
+
+          if (wrongAnswers >= 3) {
             maze = new Maze(mazeWidth, mazeHeight); 
             player.x = 100;
             player.y = 100;
@@ -436,9 +533,9 @@ class MainMethodsMaze extends Stage {
             wrongAnswers = 0;
             wrongAnswer = false;
             currentStageState = mazeSearchState;
-            for(int i = 0; i < mazeWidth; i++){
-              for(int j = 0; j < mazeHeight; j++){
-                completedCells[i][j] = false; 
+            for (int i = 0; i < mazeWidth; i++) {
+              for (int j = 0; j < mazeHeight; j++) {
+                completedCells[i][j] = false;
               }
             }
             completedCells[0][0] = true;
@@ -469,10 +566,7 @@ class MainMethodsMaze extends Stage {
 
     if (checkForExit()) {
       if (checkInteraction()) {
-        currentState = GameStates.WORLD_MAP_STATE;
-        currentBackground = worldMapBackground;
-        player.x = image.x;
-        player.y = image.y;
+        returnToWorld();
         ret = false;
       }
     }

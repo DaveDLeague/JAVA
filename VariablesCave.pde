@@ -165,7 +165,8 @@ class VariablesCave extends Stage {
         final int keywordOp = 2;
         final int badCharOp = 3;
         final int hasSpaceOp = 4;
-        final int totalOps = 5;
+        final int hasDotOp = 5;
+        final int totalOps = 6;
         int op = (int)random(totalOps);
         switch(op) {
         case numInFrontOp:
@@ -216,6 +217,27 @@ class VariablesCave extends Stage {
             String wd = WORD_LIST[(int)random(WORD_LIST.length)];
             int r = (int)random(1, wd.length());
             name = wd.substring(0, r) + ' ' + wd.substring(r, wd.length());
+            break;
+          }
+        case hasDotOp:
+          {
+            String wd = WORD_LIST[(int)random(WORD_LIST.length)];
+            int vv = (int)random(4);
+            if (vv == 0) {
+              wd = '.' + wd;
+            } else if (vv == 1) {
+              wd = wd + '.';
+            } else if (vv == 2) {
+              int rvv = (int)random(1, wd.length() - 1);
+              wd = wd.substring(0, rvv) + "." + wd.substring(rvv, wd.length());
+            } else {
+              for (int i = 0; i < wd.length(); i++) {
+                if ((int)random(2) == 0) {
+                  wd = wd.substring(0, i) + "." + wd.substring(i, wd.length());
+                }
+              }
+            }
+            name = wd;
             break;
           }
         }
@@ -403,7 +425,6 @@ class VariablesCave extends Stage {
             renderTextBox(600f, 50f, "These ones you missed:");
             renderTextBox(635, 130, color(100, 100, 100, 196), color(100, 255, 100), mv);
           }
-          
         }
         break;
       }
@@ -411,13 +432,8 @@ class VariablesCave extends Stage {
 
 
     if (checkForExit()) {
-      if (checkInteraction()){
-        currentState = GameStates.WORLD_MAP_STATE;
-        currentBackground = worldMapBackground;
-        camera.x = 0;
-        camera.y = 0;
-        player.x = image.x - camera.x;
-        player.y = image.y - camera.y;
+      if (checkInteraction()) {
+        returnToWorld();
 
 
         ret = false;

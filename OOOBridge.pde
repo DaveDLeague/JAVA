@@ -148,11 +148,37 @@ class OOOBridge extends Stage {
 
   class OOOQuestion {
     String question;
-    int answer;
+    double answer;
 
     OOOQuestion(int difficulty) {
-      int params = difficulty + 3;
-      for (int i = 0; i < params; i++) {
+      switch(difficulty) {
+      case 0:
+        {
+          String symbol1 = (int)random(2) == 0 ? "+" : "-";
+          String symbol2 = (int)random(2) == 0 ? "*" : "/";
+          question = (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10) + " " + symbol2 + " " + (int)random(1, 10);
+          break;
+        }
+      case 1:
+        {
+          String symbol1 = (int)random(2) == 0 ? "+" : "-";
+          String symbol2 = (int)random(2) == 0 ? "*" : "/";
+          question = (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10) + " " + symbol2 + " " + (int)random(1, 10);
+          break;
+        }
+      }
+
+
+      try {
+        Object o = functionEvaluator.eval(question);
+        try{
+          answer = (Double)o;
+        }catch(Exception e){
+          answer = (Integer)o; 
+        }
+      }
+      catch(Exception e) {
+        e.printStackTrace();
       }
     }
 
@@ -167,6 +193,7 @@ class OOOBridge extends Stage {
   final int cameraPanState = 4;
   final int playerTransitionState = 5;
   final int playerFallState = 6;
+  final int fillInQuestionState = 7;
 
   float startPlayerX;
   float startPlayerY;
@@ -192,6 +219,11 @@ class OOOBridge extends Stage {
 
   OOOBridge(StageImage image) {
     super(image);
+
+    for (int i = 0; i < 100; i++) {
+      OOOQuestion q = new OOOQuestion(0);
+      println(q.question + " = " + q.answer);
+    }
 
     host = loadImage("bird.png");
 
@@ -438,7 +470,7 @@ class OOOBridge extends Stage {
       ret = false;
     }
     image(player.image, player.x, player.y, player.w, player.h);
-  
+
     if (displayOperatorsMode) {
       opDisplayYOffset += scrollAmount * 20;
       fill(0, 0, 0, 200);
@@ -452,7 +484,7 @@ class OOOBridge extends Stage {
       strokeWeight(5);
       line(idt, margin + opDisplayYOffset, idt, margin + opDisplayYOffset + resolutionHeight - mx2);
       strokeWeight(1);
-      
+
       fill(255);
       textSize(25);
       centeredText("Operator Type", margin, idt, 60);

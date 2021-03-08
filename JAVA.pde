@@ -1,10 +1,5 @@
 /* //<>//
  TODO:
- fix loading bug
- add "final" to main methods maze
- -explain JVM and entry points
- -and explain that other methods can be written called 'main' 
- add periods to incorrect variables in variables cave
  finish imports shack
  -make game more procedural and logical, 'na mean?
  -make dialog explain the game better (explain how many stages)
@@ -20,11 +15,10 @@
  add third player option
  character direction facing
  add a world edit mode
- */
+*/
 
 /*
 stage ideas:
- volcano 
  tornado
  lake
  river
@@ -32,16 +26,14 @@ stage ideas:
  swamp
  
  snake
- shark
  primate
- dinosaur
  
  general which-line-has-the-error game
  default value of variables
- -multiple variables defined on same line
- -maybe game on timer, have to get all answers before time expires (fuse to a bomb or something)
- variables with incorrect assignments (ints getting decimal values etc.)
- where variables are valid (inside {}) 
+ - multiple variables defined on same line
+ - maybe game on timer, have to get all answers before time expires (fuse to a bomb or something)
+ - variables with incorrect assignments (ints getting decimal values etc.)
+ - where variables are valid (inside {}) 
  - variable scope 
  - class(static), instance, and local variables
  - class variables always in scope
@@ -67,7 +59,7 @@ stage ideas:
  -class extending and interface implementing saves duplicate code
  java being object oriented and platform independant 
  -.class file can run on any computer with compatible JVM?
- */
+*/
 
 import java.util.Arrays;
 import java.util.Stack;
@@ -84,6 +76,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.swing.JOptionPane;
+
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+
+ScriptEngine functionEvaluator = new ScriptEngineManager().getEngineByName("JavaScript");
 
 PImage frame;
 
@@ -169,6 +166,9 @@ void setup() {
   stageImages.add(new StageImage("shack.png", GameStates.IMPORTS_SHACK_STATE, 400, 750));
   stageImages.add(new StageImage("hedge.png", GameStates.MAIN_METHODS_MAZE_STATE, 200, 550));
   stageImages.add(new StageImage("bridge.png", GameStates.OOO_BRIDGE_STATE, 600, 600));
+  stageImages.add(new StageImage("volcano.png", GameStates.OOO_BRIDGE_STATE, 1200, 600));
+  stageImages.add(new StageImage("lighthouse.png", GameStates.OOO_BRIDGE_STATE, 900, 900));
+  
 
   fullScreen(P2D);
   ((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
@@ -185,6 +185,8 @@ void setup() {
 
   player.x = resolutionWidth / 2;
   player.y = resolutionHeight / 2;
+  player.savedX = player.x;
+  player.savedY = player.y;
   player.setImage(robotImage);
 
   worldMapBackground.image = loadImage("terrain.png");
@@ -429,6 +431,7 @@ void draw() {
         else if (selectedCharacter == 1) player.setImage(alienImage);
         player.name = input;
         currentState = GameStates.WORLD_MAP_STATE;
+        saveGame();
       }
       break;
     }
@@ -447,9 +450,6 @@ void draw() {
         currentState = GameStates.HOW_TO_PLAY_STATE;
       }
       if (renderDialogChoice("EXIT THE PROGRAM")) {
-        if (previousState == GameStates.WORLD_MAP_STATE) {
-          saveGame();
-        }
         System.exit(0);
       }
       break;
@@ -692,9 +692,6 @@ void keyPressed() {
   case F4_KEY:
     {
       if (altDown) {
-        if (previousState == GameStates.WORLD_MAP_STATE) {
-          saveGame();
-        }
         System.exit(0);
       }
       break;
