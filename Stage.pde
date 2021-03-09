@@ -1,4 +1,4 @@
-abstract class Stage {
+ abstract class Stage {
   GameStates state;
   Background background;
   StageImage image;

@@ -125,9 +125,6 @@ class ImportsShack extends Stage {
           totalRandomized++;
         }
       }
-      for (int i : pickedRand) {
-        println(i);
-      }
 
       float cx = random(100, 300);
       float cy = 100;

@@ -5,6 +5,7 @@ final String[] JAVA_MODIFIERS = {"public", "private", "protected", ""};
 final String[] JAVA_DATA_TYPES = {"int", "long", "float", "double", "byte", "char", "short", "String"};
 final String[] COMMENTS = {"made by robots", "todo: put more code", "who wrote this?", "YAGNI", "written by ocelots", "bug or feature?"};
 final String[][] OPERATIONS = {{"()"}, {"x++", "x--"}, {"++x", "--x", "+x", "-x", "~", "!"}, {"*", "/", "%"}, {"+", "-"}, {"<<", ">>", ">>>"}, {"<", ">", "<=", ">=", "instanceof"}, {"==", "!="}, {"&"}, {"^"}, {"|"}, {"&&"}, {"||"}, {"?:"}, {"=", "+=", "-=", "*=", "/=", "%=", "&=", "^=", "|=", "<<=", ">>=", ">>>="}};
+final String[] OPERATION_TYPES = {"parentheses","postfix","unary","multiplicative","additive","shift","relational","equality","bitwise AND","bitwise exclusive OR","bitwise inclusive OR","logical AND","logical OR","ternary","assignment"};
 final int totalOperations = 42;
 final int totalOperationGroups = 15;
 final char[] CURRENCY_SYMBOLS = {'$', '¢', '£', '€', '¥'};
@@ -170,6 +171,18 @@ void loadSaveState(int index){
  
  currentState = GameStates.WORLD_MAP_STATE;
  currentBackground = worldMapBackground;
+}
+
+int getOperationGroup(String op){
+  for(int i = 0; i < OPERATIONS.length; i++){
+    String[] s = OPERATIONS[i];
+    for(String st : s){
+      if(st.equals(op)){
+        return i;
+      }
+    }
+  }
+    return -1;
 }
 
 String getOperation(int v) {
@@ -648,9 +661,11 @@ boolean inputSubmitted = false;
 long inputBoxCursorTime = 0;
 String inputBoxString = "";
 String renderInputBox() {
+  return renderInputBox(600);
+}
+String renderInputBox(int w) {
   recievingTextInput = true;
   float h = 50;
-  float w = 600;
   textSize(h);
 
   String ts = inputBoxString + '|';
@@ -675,7 +690,7 @@ String renderInputBox() {
     inputBoxCursorBlink = !inputBoxCursorBlink;
     inputBoxCursorTime = System.currentTimeMillis();
   }
-  text("|", x + tsw - 25, y + h - 9);
+  text("|", x + tsw - (w / 24), y + h - (h / 5));
 
   if (checkEnterInput()) {
     canEnterInput = false;

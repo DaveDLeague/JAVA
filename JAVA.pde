@@ -1,21 +1,21 @@
 /* //<>//
- TODO:
+ TODO: 
+ fix arrow keys on continue screen don't show selected boxes below screen 
  finish imports shack
  -make game more procedural and logical, 'na mean?
  -make dialog explain the game better (explain how many stages)
  -position buttons better
  -display current stage
- -add explanation of semicolon (make funny)
+ -add explanation of semicolon (make funny?)
  finish order of operations bridge
- -finish order of operations chart (cheat sheet)
  -finish bird dialog    
- -add order of operations fill in questions in between OOO Bridge stages
+ -make 1 more level of progression for OOOQuestions
  refactor stages?
  code challenges
  add third player option
  character direction facing
  add a world edit mode
-*/
+ */
 
 /*
 stage ideas:
@@ -27,6 +27,8 @@ stage ideas:
  
  snake
  primate
+ dragon
+ elephant
  
  general which-line-has-the-error game
  default value of variables
@@ -52,6 +54,7 @@ stage ideas:
  -memory managed automatically
  -finalize() method
  constructors (and methods that look a lot like constructors...but aren't)
+ tricky ternaries
  comments
  encapsulation and immutability
  method overloading
@@ -59,7 +62,7 @@ stage ideas:
  -class extending and interface implementing saves duplicate code
  java being object oriented and platform independant 
  -.class file can run on any computer with compatible JVM?
-*/
+ */
 
 import java.util.Arrays;
 import java.util.Stack;
@@ -120,6 +123,8 @@ boolean ctrlDown = false;
 boolean altDown = false;
 
 boolean saveGameDeletionVarification;
+boolean nameExistsNotice;
+String queuedDuplicateName;
 int saveGameDeltionIndex;
 
 float loadGameScrollAmt;
@@ -168,7 +173,7 @@ void setup() {
   stageImages.add(new StageImage("bridge.png", GameStates.OOO_BRIDGE_STATE, 600, 600));
   stageImages.add(new StageImage("volcano.png", GameStates.OOO_BRIDGE_STATE, 1200, 600));
   stageImages.add(new StageImage("lighthouse.png", GameStates.OOO_BRIDGE_STATE, 900, 900));
-  
+
 
   fullScreen(P2D);
   ((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
@@ -234,7 +239,7 @@ void draw() {
     }
   case LOAD_GAME_STATE:
     {
-      
+
       background(50, 100, 200);
       strokeWeight(10);
       boolean del = false;
@@ -247,7 +252,7 @@ void draw() {
       float y = margin - loadGameScrollAmt;
       float w = resolutionWidth - mx2;
       float dx = resolutionWidth - margin - 100;
-      
+
       for (int i = 0; i < savedGames.size(); i++) {
         color boxColor = color(0, 0, 0, 200);
         color textColor = color(255);
@@ -328,12 +333,12 @@ void draw() {
         y += h + margin;
       }
       strokeWeight(1);
-      
-      
-      
-      if(y <= resolutionHeight - margin){
+
+
+
+      if (y <= resolutionHeight - margin) {
         loadGameScrollAmt--;
-      }else{
+      } else {
         loadGameScrollAmt += scrollAmount * 20;
       }
       if (loadGameScrollAmt < 0) {
@@ -427,11 +432,37 @@ void draw() {
 
       String input = renderInputBox();
       if (input != null && !input.trim().equals("")) {
-        if (selectedCharacter == 0) player.setImage(robotImage);
-        else if (selectedCharacter == 1) player.setImage(alienImage);
-        player.name = input;
-        currentState = GameStates.WORLD_MAP_STATE;
-        saveGame();
+        boolean newName = true;
+        for (SaveState sast : savedGames) {
+          if (sast.name.equals(input)) {
+            newName = false;
+            queuedDuplicateName = input;
+            nameExistsNotice = true;
+            break;
+          }
+        }
+        if (newName) {
+          if (selectedCharacter == 0) player.setImage(robotImage);
+          else if (selectedCharacter == 1) player.setImage(alienImage);
+          player.name = input;
+          currentState = GameStates.WORLD_MAP_STATE;
+          saveGame();
+        }
+      }
+      if(nameExistsNotice){
+        renderTextBox("A saved file with that name already exists.",
+                      "Would you like to overwrite it?");
+        if(renderDialogChoice("Yes. Delete the old saved file.")){
+          if (selectedCharacter == 0) player.setImage(robotImage);
+          else if (selectedCharacter == 1) player.setImage(alienImage);
+          player.name = queuedDuplicateName;
+          currentState = GameStates.WORLD_MAP_STATE;
+          saveGame();
+        }
+        if(renderDialogChoice("No. I will choose a different name.")){
+          nameExistsNotice = false;
+        } 
+        
       }
       break;
     }
@@ -733,7 +764,7 @@ void keyPressed() {
     {
       if (DEBUG && currentState == GameStates.TITLE_STATE) {
         currentState = GameStates.WORLD_MAP_STATE;
-        player.name = "";
+        player.name = "TestBot";
       }
       interaction = true;
       break;
