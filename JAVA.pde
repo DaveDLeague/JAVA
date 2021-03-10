@@ -1,15 +1,12 @@
 /* //<>//
  TODO: 
- fix arrow keys on continue screen don't show selected boxes below screen 
  finish imports shack
  -make game more procedural and logical, 'na mean?
  -make dialog explain the game better (explain how many stages)
  -position buttons better
  -display current stage
  -add explanation of semicolon (make funny?)
- finish order of operations bridge
- -finish bird dialog    
- -make 1 more level of progression for OOOQuestions
+ 
  refactor stages?
  code challenges
  add third player option
@@ -64,6 +61,8 @@ stage ideas:
  -.class file can run on any computer with compatible JVM?
  */
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Arrays;
 import java.util.Stack;
 import java.time.LocalDateTime;
@@ -304,6 +303,13 @@ void draw() {
           } else if (currentlySelectedSavedGame > savedGames.size() - 1) {
             currentlySelectedSavedGame = 0;
           }
+          
+          if(y + h > resolutionHeight){
+           loadGameScrollAmt += 20;
+          }
+          else if(y < 0){
+            loadGameScrollAmt -= 20;
+          }
         } else if (keyPressed && keyCode == DELETE) {
           keyPressed = false;
           keyCode = 0;
@@ -334,10 +340,8 @@ void draw() {
       }
       strokeWeight(1);
 
-
-
       if (y <= resolutionHeight - margin) {
-        loadGameScrollAmt--;
+        loadGameScrollAmt -= 5;
       } else {
         loadGameScrollAmt += scrollAmount * 20;
       }

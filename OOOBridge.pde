@@ -129,7 +129,7 @@ class OOOBridge extends Stage {
           }
         }
         Arrays.sort(rns);
-        for (int i = rns.length - 1; i > -1; i--) {    
+        for (int i = 0; i < pathTiles.size(); i++) {    
 
           pathTiles.get(i).setRanking(rns[i]);
         }
@@ -182,56 +182,75 @@ class OOOBridge extends Stage {
     float w;
 
     OOOQuestion(int difficulty) {
-      final String[] symbols = {"+", "-", "*", "|", "&", };
+      final String[] symbols = {"+", "-", "*", "|", "&", "^"};
       switch(difficulty) {
-        
+
       case 0:
         {
-          String symbol1 = symbols[(int)random(2)];
+          String[] symbol1 = {"*", symbols[(int)random(2)]};
+          List symbolList = Arrays.asList(symbol1);
+          Collections.shuffle(symbolList);
+          symbolList.toArray(symbol1);
           if ((int)random(2) == 0) {
-            question = (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10) + " * " + (int)random(1, 10);
+            question = (int)random(1, 10) + " " + symbol1[0] + " " + (int)random(1, 10) + " " + symbol1[1] + " " + (int)random(1, 10);
           } else {
-            question = (int)random(1, 10) + " * " + (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10);
+            question = (int)random(1, 10) + " " + symbol1[0] + " " + (int)random(1, 10) + " " + symbol1[1] + " " + (int)random(1, 10);
           }
           break;
         }
       case 1:
         {
-          String symbol1 = symbols[(int)random(3)];
-          String symbol2 = symbols[(int)random(3)];
-          String symbol3 = symbols[(int)random(3)];
-          String symbol4 = symbols[(int)random(3)];
-          question = (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10) + " " + symbol2 + " " + (int)random(1, 10) + " " + symbol3 + " " + (int)random(1, 10) + " " + symbol4 + " " + (int)random(1, 10);
+          String[] symbol1 = {"*", "*", symbols[(int)random(2)], symbols[(int)random(2)]}; 
+          List symbolList = Arrays.asList(symbol1);
+          Collections.shuffle(symbolList);
+          symbolList.toArray(symbol1);
+          question = (int)random(1, 10) + " " + symbol1[0] + " " + (int)random(1, 10) + " " + symbol1[1] + " " + (int)random(1, 10) + " " + symbol1[2] + " " + (int)random(1, 10) + " " + symbol1[3] + " " + (int)random(1, 10);
           break;
         }
       case 2:
         {
-          String symbol1 = symbols[(int)random(3)];
-          String symbol2 = symbols[(int)random(3)];
-          String symbol3 = symbols[(int)random(3)];
-          String symbol4 = symbols[(int)random(3)];
+          String[] symbol1 = {"*", "*", symbols[(int)random(2)], symbols[(int)random(2)]}; 
+          List symbolList = Arrays.asList(symbol1);
+          Collections.shuffle(symbolList);
+          symbolList.toArray(symbol1);
           int r1 = (int)random(2);
           int r2 = (int)random(2);
-          
+
           question = "";
-          
-          if(r1 == 0){
-            question += "(" + (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10);
-          }else{
-            question += (int)random(1, 10) + " " + symbol1 + " (" + (int)random(1, 10);
+
+          if (r1 == 0) {
+            question += "(" + (int)random(1, 10) + " " + symbol1[0] + " " + (int)random(1, 10);
+          } else {
+            question += (int)random(1, 10) + " " + symbol1[0] + " (" + (int)random(1, 10);
           }
-          if(r2 == 0){
-            question += " " + symbol2 + " " + (int)random(1, 10) + ") " + symbol3 + " " + (int)random(1, 10) + " " + symbol4 + " " + (int)random(1, 10);
-          }else{
-            question += " " + symbol2 + " " + (int)random(1, 10) + " " + symbol3 + " " + (int)random(1, 10) + ") " + symbol4 + " " + (int)random(1, 10);
+          if (r2 == 0) {
+            question += " " + symbol1[1] + " " + (int)random(1, 10) + ") " + symbol1[2] + " " + (int)random(1, 10) + " " + symbol1[3] + " " + (int)random(1, 10);
+          } else {
+            question += " " + symbol1[1] + " " + (int)random(1, 10) + " " + symbol1[2] + " " + (int)random(1, 10) + ") " + symbol1[3] + " " + (int)random(1, 10);
           }
           break;
         }
       case 3:
         {
-          String symbol1 = (int)random(2) == 0 ? "+" : "-";
-          String symbol2 = (int)random(2) == 0 ? "*" : "/";
-          question = (int)random(1, 10) + " " + symbol1 + " " + (int)random(1, 10) + " " + symbol2 + " " + (int)random(1, 10);
+          String[] symbol1 = {symbols[(int)random(6)], symbols[(int)random(3, 6)], symbols[(int)random(3)], symbols[(int)random(3)]}; 
+          List symbolList = Arrays.asList(symbol1);
+          Collections.shuffle(symbolList);
+          symbolList.toArray(symbol1);
+          int r1 = (int)random(2);
+          int r2 = (int)random(2);
+
+          question = "";
+
+          if (r1 == 0) {
+            question += "(" + (int)random(1, 10) + " " + symbol1[0] + " " + (int)random(1, 10);
+          } else {
+            question += (int)random(1, 10) + " " + symbol1[0] + " (" + (int)random(1, 10);
+          }
+          if (r2 == 0) {
+            question += " " + symbol1[1] + " " + (int)random(1, 10) + ") " + symbol1[2] + " " + (int)random(1, 10) + " " + symbol1[3] + " " + (int)random(1, 10);
+          } else {
+            question += " " + symbol1[1] + " " + (int)random(1, 10) + " " + symbol1[2] + " " + (int)random(1, 10) + ") " + symbol1[3] + " " + (int)random(1, 10);
+          }
           break;
         }
       }
@@ -261,14 +280,16 @@ class OOOBridge extends Stage {
 
   final int searchState = 0;
   final int greetingState = 1;
-  final int findStartState = 2;
-  final int tileGameState = 3;
-  final int fillInGameState = 4;
-  final int cameraPanState = 5;
-  final int playerTransitionState = 6;
-  final int playerFallState = 7;
-  final int fillInQuestionState = 8;
-  final int findExitState = 9;
+  final int tutorialState1 = 2;
+  final int tutorialState2 = 3;
+  final int findStartState = 4;
+  final int tileGameState = 5;
+  final int fillInGameState = 6;
+  final int cameraPanState = 7;
+  final int playerTransitionState = 8;
+  final int playerFallState = 9;
+  final int fillInQuestionState = 10;
+  final int findExitState = 11;
 
   final int TOTAL_OOB_STAGES = 4;
 
@@ -293,6 +314,8 @@ class OOOBridge extends Stage {
   boolean onFillInQuestion = true;
   boolean questionWrong = false;
 
+  boolean skipTutorial;
+
   OOOLevel level;
   OOOLevel plevel;
   OperationTile currentTile;
@@ -314,8 +337,6 @@ class OOOBridge extends Stage {
     background = new Background(resolutionWidth, resolutionHeight);
     currentBackground = background;
     background.clr = color(25, 100, 200);
-
-    currentStageState = findStartState;
   }
 
   boolean update() {
@@ -355,18 +376,65 @@ class OOOBridge extends Stage {
       {
         player.update();
         camera.update();
-        renderTextBox("Wut up widdit?");
-        if (renderDialogChoice("Okay!")) {
+        renderTextBox("To cross the bridge, you're going to need", 
+          "to learn about Java's order of operations.");
+        if (renderDialogChoice("What's that?")) {
+          currentStageState = tutorialState1;
         }
-        if (renderDialogChoice("Yo!")) {
+        if (renderDialogChoice("I already know all about that.")) {
+          currentStageState = findStartState;
+          skipTutorial = true;
+        }
+        break;
+      }
+    case tutorialState1:
+      {
+        player.update();
+        camera.update();
+        renderTextBox("When evaluating a mathematical expression, Java will", 
+          "perform certain operations ahead of others, regardless of where", 
+          "they are in the expression. For example:", 
+          "2 + 3 * 4", 
+          "is equal to 14 and not 20. This is because", 
+          "Java will do the multiplication before the addition.", 
+          "You can press the TAB key at any time or click on the", 
+          "\"View List\" button to bring up Java's", 
+          "order of operations.");
+        if (renderDialogChoice("Okay.")) {
+          currentStageState = tutorialState2;
+        }
+        break;
+      }
+    case tutorialState2:
+      {
+        player.update();
+        camera.update();
+        renderTextBox("If you want to cross the bridge, you must walk across the", 
+          "tiles with the operations on them in the same", 
+          "order that they would be evaluated in a Java expression.", 
+          "Then you must answer a mathematical question in the same way", 
+          "that Java would. You must complete 4 sections to get to the", 
+          "other side. Are", 
+          "you clear on how to cross the bridge?");
+        if (renderDialogChoice("Clear!")) {
+          currentStageState = findStartState;
+        }
+        if (renderDialogChoice("Not really.")) {
+          currentStageState = tutorialState1;
         }
         break;
       }
     case findStartState:
       {
+        if (skipTutorial) {
+          renderTextBox("Very well then. Walk up to begin.");
+        }else{
+         renderTextBox("Good! Walk to the top of the screen to begin.");
+        }
         player.update();
         camera.update();
         if (player.y <= 0) {
+          skipTutorial = false;
           if (currentStage < TOTAL_OOB_STAGES) {
             onFillInQuestion = false;
             level = new OOOLevel(onFillInQuestion, 0);
@@ -448,11 +516,11 @@ class OOOBridge extends Stage {
         if (plevel != null) {
           plevel.render();
         }
-        
+
         if (renderPlayerButton("Exit", 150, resolutionHeight - 60)) {
-            ret = false;
-            returnToWorld();
-          }
+          ret = false;
+          returnToWorld();
+        }
         break;
       }
     case fillInGameState:
@@ -473,22 +541,20 @@ class OOOBridge extends Stage {
           float w = 150;
           String ans = renderInputBox((int)w);
           if (ans != null) {
-            currentStage++;
-            currentStageState = findStartState;
-            //double d = Double.MIN_VALUE;
-            //try {
-            //  d = Double.parseDouble(ans);
-            //}
-            //catch(Exception e) {
-            //}
-            //if (Math.abs(d - level.fillInQuestion.answer) >= 0.01) {
-            //  questionWrong = true;
-            //  level.fillInQBoxColor = color(200, 20, 20, 200);
-            //  level.fillInQuestion.setQuestionToDisplayAnswer();
-            //} else {
-            //  currentStage++;
-            //  currentStageState = findStartState;
-            //}
+            double d = Double.MIN_VALUE;
+            try {
+              d = Double.parseDouble(ans);
+            }
+            catch(Exception e) {
+            }
+            if (Math.abs(d - level.fillInQuestion.answer) >= 0.01) {
+              questionWrong = true;
+              level.fillInQBoxColor = color(200, 20, 20, 200);
+              level.fillInQuestion.setQuestionToDisplayAnswer();
+            } else {
+              currentStage++;
+              currentStageState = findStartState;
+            }
           }
         }
         camera.update();
@@ -534,7 +600,7 @@ class OOOBridge extends Stage {
           if (level != null) level.y = 0;
           plevel = null;
         }
-        
+
         if (plevel != null) {
           plevel.y += cameraPanSpeed;
           plevel.render();
@@ -562,24 +628,24 @@ class OOOBridge extends Stage {
           player.x = playerXDest;
           player.y = playerYDest;
           currentTile = level.tileAt((int)(player.x / level.tw), (int)(player.y / level.tw));
-          //if (currentTile != null) {
-          //  if (!currentTile.onPath) {
-          //    currentTile.onPath = true;
-          //    if (previousTile != null) {
-          //      if (currentTile.group > previousTile.group) {
-          //        currentStageState = playerFallState;
-          //      }
-          //    }
-          //  }
-          //}
+          if (currentTile != null) {
+            if (!currentTile.onPath) {
+              currentTile.onPath = true;
+              if (previousTile != null) {
+                if (currentTile.group < previousTile.group) {
+                  currentStageState = playerFallState;
+                }
+              }
+            }
+          }
           if (currentStageState != playerFallState) {
             currentStageState = tileGameState;
           }
         }
         if (renderPlayerButton("Exit", 150, resolutionHeight - 60)) {
-            ret = false;
-            returnToWorld();
-          }
+          ret = false;
+          returnToWorld();
+        }
         level.render();
         break;
       }
@@ -635,10 +701,18 @@ class OOOBridge extends Stage {
 
     if (displayOperatorsMode) {
       opDisplayYOffset -= scrollAmount * 20;
+
+      if (keyPressed && keyCode == DOWN) {
+        opDisplayYOffset -= 10;
+      }
+      if (keyPressed && keyCode == UP) {
+        opDisplayYOffset += 10;
+      }
+
       if (opDisplayYOffset > 0) {
         opDisplayYOffset = 0;
-      } else if (opDisplayYOffset < -resolutionHeight + 150) {
-        opDisplayYOffset = -resolutionHeight + 150;
+      } else if (opDisplayYOffset < -resolutionHeight) {
+        opDisplayYOffset = -resolutionHeight;
       }
       fill(0, 0, 0, 200);
       float margin = 25;
@@ -679,7 +753,16 @@ class OOOBridge extends Stage {
         centeredText(ops, idt2, br, 60 + opDisplayYOffset + ((i + 1) * 60));
       }
       textFont(arial);
+      if (renderDialogChoice("Close List", resolutionWidth - 150, resolutionHeight - 50, color(255, 0, 0), color(255))) {
+        displayOperatorsMode = !displayOperatorsMode;
+      }
+    } else {
+      if (renderDialogChoice("View List", resolutionWidth - 150, resolutionHeight - 50, color(255, 0, 0), color(255))) {
+        displayOperatorsMode = !displayOperatorsMode;
+      }
     }
+
+
 
     return ret;
   }
