@@ -5,9 +5,11 @@
  -make dialog explain the game better (explain how many stages)
  -position buttons better
  -display current stage
+ -comments
  -add explanation of semicolon (make funny?)
  
- refactor stages?
+ finish ternary tornado
+ 
  code challenges
  add third player option
  character direction facing
@@ -16,19 +18,13 @@
 
 /*
 stage ideas:
- tornado
- lake
  river
- pond
- swamp
  
- snake
- primate
- dragon
  elephant
  
- general which-line-has-the-error game
- default value of variables
+ *general which-line-has-the-error game*
+ 
+default value of variables
  - multiple variables defined on same line
  - maybe game on timer, have to get all answers before time expires (fuse to a bomb or something)
  - variables with incorrect assignments (ints getting decimal values etc.)
@@ -38,29 +34,28 @@ stage ideas:
  - class variables always in scope
  - static methods using non-static variables
  - creating local variables with same name as instance variable
- removing unnecessary imports and adding in needed ones (java.lang)
- Command Line compiling and and arguments (.java and .class[bytecode])
- -main method's String array
- proper package declarations
+removing unnecessary imports and adding in needed ones (java.lang)
+proper package declarations
  -accessing things from different packages
  -wildcards
  -different packages with same class name
- proper ways to write numbers (maybe a visit from Mr. Ocopus's brother?)
+proper ways to write numbers (maybe a visit from Mr. Ocopus's brother?)
  -underscores and casting f, L, 0xE, 0b, 0B
- objects, references and garbage collection 
+objects, references and garbage collection 
  -memory managed automatically
  -finalize() method
- constructors (and methods that look a lot like constructors...but aren't)
- tricky ternaries
- comments
- encapsulation and immutability
- method overloading
- inheritance
+constructors (and methods that look a lot like constructors...but aren't)
+encapsulation and immutability
+method overloading
+inheritance
  -class extending and interface implementing saves duplicate code
- java being object oriented and platform independant 
+java being object oriented and platform independant 
+ -command Line compiling and and arguments (.java and .class[bytecode])
+ -main method's String array
  -.class file can run on any computer with compatible JVM?
  */
 
+import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
@@ -148,6 +143,9 @@ Stage importsShackStage;
 Stage mainMethodsMazeStage;
 Stage oooBridgeStage;
 
+Stage currentStage = null;
+StageImage currentStageImage = null;
+
 ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
 ArrayList<SaveState> savedGames;
@@ -166,12 +164,66 @@ void setup() {
 
   camera = new Camera();
   stageImages = new ArrayList<StageImage>();
-  stageImages.add(new StageImage("cave.png", GameStates.VARIABLES_CAVE_STATE, 400, 350));
-  stageImages.add(new StageImage("shack.png", GameStates.IMPORTS_SHACK_STATE, 400, 750));
-  stageImages.add(new StageImage("hedge.png", GameStates.MAIN_METHODS_MAZE_STATE, 200, 550));
-  stageImages.add(new StageImage("bridge.png", GameStates.OOO_BRIDGE_STATE, 600, 600));
-  stageImages.add(new StageImage("volcano.png", GameStates.OOO_BRIDGE_STATE, 1200, 600));
-  stageImages.add(new StageImage("lighthouse.png", GameStates.OOO_BRIDGE_STATE, 900, 900));
+  stageImages.add(new StageImage("cave.png", new Initializer() { 
+    public void init() { 
+      currentStage = new VariablesCave();
+    }
+  }
+  , 400, 350));
+  stageImages.add(new StageImage("shack.png", new Initializer() { 
+    public void init() { 
+      currentStage = new ImportsShack();
+    }
+  }
+  , 400, 750));
+  stageImages.add(new StageImage("hedge.png", new Initializer() { 
+    public void init() { 
+      currentStage = new MainMethodsMaze();
+    }
+  }
+  , 200, 550));
+  stageImages.add(new StageImage("bridge.png", new Initializer() { 
+    public void init() { 
+      currentStage = new OOOBridge();
+    }
+  }
+  , 600, 600));
+  stageImages.add(new StageImage("volcano.png", new Initializer() { 
+    public void init() { 
+      currentStage = new MainMethodsMaze();
+    }
+  }
+  , 1200, 600));
+  stageImages.add(new StageImage("lighthouse.png", new Initializer() { 
+    public void init() { 
+      currentStage = new MainMethodsMaze();
+    }
+  }
+  , 900, 100));
+  stageImages.add(new StageImage("castle.png", new Initializer() { 
+    public void init() { 
+      currentStage = new MainMethodsMaze();
+    }
+  }
+  , 1500, 650));
+  stageImages.add(new StageImage("tornado.png", new Initializer() { 
+    public void init() { 
+      currentStage = new TernaryTornado();
+    }
+  }
+  , 1200, 200));
+  stageImages.add(new StageImage("manhole.png", new Initializer() { 
+    public void init() { 
+      currentStage = new MainMethodsMaze();
+    }
+  }
+  , 1700, 100));
+  stageImages.add(new StageImage("pond.png", new Initializer() { 
+    public void init() { 
+      currentStage = new MainMethodsMaze();
+    }
+  }
+  , 1600, 900));
 
 
   fullScreen(P2D);
@@ -207,9 +259,15 @@ void draw() {
   switch(currentState) {
   case TITLE_STATE:
     {
-      background(50, 100, 200);
-      textSize(72);
-      fill(255);
+      background(150, 50, 50);
+      textSize(80);
+      fill(0, 0, 0, 25);
+      text("Journey", 340, 160);
+      text("Across", 320, 230);
+      text("Various", 320, 300);
+      text("Adventures", 320, 370);
+      float f = (float)((Math.sin(frameCount * 0.01) + 1) / 2) * 100 + 75;
+      fill(f, f, 255);
       text("Journey", 350, 150);
       text("Across", 330, 220);
       text("Various", 330, 290);
@@ -220,6 +278,7 @@ void draw() {
         currentState = GameStates.CHARACTER_SELECT_STATE;
       }
       if (savedGames.size() > 0 && renderDialogChoice("Continue")) {
+        inputBoxString = "";
         currentState = GameStates.LOAD_GAME_STATE;
         background(50, 100, 200);
         image(robotImage, 0, 0);
@@ -303,11 +362,10 @@ void draw() {
           } else if (currentlySelectedSavedGame > savedGames.size() - 1) {
             currentlySelectedSavedGame = 0;
           }
-          
-          if(y + h > resolutionHeight){
-           loadGameScrollAmt += 20;
-          }
-          else if(y < 0){
+
+          if (y + h > resolutionHeight) {
+            loadGameScrollAmt += 20;
+          } else if (y < 0) {
             loadGameScrollAmt -= 20;
           }
         } else if (keyPressed && keyCode == DELETE) {
@@ -453,20 +511,19 @@ void draw() {
           saveGame();
         }
       }
-      if(nameExistsNotice){
-        renderTextBox("A saved file with that name already exists.",
-                      "Would you like to overwrite it?");
-        if(renderDialogChoice("Yes. Delete the old saved file.")){
+      if (nameExistsNotice) {
+        renderTextBox("A saved file with that name already exists.", 
+          "Would you like to overwrite it?");
+        if (renderDialogChoice("Yes. Delete the old saved file.")) {
           if (selectedCharacter == 0) player.setImage(robotImage);
           else if (selectedCharacter == 1) player.setImage(alienImage);
           player.name = queuedDuplicateName;
           currentState = GameStates.WORLD_MAP_STATE;
           saveGame();
         }
-        if(renderDialogChoice("No. I will choose a different name.")){
+        if (renderDialogChoice("No. I will choose a different name.")) {
           nameExistsNotice = false;
-        } 
-        
+        }
       }
       break;
     }
@@ -514,83 +571,42 @@ void draw() {
 
       if (checkInteraction() || checkEnterInput() || mousePressed) {
         currentState = cachedState;
+        mousePressed = false;
       }
       break;
     }
   case WORLD_MAP_STATE:
     {
-      player.update();
-      camera.update();
+      if (currentStage == null) {
+        player.update();
+        camera.update();
 
-      image(worldMapBackground.image, -camera.x, -camera.y, worldMapBackground.w, worldMapBackground.h);
+        image(worldMapBackground.image, -camera.x, -camera.y, worldMapBackground.w, worldMapBackground.h);
 
-      drawStageImages();
-      StageImage c = checkPlayerStageIntersection();
-      if (c != null) {
-        fill(255);
-        textSize(promptTextSize);
-        text("Press Space to Begin Stage", c.x - camera.x, c.y - camera.y);
-        if (checkInteraction()) {
-          currentState = c.state;
+        drawStageImages();
+        StageImage c = checkPlayerStageIntersection();
+        if (c != null) {
+          fill(255);
+          textSize(promptTextSize);
+          text("Press Space to Begin Stage", c.x - camera.x, c.y - camera.y);
+          if (checkInteraction()) {
+            currentStageImage = c;
+            c.initializer.init();
+          }
+        }
+        for (int i = 0; i < stageImages.size(); i++) {
+          StageImage s = stageImages.get(i);
+          if (s.completed) {
+            drawCheck(s.x - camera.x, s.y - camera.y);
+          }
+        }
+        image(player.image, player.x, player.y, player.w, player.h);
+      } else {
+        if (!currentStage.update()) {
+          currentStageImage.completed = currentStage.completed;
+          currentStage = null;
         }
       }
-      for (int i = 0; i < stageImages.size(); i++) {
-        StageImage s = stageImages.get(i);
-        if (s.completed) {
-          drawCheck(s.x - camera.x, s.y - camera.y);
-        }
-      }
-      image(player.image, player.x, player.y, player.w, player.h);
-      break;
-    }
-  case VARIABLES_CAVE_STATE:
-    {
-      if (variablesCaveStage == null) {
-        variablesCaveStage = new VariablesCave(stageImages.get(0));
-      }
-      background(currentBackground.clr);
-      player.update();
-      camera.update();
-      if (!variablesCaveStage.update()) variablesCaveStage = null;
-      image(player.image, player.x, player.y, player.w, player.h);
-      break;
-    }
-  case IMPORTS_SHACK_STATE:
-    {
-      if (importsShackStage == null) {
-        importsShackStage = new ImportsShack(stageImages.get(1));
-      }
-      background(currentBackground.clr);
-      player.update();
-      camera.update();
-      if (!importsShackStage.update()) importsShackStage = null;
-      image(player.image, player.x, player.y, player.w, player.h);
-      break;
-    }
-
-  case MAIN_METHODS_MAZE_STATE:
-    {
-      if (mainMethodsMazeStage == null) {
-        mainMethodsMazeStage = new MainMethodsMaze(stageImages.get(2));
-      }
-      background(currentBackground.clr);
-      player.update();
-      camera.update();
-      if (!mainMethodsMazeStage.update()) mainMethodsMazeStage = null;
-      image(player.image, player.x, player.y, player.w, player.h);
-
-      break;
-    }
-  case OOO_BRIDGE_STATE:
-    {
-      if (oooBridgeStage == null) {
-        oooBridgeStage = new OOOBridge(stageImages.get(3));
-      }
-      background(currentBackground.clr);
-
-      if (!oooBridgeStage.update()) oooBridgeStage = null;
-
-
       break;
     }
   }

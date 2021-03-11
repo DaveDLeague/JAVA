@@ -86,6 +86,8 @@ class OOOBridge extends Stage {
         pathTiles.add(tileAt(txp, typ));
         pathTiles.get(0).setRanking(ctr++);
         pathTiles.get(1).setRanking(ctr++);
+        //pathTiles.get(0).onPath = true;
+        //pathTiles.get(1).onPath = true;
         while (typ < tilesPerColumn - 1) {
           boolean nf = true;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           while (nf) {///////////////////////////////////////////////////////////////////////////CHANGE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -131,7 +133,7 @@ class OOOBridge extends Stage {
         Arrays.sort(rns);
         for (int i = 0; i < pathTiles.size(); i++) {    
 
-          pathTiles.get(i).setRanking(rns[i]);
+          pathTiles.get(i).setRanking(rns[pathTiles.size() - 1 - i]);
         }
       }
     }
@@ -301,7 +303,7 @@ class OOOBridge extends Stage {
   float cameraPanSpeed = 10;
 
   int opDisplayYOffset;
-  int currentStage;
+  int currentSubStage;
 
   boolean uok;
   boolean dok;
@@ -321,8 +323,7 @@ class OOOBridge extends Stage {
   OperationTile currentTile;
   OperationTile previousTile;
 
-  OOOBridge(StageImage image) {
-    super(image);
+  OOOBridge() {
 
     host = loadImage("bird.png");
 
@@ -334,12 +335,15 @@ class OOOBridge extends Stage {
     hostY = exitY;
     player.x = exitX;
     player.y = exitY;
+    camera.x = 0;
+    camera.y = 0;
     background = new Background(resolutionWidth, resolutionHeight);
-    currentBackground = background;
     background.clr = color(25, 100, 200);
+    currentBackground = background;
   }
 
   boolean update() {
+     background(background.clr);
     boolean ret = true;
 
     float cx = hostX - camera.x;
@@ -428,14 +432,14 @@ class OOOBridge extends Stage {
       {
         if (skipTutorial) {
           renderTextBox("Very well then. Walk up to begin.");
-        }else{
-         renderTextBox("Good! Walk to the top of the screen to begin.");
+        } else if(currentSubStage == 0) {
+          renderTextBox("Good! Walk to the top of the screen to begin.");
         }
         player.update();
         camera.update();
         if (player.y <= 0) {
           skipTutorial = false;
-          if (currentStage < TOTAL_OOB_STAGES) {
+          if (currentSubStage < TOTAL_OOB_STAGES) {
             onFillInQuestion = false;
             level = new OOOLevel(onFillInQuestion, 0);
             level.y = -resolutionHeight;
@@ -505,7 +509,7 @@ class OOOBridge extends Stage {
           background.h += resolutionHeight;
           plevel = level;
           onFillInQuestion = true;
-          level = new OOOLevel(onFillInQuestion, currentStage);
+          level = new OOOLevel(onFillInQuestion, currentSubStage);
           level.y = -resolutionHeight;
         }  
 
@@ -552,7 +556,7 @@ class OOOBridge extends Stage {
               level.fillInQBoxColor = color(200, 20, 20, 200);
               level.fillInQuestion.setQuestionToDisplayAnswer();
             } else {
-              currentStage++;
+              currentSubStage++;
               currentStageState = findStartState;
             }
           }
@@ -580,7 +584,7 @@ class OOOBridge extends Stage {
           exitY += resolutionHeight;
           hostY += resolutionHeight;
           if (onFillInQuestion) {
-            if (currentStage < TOTAL_OOB_STAGES) {
+            if (currentSubStage < TOTAL_OOB_STAGES) {
               currentStageState = fillInGameState;
               player.y = resolutionHeight - player.h - 150;
             } else {
@@ -609,7 +613,7 @@ class OOOBridge extends Stage {
       }
     case playerTransitionState:
       {
-        float s = 5;
+        float s = 10;
         boolean fin = false;
         if (playerYDest < player.y) {
           player.y -= s;
@@ -691,8 +695,8 @@ class OOOBridge extends Stage {
     }
 
     if (checkForExit() && checkInteraction()) {
-      if (currentStage == TOTAL_OOB_STAGES) {
-        image.completed = true;
+      if (currentSubStage == TOTAL_OOB_STAGES) {
+        completed = true;
       }
       returnToWorld();
       ret = false;

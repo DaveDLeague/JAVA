@@ -264,21 +264,16 @@ class VariablesCave extends Stage {
   int totalValid; 
 
   boolean collected = false;
-
-  VariablesCave(StageImage image) {
-    super(image);
+  VariablesCave() {
 
     x = 1200;
     y = 350;
     hostX = 500;
     hostY = 500;
-    exitX = image.x - camera.x;
-    exitY = image.y - camera.y;
+    exitX = 400;
+    exitY = 300;
     exitW = 50;
     exitH = 90;
-    w = image.image.width;
-    h = image.image.height;
-    state = GameStates.VARIABLES_CAVE_STATE;
 
     host = loadImage("octopus.png");
 
@@ -327,6 +322,12 @@ class VariablesCave extends Stage {
   }
 
   boolean update() {
+    background(background.clr);
+    player.update();
+    camera.update();
+
+
+
     boolean ret = true;
 
     float cx = hostX - camera.x;
@@ -402,7 +403,7 @@ class VariablesCave extends Stage {
         updateVariables(false);
         if (collected) {
           renderTextBox("Great! You got them all!", "Now leave me alone with my variables!"); 
-          image.completed = true;
+          completed = true;
         } else {
           if (renderPlayerButton("TRY AGAIN", hostX + host.width + 100, hostY + 50)) {
             randomizeVariables();
@@ -439,6 +440,8 @@ class VariablesCave extends Stage {
         ret = false;
       }
     }
+    image(player.image, player.x, player.y, player.w, player.h);
+
     return ret;
   }
 

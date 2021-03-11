@@ -1,7 +1,10 @@
- abstract class Stage {
+interface Updater {
+  boolean update();
+}
+
+abstract class Stage implements Updater {
   GameStates state;
   Background background;
-  StageImage image;
   PImage host;
   float hostX;
   float hostY;
@@ -14,11 +17,9 @@
   float exitW;
   float exitH;
   int currentStageState = 0;
+  boolean completed;
 
-  abstract boolean update();
-
-  Stage(StageImage image){
-    this.image = image;
+  Stage() {
     player.savedX = player.x;
     player.savedY = player.y;
     camera.savedX = camera.x;
@@ -36,17 +37,17 @@
     }
     return false;
   }
-  
-  void returnToWorld(){
-   currentBackground = worldMapBackground; 
-   currentState = GameStates.WORLD_MAP_STATE;
-   player.x = player.savedX;
-   player.y = player.savedY;
-   camera.x = camera.savedX;
-   camera.y = camera.savedY;
-   if(image.completed){
-    saveGame(); 
-   }
+
+  void returnToWorld() {
+    currentBackground = worldMapBackground; 
+    currentState = GameStates.WORLD_MAP_STATE;
+    player.x = player.savedX;
+    player.y = player.savedY;
+    camera.x = camera.savedX;
+    camera.y = camera.savedY;
+    if (completed) {
+      saveGame();
+    }
   }
 }
 

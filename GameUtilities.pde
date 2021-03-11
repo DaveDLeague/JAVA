@@ -30,8 +30,7 @@ int totalDialogChoices;
 int dialogMax;
 
 enum GameStates {
-  TITLE_STATE, LOAD_GAME_STATE, MENU_SCREEN_STATE, WORLD_MAP_STATE, VARIABLES_CAVE_STATE, IMPORTS_SHACK_STATE, MAIN_METHODS_MAZE_STATE, 
-    HOW_TO_PLAY_STATE, CHARACTER_SELECT_STATE, OOO_BRIDGE_STATE
+  TITLE_STATE, LOAD_GAME_STATE, MENU_SCREEN_STATE, WORLD_MAP_STATE, HOW_TO_PLAY_STATE, CHARACTER_SELECT_STATE
 }
 
 static class SaveState implements Serializable {
@@ -216,16 +215,21 @@ class Background {
   }
 }
 
-class StageImage {
+interface Initializer {
+  void init(); 
+}
+
+class StageImage{
   PImage image;
   GameStates state;
   float x; 
   float y;
   boolean completed;
+  Initializer initializer;
 
-  public StageImage(String file, GameStates state, float x, float y) {
+  StageImage(String file, Initializer itr, float x, float y) {
     this.image = loadImage(file);
-    this.state = state;
+    this.initializer = itr;
     this.x = x;
     this.y = y;
   }

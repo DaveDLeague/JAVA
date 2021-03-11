@@ -190,10 +190,7 @@ class ImportsShack extends Stage {
   Background gameBackground = new Background(resolutionWidth, resolutionHeight * 2);
   Level level;
 
-  ImportsShack(StageImage image) {
-    super(image); 
-    
-    
+  ImportsShack() {
     x = 400;
     y = 750;
     exitX = 100;
@@ -206,9 +203,6 @@ class ImportsShack extends Stage {
     exitH = 90;
     hostX = exitX + 200;
     hostY = exitY;
-    w = image.image.width;
-    h = image.image.height;
-    state = GameStates.IMPORTS_SHACK_STATE;
     host = loadImage("sloth.png");
 
     background = new Background(resolutionWidth, resolutionHeight);
@@ -217,6 +211,12 @@ class ImportsShack extends Stage {
   }
 
   boolean update() {
+    background(background.clr);
+      player.update();
+      camera.update();
+      
+      
+    
     boolean ret = true;
 
     float cx = hostX - camera.x;
@@ -355,7 +355,7 @@ class ImportsShack extends Stage {
               exitY = 800;
               stageComplete = true;
               incorrectAnswer = false;
-              image.completed = true;
+              completed = true;
             } else {
               incorrectAnswer = true;
             }
@@ -388,6 +388,7 @@ class ImportsShack extends Stage {
         ret = false;
       }
     }
+    image(player.image, player.x, player.y, player.w, player.h);
     return ret;
   }
 }

@@ -311,14 +311,12 @@ class MainMethodsMaze extends Stage {
   PImage hedgeWall;
   MainMethod mainMethod;
 
-  MainMethodsMaze(StageImage image) {
-
-    super(image);
+  MainMethodsMaze() {
 
     host = loadImage("snail.png");
     hedgeWall = loadImage("hedge_wall.png");
-    x = image.x;
-    y = image.y;
+    //x = image.x;
+    //y = image.y;
     exitX = 100;
     exitY = 100;
     exitW = 50;
@@ -350,6 +348,9 @@ class MainMethodsMaze extends Stage {
   }
 
   boolean update() {
+    background(background.clr);
+    player.update();
+    camera.update();
     boolean ret = true;
     fill(200);
     float cx = hostX - camera.x;
@@ -473,7 +474,7 @@ class MainMethodsMaze extends Stage {
             //player.y = image.y + image.image.height;
             //currentBackground = worldMapBackground;
             //currentState = GameStates.WORLD_MAP_STATE;
-            image.completed = true;          
+            completed = true;          
             returnToWorld();
 
             ret = false;
@@ -551,15 +552,6 @@ class MainMethodsMaze extends Stage {
         fill(200);
         rect(mazeExitX - camera.x, mazeExitY - camera.y, 50, 100);
 
-        //if(keyPressed && key == ' '){
-        //  key = 0;
-        //  completedCells[cellX][cellY] = true;
-        //    currentStageState = mazeSearchState;
-        //    mainMethod = null;
-        //}
-
-
-
         break;
       }
     }
@@ -570,6 +562,8 @@ class MainMethodsMaze extends Stage {
         ret = false;
       }
     }
+
+    image(player.image, player.x, player.y, player.w, player.h);
     return ret;
   }
 
