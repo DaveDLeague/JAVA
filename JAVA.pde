@@ -9,6 +9,8 @@
  -add explanation of semicolon (make funny?)
  
  finish ternary tornado
+ finish number contant sewer
+ -finish dialog and tutorials
  
  code challenges
  add third player option
@@ -22,13 +24,10 @@ stage ideas:
  
  elephant
  
- *general which-line-has-the-error game*
+*general which-line-has-the-error game*
  
 default value of variables
  - multiple variables defined on same line
- - maybe game on timer, have to get all answers before time expires (fuse to a bomb or something)
- - variables with incorrect assignments (ints getting decimal values etc.)
- - where variables are valid (inside {}) 
  - variable scope 
  - class(static), instance, and local variables
  - class variables always in scope
@@ -39,8 +38,6 @@ proper package declarations
  -accessing things from different packages
  -wildcards
  -different packages with same class name
-proper ways to write numbers (maybe a visit from Mr. Ocopus's brother?)
- -underscores and casting f, L, 0xE, 0b, 0B
 objects, references and garbage collection 
  -memory managed automatically
  -finalize() method
@@ -92,6 +89,7 @@ final static int F1_KEY = 97;
 final static int F4_KEY = 100;
 final static int F5_KEY = 101;
 final static int F9_KEY = 105;
+final static int DEL_KEY = 147;
 final static int resolutionWidth = 1024;
 final static int resolutionHeight = 576;
 final static int promptTextSize = 14;
@@ -150,7 +148,6 @@ ArrayList<StageImage> stageImages;
 ArrayList<Stage> completedStages;
 ArrayList<SaveState> savedGames;
 
-
 void setup() {
   dataFolderPath = dataPath("");
   arial = createFont("Arial", 96);
@@ -159,7 +156,7 @@ void setup() {
   robotImage = loadImage("robot.png");
   alienImage = loadImage("alien.png");
 
-  player = new Player();
+  player = new Player(); 
   worldMapBackground = new Background();
 
   camera = new Camera();
@@ -211,13 +208,13 @@ void setup() {
       currentStage = new TernaryTornado();
     }
   }
-  , 1200, 200));
+  , 100, 200));
   stageImages.add(new StageImage("manhole.png", new Initializer() { 
     public void init() { 
-      currentStage = new MainMethodsMaze();
+      currentStage = new NumberConstantSewer();
     }
   }
-  , 1700, 100));
+  , 200, 100));
   stageImages.add(new StageImage("pond.png", new Initializer() { 
     public void init() { 
       currentStage = new MainMethodsMaze();
@@ -336,7 +333,7 @@ void draw() {
         } else if (currentInputState == KEYBOARD_STATE && currentlySelectedSavedGame == i) {
           boxColor = color(50, 50, 50, 200);
           textColor = color(200, 200, 0);
-          if (checkEnterInput()) {
+          if (!saveGameDeletionVarification && checkEnterInput()) {
             loadSaveState(i); 
             break;
           } else if (keyPressed && keyCode == UP) {
@@ -368,10 +365,8 @@ void draw() {
           } else if (y < 0) {
             loadGameScrollAmt -= 20;
           }
-        } else if (keyPressed && keyCode == DELETE) {
-          keyPressed = false;
-          keyCode = 0;
-        }
+        } 
+        
         SaveState s = savedGames.get(i);
         fill(boxColor);
         rect(x, y, w, h, 20);
@@ -396,6 +391,13 @@ void draw() {
         }
         y += h + margin;
       }
+      
+      if (keyPressed && keyCode == DEL_KEY) {
+          keyPressed = false;
+          keyCode = 0;
+          saveGameDeletionVarification = true;
+       }
+        
       strokeWeight(1);
 
       if (y <= resolutionHeight - margin) {
@@ -603,7 +605,11 @@ void draw() {
         image(player.image, player.x, player.y, player.w, player.h);
       } else {
         if (!currentStage.update()) {
-          currentStageImage.completed = currentStage.completed;
+           
+          if(currentStage.completed){
+            currentStageImage.completed = true;
+            saveGame();
+          }
           currentStage = null;
         }
       }
@@ -748,13 +754,11 @@ void keyPressed() {
       break;
     }
   case F5_KEY:
-    {
-      saveGame(); 
+    { 
       break;
     }
   case F9_KEY:
     {
-      loadSaveState(1);
       break;
     }
   }

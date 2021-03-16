@@ -274,7 +274,9 @@ class VariablesCave extends Stage {
     exitY = 300;
     exitW = 50;
     exitH = 90;
-
+    player.x = exitX;
+    player.y = exitY;
+    
     host = loadImage("octopus.png");
 
     variableColor = color(200, 200, 255);

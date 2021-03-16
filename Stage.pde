@@ -45,9 +45,6 @@ abstract class Stage implements Updater {
     player.y = player.savedY;
     camera.x = camera.savedX;
     camera.y = camera.savedY;
-    if (completed) {
-      saveGame();
-    }
   }
 }
 
