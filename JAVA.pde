@@ -9,10 +9,8 @@
  -add explanation of semicolon (make funny?)
  
  finish ternary tornado
- finish number contant sewer
- -finish dialog and tutorials
  
- code challenges
+ code challenges?
  add third player option
  character direction facing
  add a world edit mode
@@ -33,8 +31,8 @@ default value of variables
  - class variables always in scope
  - static methods using non-static variables
  - creating local variables with same name as instance variable
-removing unnecessary imports and adding in needed ones (java.lang)
 proper package declarations
+ -removing unnecessary imports and adding in needed ones (java.lang)
  -accessing things from different packages
  -wildcards
  -different packages with same class name
@@ -86,10 +84,15 @@ PFont arial;
 PFont courier;
 
 final static int F1_KEY = 97;
+final static int F1A_KEY = 112;
 final static int F4_KEY = 100;
+final static int F4A_KEY = 115;
 final static int F5_KEY = 101;
+final static int F5A_KEY = 116;
 final static int F9_KEY = 105;
+final static int F9A_KEY = 120;
 final static int DEL_KEY = 147;
+final static int DEL_A_KEY = 127;
 final static int resolutionWidth = 1024;
 final static int resolutionHeight = 576;
 final static int promptTextSize = 14;
@@ -150,8 +153,8 @@ ArrayList<SaveState> savedGames;
 
 void setup() {
   dataFolderPath = dataPath("");
-  arial = createFont("Arial", 96);
-  courier = createFont("Courier New bold", 96);
+  arial = createFont("Arial", 32);
+  courier = createFont("Courier New bold", 32);
 
   robotImage = loadImage("robot.png");
   alienImage = loadImage("alien.png");
@@ -193,7 +196,7 @@ void setup() {
   , 1200, 600));
   stageImages.add(new StageImage("lighthouse.png", new Initializer() { 
     public void init() { 
-      currentStage = new MainMethodsMaze();
+      currentStage = new DefaultValueLighthouse();
     }
   }
   , 900, 100));
@@ -223,8 +226,9 @@ void setup() {
   , 1600, 900));
 
 
-  fullScreen(P2D);
-  ((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
+  fullScreen();
+  //fullScreen(P2D);
+  //((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
   surface.setSize(resolutionWidth, resolutionHeight);
   int nx = (displayWidth / 2) - (resolutionWidth / 2);
   int ny = (displayHeight / 2) - (resolutionHeight / 2);
@@ -631,6 +635,7 @@ void draw() {
 }
 
 void keyPressed() {
+  println(keyCode);
   if (recievingTextInput && key != CODED && keyCode != BACKSPACE && keyCode != ENTER) {
     inputBoxString += key;
   }
@@ -742,11 +747,13 @@ void keyPressed() {
       break;
     }
   case F1_KEY:
+  case F1A_KEY:
     {
       toggleFullScreen();
       break;
     }
   case F4_KEY:
+  case F4A_KEY:
     {
       if (altDown) {
         System.exit(0);
@@ -754,10 +761,12 @@ void keyPressed() {
       break;
     }
   case F5_KEY:
+  case F5A_KEY:
     { 
       break;
     }
   case F9_KEY:
+  case F9A_KEY:
     {
       break;
     }
@@ -856,6 +865,7 @@ void mouseWheel(MouseEvent e) {
 }
 
 void toggleFullScreen() {
+  print("EYEYEYE");
   fullScreen = !fullScreen;
   if (fullScreen) {
     surface.setSize(displayWidth, displayHeight);

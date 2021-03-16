@@ -535,7 +535,7 @@ class OOOBridge extends Stage {
             level.fillInQBoxColor = color(20, 20, 20, 200);
             questionWrong = false;
             inputBoxString = "";
-            level.fillInQuestion = new OOOQuestion(0);
+            level.fillInQuestion = new OOOQuestion(currentSubStage);
           }
           if (renderPlayerButton("Exit", resolutionWidth / 2 + 150, resolutionHeight - 200)) {
             ret = false;
