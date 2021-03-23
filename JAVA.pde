@@ -10,6 +10,14 @@
  
  finish ternary tornado
  
+ finish DVLighthouse
+ - what is the output with default value of variables?
+   * creating local variables with same name as instance variable
+ - does it compile? 
+   * multiple variables defined on same line
+   * variable scope 
+   * static methods using non-static variables
+ 
  code challenges?
  add third player option
  character direction facing
@@ -24,13 +32,6 @@ stage ideas:
  
 *general which-line-has-the-error game*
  
-default value of variables
- - multiple variables defined on same line
- - variable scope 
- - class(static), instance, and local variables
- - class variables always in scope
- - static methods using non-static variables
- - creating local variables with same name as instance variable
 proper package declarations
  -removing unnecessary imports and adding in needed ones (java.lang)
  -accessing things from different packages
@@ -199,7 +200,7 @@ void setup() {
       currentStage = new DefaultValueLighthouse();
     }
   }
-  , 900, 100));
+  , 400, 100));
   stageImages.add(new StageImage("castle.png", new Initializer() { 
     public void init() { 
       currentStage = new MainMethodsMaze();
@@ -226,9 +227,9 @@ void setup() {
   , 1600, 900));
 
 
-  fullScreen();
-  //fullScreen(P2D);
-  //((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
+  //fullScreen();
+  fullScreen(P2D);
+  ((PGraphicsOpenGL)g).textureSampling(3); //disable texture filtering
   surface.setSize(resolutionWidth, resolutionHeight);
   int nx = (displayWidth / 2) - (resolutionWidth / 2);
   int ny = (displayHeight / 2) - (resolutionHeight / 2);
@@ -635,7 +636,6 @@ void draw() {
 }
 
 void keyPressed() {
-  println(keyCode);
   if (recievingTextInput && key != CODED && keyCode != BACKSPACE && keyCode != ENTER) {
     inputBoxString += key;
   }

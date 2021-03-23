@@ -462,6 +462,10 @@ boolean checkIntersection(float x1, float y1, float w1, float h1, float x2, floa
   return true;
 }
 
+void centeredText(String text, float y) {
+  centeredText(text, 0, resolutionWidth, y);
+}
+
 void centeredText(String text, float xb1, float xb2, float y) {
   float w = xb2 - xb1;
   float tw = textWidth(text);
