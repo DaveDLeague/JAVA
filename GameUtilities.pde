@@ -681,6 +681,32 @@ boolean renderPlayerButton(String text, float x, float y) {
 }
 
 boolean renderPlayerButton(String text, String prompt, float x, float y) {
+  return renderPlayerButton(text, prompt, x, y, color(0, 0, 255), color(255));
+  //boolean ret = false;
+
+  //float h = 36;
+  //textSize(h);
+  //float w = textWidth(text);
+  //float nx = x - camera.x;
+  //float ny = y - camera.y;
+  //fill(0, 0, 255);
+  //rect(nx - 10, ny - 10, w + 20, h + 20, 7);
+  //fill(255);
+  //text(text, nx, ny + h - 5);
+
+  //if (checkIntersection(player.x, player.y, player.w, player.w, nx, ny, w, h)) {
+  //  textSize(promptTextSize);
+  //  fill(255);
+  //  text(prompt, nx, ny);
+  //  if (checkInteraction()) {
+  //    ret = true;
+  //  }
+  //}
+
+  //return ret;
+}
+
+boolean renderPlayerButton(String text, String prompt, float x, float y, color bc, color tc) {
   boolean ret = false;
 
   float h = 36;
@@ -688,9 +714,9 @@ boolean renderPlayerButton(String text, String prompt, float x, float y) {
   float w = textWidth(text);
   float nx = x - camera.x;
   float ny = y - camera.y;
-  fill(0, 0, 255);
+  fill(bc);
   rect(nx - 10, ny - 10, w + 20, h + 20, 7);
-  fill(255);
+  fill(tc);
   text(text, nx, ny + h - 5);
 
   if (checkIntersection(player.x, player.y, player.w, player.w, nx, ny, w, h)) {

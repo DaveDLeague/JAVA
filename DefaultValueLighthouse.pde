@@ -4,20 +4,17 @@ class DefaultValueLighthouse extends Stage {
     ArrayList<String> code = new ArrayList<String>();
     String answer = "";
     float tx;
-    float ty = 100;
+    float ty = 60;
     float th = 24;
     float tw;
 
     final int whatsTheOutputType = 0;
     final int doesItCompileType = 1;
 
-    int type;
-    boolean valid = true;
+    boolean valid;
     LHLevel() {
-      
-
       final String[] dataTypes = {"object", "boolean", "double", "float", "byte", "char", "short", "int", "long"};
-      String[] wrds = generateWordArray(7);
+      String[] wrds = generateWordArray(8);
       String pkg = "package " + wrds[0] + ";";
       String imp = "import " + wrds[1] + ".*;";
       String className = Character.toUpperCase(wrds[2].charAt(0)) + wrds[2].substring(1);
@@ -25,74 +22,138 @@ class DefaultValueLighthouse extends Stage {
       String mth = "    public void " + wrds[3] + "(){";
       String smt = "    public static void " + wrds[4] + "(){";
       String mmt = "    public static void main(String[] args){";
-      //if(random(2) < 1){
-      // type = doesItCompileType;
-      //}
-      //if(random(2) < 1){
-      // valid = true;
-      //}
+      if (random(2) < 1) {
+        valid = true;
+      }
       code.add(pkg);
       code.add(imp);
 
-      if (type == whatsTheOutputType) {
-        int rv = (int)random(dataTypes.length);
-        String v = dataTypes[rv];
-        if (v.equals("object")) {
-          
+
+      int rv = (int)random(dataTypes.length);
+      String v = dataTypes[rv];
+      switch(v) {
+      case "object":
+        {
+          answer = "null";
+          v = WORD_LIST[(int)random(WORD_LIST.length)];
+          v = Character.toUpperCase(v.charAt(0)) + v.substring(1);
+          break;
         }
-        if (valid) {
-          switch(v){
-            case "object":{
-              answer = "null";
-              v = WORD_LIST[(int)random(WORD_LIST.length)];
-              v = Character.toUpperCase(v.charAt(0)) + v.substring(1);
-             break; 
-            }
-            case "boolean":{
-              answer = "false";
-              break;
-            }
-            case "float":
-            case "double":{
-              answer = "0.0";
-              break;
-            }
-            case "byte":
-            case "char":
-            case "short":
-            case "int":
-            case "long":
-            {
-             answer = "0";
-              break;
-            }
-          }
+      case "boolean":
+        {
+          answer = "false";
+          break;
+        }
+      case "float":
+      case "double":
+        {
+          answer = "0.0";
+          break;
+        }
+      case "byte":
+      case "short":
+      case "int":
+      case "long":
+        {
+          answer = "0";
+          break;
+        }
+      case "char":
+        {
+          answer = "blank";
+          break;
+        }
+      }
+      if (valid) {
+        int randomType = (int)random(3);
+        if (randomType == 0) {
           int rnm = (int)random(3);
           code.add(cls);
-          if(rnm == 0){
+          if (rnm == 0) {
             code.add("    " + v + " " + wrds[6] + ";");
           }
           code.add(mth);
           code.add("        System.out.println(" + wrds[6] + ");");
           code.add("    }");
-          if(rnm == 1){
+          if (rnm == 1) {
             code.add("    " + v + " " + wrds[6] + ";");
           }
           code.add(mmt);
-          code.add("        new " + className + "()." + wrds[3] + "()");
+          code.add("        new " + className + "()." + wrds[3] + "();");
           code.add("    }");
-          if(rnm == 2){
+          if (rnm == 2) {
             code.add("    " + v + " " + wrds[6] + ";");
           }
-        } else {
-          
-          answer = "dnc";
+        } else if (randomType == 1) {
+          int rnm = (int)random(3);
+          code.add(cls);
+          if (rnm == 0) {
+            code.add("    static " + v + " " + wrds[6] + ";");
+          }
+          code.add(mth);
+          code.add("    }");
+          if (rnm == 1) {
+            code.add("    static " + v + " " + wrds[6] + ";");
+          }
+          code.add(mmt);
+          code.add("        System.out.println(" + wrds[6] + ");");
+          code.add("    }");
+          if (rnm == 2) {
+            code.add("    static " + v + " " + wrds[6] + ";");
+          }
+        } else if (randomType == 2) {
+          int rnm = (int)random(3);
+          code.add(cls);
+          if (rnm == 0) {
+            code.add("    static " + v + " " + wrds[6] + ";");
+          }
+          code.add(smt);
+          code.add("        System.out.println(" + wrds[6] + ");");
+          code.add("    }");
+          if (rnm == 1) {
+            code.add("    static " + v + " " + wrds[6] + ";");
+          }
+          code.add(mmt);
+          code.add("        " + className + "." + wrds[4] + "();");
+          code.add("    }");
+          if (rnm == 2) {
+            code.add("    static " + v + " " + wrds[6] + ";");
+          }
         }
       } else {
-        if (valid) {
-        } else {
+        int randomType = 1;//(int)random(3);
+        if (randomType == 0) {
+          if (random(2) < 1) {
+            code.add(v + " " + wrds[6] + ";"); 
+            code.add(cls);
+            code.add(mth);
+            code.add("        System.out.println(" + wrds[6] + ");");
+            code.add("    }");
+            code.add(mmt);
+            code.add("        new " + className + "()." + wrds[3] + "();");
+            code.add("    }");
+          } else {
+            code.add("static " + v + " " + wrds[6] + ";");
+            code.add(cls);
+            code.add(mth);
+            code.add("    }");
+            code.add(mmt);
+            code.add("        System.out.println(" + wrds[6] + ");");
+            code.add("    }");
+          }
+        } else if (randomType == 1) {
+          code.add(cls);
+          code.add(mth);
+          code.add("        " + v + " " + wrds[6] + ";");
+          code.add("        System.out.println(" + wrds[6] + ");");
+          code.add("    }");
+          code.add(mmt);
+          code.add("        new " + className + "()." + wrds[3] + "();");
+          code.add("    }");
         }
+        answer = "dnc";
       }
+
       code.add("}");
 
 
@@ -109,20 +170,11 @@ class DefaultValueLighthouse extends Stage {
       textFont(arial);
     }
 
-    String generateVariable() {
-      String s = WORD_LIST[(int)random(WORD_LIST.length)];
-
-      return null;
-    }
 
     void render() {
       fill(255);
       textSize(35);
-      if (type == whatsTheOutputType) {
-        centeredText("What's the output?", 50);
-      } else {
-        centeredText("Does it compile?", 50);
-      }
+      centeredText("What's the output?", 50);
       fill(0, 0, 0, 200);
       rect(tx, ty, tw, th * code.size());
 
@@ -148,7 +200,12 @@ class DefaultValueLighthouse extends Stage {
   final int doorSearchState = 8;
   final int playGameState = 9;
 
+  final int MAX_CORRECT = 2;
+
   LHLevel level;
+
+  int totalCorrect;
+  boolean wrongAnswer;
 
   DefaultValueLighthouse() {
     host = loadImage("dinosaur.png");
@@ -168,7 +225,7 @@ class DefaultValueLighthouse extends Stage {
     currentBackground = background;
 
     //DEBUG//
-    currentStageState = playGameState;
+    //currentStageState = playGameState;
     level = new LHLevel();
   }
 
@@ -281,7 +338,10 @@ class DefaultValueLighthouse extends Stage {
           "be used in any method that is also part of that class. Integral type class", 
           "variables (byte, short, int, and long) get initialized to 0 by default. Floats", 
           "and doubles get initialized to 0.0 by default. Booleans are defaulted to false.", 
-          "All objects that are class variables will be initialized to null by default.");
+          "Char variables are also initialized to 0. However, keep in mind that char variables", 
+          "are printed as characters and not numbers. So a char that is equal to 0, won't display,", 
+          "anything when printed unless it is cast to a different data type. All objects that", 
+          "are class variables will be initialized to null by default.");
         if (renderDialogChoice("go back")) {
           currentStageState = inquireState;
         }
@@ -330,39 +390,95 @@ class DefaultValueLighthouse extends Stage {
         }
         break;
       }
-    case playGameState:
+    case playGameState: 
       {
-        background(0, 200, 255);
-        level.render();
-        if (level.type == level.whatsTheOutputType) {
-          if (renderPlayerButton("false", "output: false", 100, resolutionHeight - 150)) {
-            if(level.answer.equals("false")){
-              level = new LHLevel();
-            }
-          }
-          if (renderPlayerButton("0.0", "output: 0.0", 300, resolutionHeight - 150)) {
-            if(level.answer.equals("0.0")){
-              level = new LHLevel();
-            }
-          }
-          if (renderPlayerButton("0", "output: 0", 500, resolutionHeight - 150)) {
-            if(level.answer.equals("0")){
-              level = new LHLevel();
-            }
-          }
-          if (renderPlayerButton("null", "output: null", 600, resolutionHeight - 150)) {
-            if(level.answer.equals("null")){
-              level = new LHLevel();
-            }
-          }
-          if (renderPlayerButton("(does not compile)", "output: (error)", 700, resolutionHeight - 150)) {
-            if(level.answer.equals("dnc")){
-              level = new LHLevel();
-            }
+
+
+        if (wrongAnswer) {
+          background(180, 10, 10);
+          if (renderPlayerButton("Try Again", 400, 500)) {
+            wrongAnswer = false;
+            level = new LHLevel();
           }
         } else {
+          background(0, 200, 255);
+          if (totalCorrect < MAX_CORRECT) {
+            if (renderPlayerButton("false", "output: false", 70, resolutionHeight - 150)) {
+              if (!level.answer.equals("false")) {
+                wrongAnswer = true;
+                totalCorrect = 0;
+              } else {
+                totalCorrect++;
+                level = new LHLevel();
+              }
+            }
+            if (renderPlayerButton("0.0", "output: 0.0", 200, resolutionHeight - 150)) {
+              if (!level.answer.equals("0.0")) {
+                wrongAnswer = true;
+                totalCorrect = 0;
+              } else {
+                totalCorrect++;
+                level = new LHLevel();
+              }
+            }
+            if (renderPlayerButton("0", "output: 0", 300, resolutionHeight - 150)) {
+              if (!level.answer.equals("0")) {
+                wrongAnswer = true;
+                totalCorrect = 0;
+              } else {
+                totalCorrect++;
+                level = new LHLevel();
+              }
+            }
+            if (renderPlayerButton("(blank)", "output: (no visible output)", 400, resolutionHeight - 150)) {
+              if (!level.answer.equals("blank")) {
+                wrongAnswer = true;
+                totalCorrect = 0;
+              } else {
+                totalCorrect++;
+                level = new LHLevel();
+              }
+            }
+            if (renderPlayerButton("null", "output: null", 600, resolutionHeight - 150)) {
+              if (!level.answer.equals("null")) {
+                wrongAnswer = true;
+                totalCorrect = 0;
+              } else {
+                totalCorrect++;
+                level = new LHLevel();
+              }
+            }
+            if (renderPlayerButton("(does not compile)", "output: (error)", 700, resolutionHeight - 150)) {
+              if (!level.answer.equals("dnc")) {
+                wrongAnswer = true;
+                totalCorrect = 0;
+              } else {
+                totalCorrect++;
+                level = new LHLevel();
+              }
+            }
+            if (renderPlayerButton("EXIT", "Press SPACE To Exit Game", 50, resolutionHeight - 50, color(255, 0, 0), color(255))) {
+              returnToWorld(); 
+              ret = false;
+            }
+          }else{
+             
+             exitX = 50;
+             exitY = resolutionHeight - 100;
+             if(checkForExit() && checkInteraction()){
+               ret = false;
+               completed = true;
+               returnToWorld();
+             }
+             fill(200);
+             rect(exitX, exitY, exitW, exitH);
+          }
         }
+        level.render();
 
+        textSize(40);
+        fill(255);
+        text("Score: " + totalCorrect, resolutionWidth - 300, resolutionHeight - 50);
         break;
       }
     }

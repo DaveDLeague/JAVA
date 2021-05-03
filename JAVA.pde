@@ -13,10 +13,12 @@
  finish DVLighthouse
  - what is the output with default value of variables?
    * creating local variables with same name as instance variable
- - does it compile? 
    * multiple variables defined on same line
    * variable scope 
    * static methods using non-static variables
+
+ fix bug for how-to-play and menu screen not returning to correct locations
+ 
  
  code challenges?
  add third player option
@@ -170,13 +172,13 @@ void setup() {
       currentStage = new VariablesCave();
     }
   }
-  , 400, 350));
+  , 50, 50));
   stageImages.add(new StageImage("shack.png", new Initializer() { 
     public void init() { 
       currentStage = new ImportsShack();
     }
   }
-  , 400, 750));
+  , 1350, 50));
   stageImages.add(new StageImage("hedge.png", new Initializer() { 
     public void init() { 
       currentStage = new MainMethodsMaze();
@@ -188,43 +190,43 @@ void setup() {
       currentStage = new OOOBridge();
     }
   }
-  , 600, 600));
+  , 840, 100));
   stageImages.add(new StageImage("volcano.png", new Initializer() { 
     public void init() { 
-      currentStage = new MainMethodsMaze();
+      currentStage = new CommandLineVolcano();
     }
   }
-  , 1200, 600));
+  , 1700, 215));
   stageImages.add(new StageImage("lighthouse.png", new Initializer() { 
     public void init() { 
       currentStage = new DefaultValueLighthouse();
     }
   }
-  , 400, 100));
+  , 1450, 900));
   stageImages.add(new StageImage("castle.png", new Initializer() { 
     public void init() { 
       currentStage = new MainMethodsMaze();
     }
   }
-  , 1500, 650));
+  , 1200, 500));
   stageImages.add(new StageImage("tornado.png", new Initializer() { 
     public void init() { 
       currentStage = new TernaryTornado();
     }
   }
-  , 100, 200));
+  , 900, 900));
   stageImages.add(new StageImage("manhole.png", new Initializer() { 
     public void init() { 
       currentStage = new NumberConstantSewer();
     }
   }
-  , 200, 100));
+  , 500, 250));
   stageImages.add(new StageImage("pond.png", new Initializer() { 
     public void init() { 
       currentStage = new MainMethodsMaze();
     }
   }
-  , 1600, 900));
+  , 100, 950));
 
 
   //fullScreen();
@@ -278,6 +280,7 @@ void draw() {
       dialogChoiceYPos -= 30;
       if (renderDialogChoice("Start New Game")) {
         currentState = GameStates.CHARACTER_SELECT_STATE;
+        inputBoxString = "";
       }
       if (savedGames.size() > 0 && renderDialogChoice("Continue")) {
         inputBoxString = "";
@@ -585,6 +588,10 @@ void draw() {
   case WORLD_MAP_STATE:
     {
       if (currentStage == null) {
+        //if(mousePressed){
+        //  println(mouseX + camera.x, mouseY + camera.y); 
+        //}
+        
         player.update();
         camera.update();
 
@@ -865,7 +872,6 @@ void mouseWheel(MouseEvent e) {
 }
 
 void toggleFullScreen() {
-  print("EYEYEYE");
   fullScreen = !fullScreen;
   if (fullScreen) {
     surface.setSize(displayWidth, displayHeight);
