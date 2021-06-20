@@ -657,7 +657,7 @@ void renderTextBox(color boxColor, color textColor, String... text) {
 }
 
 void renderTextBox(float y, color boxColor, color textColor, String... text) {
-  float h = textBoxTextSize;
+  float h = textBoxTextSize; //24
   textSize(h);
   float w = 0;
   for (int i = 0; i < text.length; i++) {

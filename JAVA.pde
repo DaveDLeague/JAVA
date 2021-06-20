@@ -223,7 +223,7 @@ void setup() {
   , 500, 250));
   stageImages.add(new StageImage("pond.png", new Initializer() { 
     public void init() { 
-      currentStage = new MainMethodsMaze();
+      currentStage = new FallingExceptions();
     }
   }
   , 100, 950));
