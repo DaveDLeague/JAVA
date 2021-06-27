@@ -2,8 +2,6 @@ import java.util.ArrayList;
 
 class FallingExceptions extends Stage {
   
-  //todo: make sure it's actually possible to get all of the unchecked exceptions without touching a checked one
-  
   final int searchState = 0;
   final int greetingState = 1;
   final int tutorialState = 2;
@@ -127,6 +125,14 @@ class FallingExceptions extends Stage {
         if (tb1.counter > 1) {
           tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
           tb1.counter = 0;
+        }
+        if (tb2.counter > 1) {
+          tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+          tb2.counter = 0;
+        }
+        if (tb3.counter > 1) {
+          tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+          tb3.counter = 0;
         }
         if (checkIntersection(player.x, player.y, player.w, player.h, tb1.xPos, tb1.yPos, 20+15*exceptions[index].length(), 50)) {
           fill(255);
