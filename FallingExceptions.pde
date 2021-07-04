@@ -215,11 +215,11 @@ class FallingExceptions extends Stage {
             }
           }
         }
+        System.out.println(exceptionsLeft.size());
         if (completed && score == uncheckedExceptions.length) {
-          tb1.yPos = 0;
-          tb2.yPos = 0;
-          tb3.yPos = 0;
-          
+          tb1.yPos = -50;
+          tb2.yPos = -50;
+          tb3.yPos = -50;
           renderTextBox("Awesome! I think you've gotten the hang of this.", "Now go forth and do more JAVA!"); 
         }
         break;
