@@ -123,15 +123,27 @@ class FallingExceptions extends Stage {
           tb3.counter++;
         }
         if (tb1.counter > 1) {
-          tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+          try {
+              tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+           } catch (IndexOutOfBoundsException e) {
+              completed = true;
+           }
           tb1.counter = 0;
         }
         if (tb2.counter > 1) {
-          tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+          try {
+              tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+           } catch (IndexOutOfBoundsException e) {
+              completed = true;
+           }
           tb2.counter = 0;
         }
         if (tb3.counter > 1) {
-          tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+          try {
+              tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+           } catch (IndexOutOfBoundsException e) {
+              completed = true;
+           }
           tb3.counter = 0;
         }
         if (checkIntersection(player.x, player.y, player.w, player.h, tb1.xPos, tb1.yPos, 20+15*exceptions[index].length(), 50)) {
@@ -150,7 +162,11 @@ class FallingExceptions extends Stage {
                 exceptionsLeft.add(s);
               }
             }
-            tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+            try {
+              tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+            } catch (IndexOutOfBoundsException e) {
+              completed = true;
+            }
           }
         }
         if (checkIntersection(player.x, player.y, player.w, player.h, tb2.xPos, tb2.yPos, 20+15*exceptions[index].length(), 50)) {
@@ -169,7 +185,11 @@ class FallingExceptions extends Stage {
                 exceptionsLeft.add(s);
               }
             }
-            tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+            try {
+              tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+            } catch (IndexOutOfBoundsException e) {
+              completed = true;
+            }
           }
         }
         if (checkIntersection(player.x, player.y, player.w, player.h, tb3.xPos, tb3.yPos, 20+15*exceptions[index].length(), 50)) {
@@ -188,11 +208,18 @@ class FallingExceptions extends Stage {
                 exceptionsLeft.add(s);
               }
             }
-            tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+            try {
+              tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+            } catch (IndexOutOfBoundsException e) {
+              completed = true;
+            }
           }
         }
-        if (score == uncheckedExceptions.length) {
-          completed = true;
+        if (completed && score == uncheckedExceptions.length) {
+          tb1.yPos = 0;
+          tb2.yPos = 0;
+          tb3.yPos = 0;
+          
           renderTextBox("Awesome! I think you've gotten the hang of this.", "Now go forth and do more JAVA!"); 
         }
         break;
