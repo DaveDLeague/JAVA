@@ -6,7 +6,7 @@ class FallingExceptions extends Stage {
   final int greetingState = 1;
   final int tutorialState = 2;
   final int gameState = 3;
-  final String[] exceptions = {"IOException", "NullPointerException", "FileNotFoundException", "MalformedURLException", "ArrayIndexOutOfBoundsException", "IndexOutOfBoundsException", "StringIndexOutOfBoundsException", "RuntimeException", "Exception", "ArithmeticException", "IllegalStateException", "ClassCastException", "InterruptedException", "ClassNotFoundException", "InstantiationException"};
+  final String[] exceptions = {"IOException", "NullPointerException", "FileNotFoundException", "MalformedURLException", "IllegalArgumentException", "ArrayIndexOutOfBoundsException", "IndexOutOfBoundsException", "StringIndexOutOfBoundsException", "RuntimeException", "Exception", "ArithmeticException", "IllegalStateException", "ClassCastException", "InterruptedException", "ClassNotFoundException", "InstantiationException"};
   final String[] uncheckedExceptions = {"NullPointerException", "RuntimeException", "ArithmeticException", "IllegalArgumentException", "IllegalStateException", "IndexOutOfBoundsException", "ArrayIndexOutOfBoundsException", "StringIndexOutOfBoundsException"};
   ArrayList<String> exceptionsLeft = new ArrayList<String>();
   int index = (int)(Math.random()*exceptions.length);
@@ -124,6 +124,7 @@ class FallingExceptions extends Stage {
         }
         if (tb1.counter > 1) {
           try {
+              exceptionsLeft.add(tb1.text);
               tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
            } catch (IndexOutOfBoundsException e) {
               completed = true;
@@ -132,6 +133,7 @@ class FallingExceptions extends Stage {
         }
         if (tb2.counter > 1) {
           try {
+              exceptionsLeft.add(tb2.text);
               tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
            } catch (IndexOutOfBoundsException e) {
               completed = true;
@@ -140,6 +142,7 @@ class FallingExceptions extends Stage {
         }
         if (tb3.counter > 1) {
           try {
+              exceptionsLeft.add(tb3.text);
               tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
            } catch (IndexOutOfBoundsException e) {
               completed = true;
@@ -208,15 +211,11 @@ class FallingExceptions extends Stage {
                 exceptionsLeft.add(s);
               }
             }
-            try {
-              tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
-            } catch (IndexOutOfBoundsException e) {
-              completed = true;
-            }
+            tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
           }
         }
-        System.out.println(exceptionsLeft.size());
-        if (completed && score == uncheckedExceptions.length) {
+        System.out.println(exceptionsLeft);
+        if (score == uncheckedExceptions.length) {
           tb1.yPos = -50;
           tb2.yPos = -50;
           tb3.yPos = -50;
@@ -252,7 +251,7 @@ class TextBox {
   }
   
   void reset(String t) {
-    xPos = (int)(Math.random()*400+100);
+    xPos = (int)(Math.random()*600+25);
     yPos = 0; 
     text = t;
   }
