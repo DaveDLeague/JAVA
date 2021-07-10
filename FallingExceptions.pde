@@ -9,6 +9,7 @@ class FallingExceptions extends Stage {
   final String[] exceptions = {"IOException", "NullPointerException", "FileNotFoundException", "MalformedURLException", "IllegalArgumentException", "ArrayIndexOutOfBoundsException", "IndexOutOfBoundsException", "StringIndexOutOfBoundsException", "RuntimeException", "Exception", "ArithmeticException", "IllegalStateException", "ClassCastException", "InterruptedException", "ClassNotFoundException", "InstantiationException"};
   final String[] uncheckedExceptions = {"NullPointerException", "RuntimeException", "ArithmeticException", "IllegalArgumentException", "IllegalStateException", "IndexOutOfBoundsException", "ArrayIndexOutOfBoundsException", "StringIndexOutOfBoundsException"};
   ArrayList<String> exceptionsLeft = new ArrayList<String>();
+  ArrayList<TextBox> textBoxes = new ArrayList<TextBox>();
   int index = (int)(Math.random()*exceptions.length);
   int score = 0;
   
@@ -36,6 +37,9 @@ class FallingExceptions extends Stage {
     tb1 = new TextBox(400, exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
     tb2 = new TextBox(50, exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
     tb3 = new TextBox(750, exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+    textBoxes.add(tb1);
+    textBoxes.add(tb2);
+    textBoxes.add(tb3);
     background = new Background(resolutionWidth, resolutionHeight);
     background.clr = color(#c9afc6);
     currentBackground = background;
@@ -66,10 +70,13 @@ class FallingExceptions extends Stage {
       case greetingState:
         renderTextBox("Do you know about Java checked and unchecked exceptions?");
         if (renderDialogChoice("No, can you tell me about them?")) {
+          tutorialPart = 0;
           currentStageState = tutorialState;
         } else if (renderDialogChoice("Yep, I already know.")) {
-          currentStageState = gameState;
+          tutorialPart = 3;
+          currentStageState = tutorialState;
         }
+        
         break;
       case tutorialState:
         switch(tutorialPart) {
@@ -87,10 +94,15 @@ class FallingExceptions extends Stage {
             break;
           case 2:
             renderTextBox("Checked exceptions inherit from java.lang.Exception", "and its subclasses that DO NOT extend from java.lang.RuntimeException.", "The program is required to handle them.", "Checked exceptions are thrown programmatically.");
-            if (renderDialogChoice("I think I get it now, let's play!")) {
-              currentStageState = gameState;
+            if (renderDialogChoice("I think I get it now! Now what?")) {
+              tutorialPart++;
             }
             break;
+          case 3:
+            renderTextBox("Text boxes with both checked and unchecked exceptions will fall.", "Your goal is to collect all of the UNCHECKED exceptions.");
+            if (renderDialogChoice("Alright, let's play!")) {
+              currentStageState = gameState;
+            }
         }
         break;
       case gameState:
@@ -110,108 +122,34 @@ class FallingExceptions extends Stage {
           tb3.render();
           tb3.yPos = tb3.yPos + 3;
         }
-        if (tb1.yPos > 600) {
-          tb1.yPos = 0;
-          tb1.counter++;
-        }
-        if (tb2.yPos > 600) {
-          tb2.yPos = 0;
-          tb2.counter++;
-        }
-        if (tb3.yPos > 600) {
-          tb3.yPos = 0;
-          tb3.counter++;
-        }
-        if (tb1.counter > 1) {
-          try {
-              exceptionsLeft.add(tb1.text);
-              tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
-           } catch (IndexOutOfBoundsException e) {
-              completed = true;
-           }
-          tb1.counter = 0;
-        }
-        if (tb2.counter > 1) {
-          try {
-              exceptionsLeft.add(tb2.text);
-              tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
-           } catch (IndexOutOfBoundsException e) {
-              completed = true;
-           }
-          tb2.counter = 0;
-        }
-        if (tb3.counter > 1) {
-          try {
-              exceptionsLeft.add(tb3.text);
-              tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
-           } catch (IndexOutOfBoundsException e) {
-              completed = true;
-           }
-          tb3.counter = 0;
-        }
-        if (checkIntersection(player.x, player.y, player.w, player.h, tb1.xPos, tb1.yPos, 20+15*exceptions[index].length(), 50)) {
-          fill(255);
-          textSize(promptTextSize);
-          text("Press SPACE to collect", tb1.xPos, tb1.yPos-20);
-          if (checkInteraction()) {
-            tb1.yPos = 0;
-            Arrays.sort(uncheckedExceptions);
-            if(Arrays.binarySearch(uncheckedExceptions, tb1.text) >= 0) {
-              score++;
-            } else {
-              score = 0;
-              exceptionsLeft.clear();
-              for (String s: exceptions) {
-                exceptionsLeft.add(s);
-              }
-            }
-            try {
-              tb1.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
-            } catch (IndexOutOfBoundsException e) {
-              completed = true;
-            }
+        for (int i = 0; i < textBoxes.size(); i++) {
+          if (textBoxes.get(i).yPos > 600) {
+            textBoxes.get(i).yPos = 0;
+            textBoxes.get(i).counter++;
           }
-        }
-        if (checkIntersection(player.x, player.y, player.w, player.h, tb2.xPos, tb2.yPos, 20+15*exceptions[index].length(), 50)) {
-          fill(255);
-          textSize(promptTextSize);
-          text("Press SPACE to collect", tb2.xPos, tb2.yPos-20);
-          if (checkInteraction()) {
-            tb2.yPos = 0;
-            Arrays.sort(uncheckedExceptions);
-            if(Arrays.binarySearch(uncheckedExceptions, tb2.text) >= 0) {
-              score++;
-            } else {
-              score = 0;
-              exceptionsLeft.clear();
-              for (String s: exceptions) {
-                exceptionsLeft.add(s);
-              }
-            }
-            try {
-              tb2.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
-            } catch (IndexOutOfBoundsException e) {
-              completed = true;
-            }
+          if (textBoxes.get(i).counter > 1) {
+             exceptionsLeft.add(textBoxes.get(i).text);
+             textBoxes.get(i).reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
+             textBoxes.get(i).counter = 0;
           }
-        }
-        if (checkIntersection(player.x, player.y, player.w, player.h, tb3.xPos, tb3.yPos, 20+15*exceptions[index].length(), 50)) {
-          fill(255);
-          textSize(promptTextSize);
-          text("Press SPACE to collect", tb3.xPos, tb3.yPos-20);
-          if (checkInteraction()) {
-            tb3.yPos = 0;
-            Arrays.sort(uncheckedExceptions);
-            if(Arrays.binarySearch(uncheckedExceptions, tb3.text) >= 0) {
-              score++;
-            } else {
-              score = 0;
-              exceptionsLeft.clear();
-              for (String s: exceptions) {
-                exceptionsLeft.add(s);
+          if (checkIntersection(player.x, player.y, player.w, player.h, textBoxes.get(i).xPos, textBoxes.get(i).yPos, 10+15*textBoxes.get(i).text.length(), 50)) {
+            fill(255);
+            textSize(promptTextSize);
+            text("Press SPACE to collect", textBoxes.get(i).xPos, textBoxes.get(i).yPos-20);
+            if (checkInteraction()) {
+              textBoxes.get(i).yPos = 0;
+              Arrays.sort(uncheckedExceptions);
+              if(Arrays.binarySearch(uncheckedExceptions, textBoxes.get(i).text) >= 0) {
+                score++;
+              } else {
+                score = 0;
+                exceptionsLeft.clear();
+                for (String s: exceptions) {
+                  exceptionsLeft.add(s);
+                }
               }
+              textBoxes.get(i).reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
             }
-            tb3.reset(exceptionsLeft.remove((int)(Math.random()*exceptionsLeft.size())));
           }
         }
         System.out.println(exceptionsLeft);
