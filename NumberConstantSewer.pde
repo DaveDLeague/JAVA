@@ -1,4 +1,4 @@
-class NumberConstantSewer extends Stage { //<>//
+class NumberConstantSewer extends Stage { //<>// //<>//
   class NumberConstant {
     String value;
     float x;
