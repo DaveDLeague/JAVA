@@ -6,6 +6,14 @@ class EqualsOrEquals extends Stage {
   final int gameState = 3;
   
   int tutorialPart = 0;
+  int randIndexWordList = 0;
+  int score = 0;
+  
+  boolean firstTime = true;
+  int correctButton = 0;
+  int buttonPressed = 0;
+  
+  int questionType = (int)(Math.random()*2);
   
   EqualsOrEquals() {
     exitX = 100;
@@ -36,6 +44,8 @@ class EqualsOrEquals extends Stage {
     image(player.image, player.x, player.y, player.w, player.h);
     switch(currentStageState) {
       case searchState:
+        firstTime = true;
+        randIndexWordList = (int)(Math.random()*WORD_LIST.length);
         if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, host.width, host.height)) {
           fill(255);
           textSize(promptTextSize);
@@ -76,10 +86,40 @@ class EqualsOrEquals extends Stage {
             }
             break;
           case 3:
-            renderTextBox("To test your knowledge, I'll give you some incomplete if-statements", "that check for equality.", "Your objective is to decide whether \"==\" or \"equals()\" would be better to use—", "or whether you could use both!");
+            renderTextBox("To test your knowledge, I'll give you some incomplete if-statements", "that check for equality. Your objective is to decide whether \"==\"", "or \"equals()\" would make the if-statement evaluate to \"true\"—", "or whether you could use both!");
             if (renderDialogChoice("That sounds good, let's do it!")) {
               currentStageState = gameState;
             }
+        }
+        break;
+      case gameState:
+        textSize(20);
+        text("Score: " + score, resolutionWidth - 200, resolutionHeight-20);
+        fill(0, 0, 0, 200);
+        rect(225 - camera.x, 200 - camera.y, 465, 200);
+          
+          renderTabs(randIndexWordList, questionType);
+           
+        if (renderPlayerButton("==", "\"==\" will work!", 200, 500)) {
+          buttonPressed = 1;
+        }
+        if (renderPlayerButton("equals()", "\"equals\" will work!", 380, 500)) {
+          buttonPressed = 2;
+        }
+        if (renderPlayerButton("both", "both will work!", 650, 500)) {
+          buttonPressed = 3;
+        }
+        if (buttonPressed != 0 && correctButton != 0) {
+          if (buttonPressed == correctButton) {
+            score++;
+          } else {
+            score--;
+          }
+          buttonPressed = 0;
+          correctButton = 0;
+          randIndexWordList = (int)(Math.random()*WORD_LIST.length);
+          questionType = (int)(Math.random()*2);
+          renderTabs(randIndexWordList, questionType);
         }
         break;
     }
@@ -90,6 +130,37 @@ class EqualsOrEquals extends Stage {
       }
     }
     return true;
-  }//9 horse tabs
+  }
+  
+  void renderTabs(int index, int rand) {
+    fill(200);
+    textSize(18);
+    switch(rand) {
+      case 0:
+        text("Object o = new Object();", 250 - camera.x, 225 - camera.y);
+        text("Object m = o;", 250 - camera.x, 275 - camera.y);
+        text("if (o _____ m) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y);
+        text("}", 250 - camera.x, 375 - camera.y);
+        correctButton = 1;
+        break;
+      case 1:
+        text("String s = \"" + WORD_LIST[index] + "\";", 250 - camera.x, 225 - camera.y);
+        text("String y = new String(\"" + WORD_LIST[index] + "\");", 250 - camera.x, 275 - camera.y);
+        text("if (s _____ o) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y);
+        text("}", 250 - camera.x, 375 - camera.y);
+        correctButton = 2;
+        break;
+      case 2:
+        text("String s = \"" + WORD_LIST[index] + "\";", 250 - camera.x, 225 - camera.y);
+        text("String y = new String(\"" + WORD_LIST[index] + "\");", 250 - camera.x, 275 - camera.y);
+        text("if (s _____ o) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y);
+        text("}", 250 - camera.x, 375 - camera.y);
+        correctButton = 2;
+        break;
+    }
+  }
   
 }
