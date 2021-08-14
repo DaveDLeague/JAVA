@@ -7,13 +7,15 @@ class EqualsOrEquals extends Stage {
   
   int tutorialPart = 0;
   int randIndexWordList = 0;
+  int randIndexInt = 0;
+  int randIndexChar = 0;
   int score = 0;
   
   boolean firstTime = true;
   int correctButton = 0;
   int buttonPressed = 0;
   
-  int questionType = (int)(Math.random()*2);
+  int questionType = (int)(Math.random()*7);
   
   EqualsOrEquals() {
     exitX = 100;
@@ -46,6 +48,8 @@ class EqualsOrEquals extends Stage {
       case searchState:
         firstTime = true;
         randIndexWordList = (int)(Math.random()*WORD_LIST.length);
+        randIndexInt = (int)(Math.random()*10);
+        randIndexChar = (int)(Math.random()*26+97);
         if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, host.width, host.height)) {
           fill(255);
           textSize(promptTextSize);
@@ -98,7 +102,7 @@ class EqualsOrEquals extends Stage {
         fill(0, 0, 0, 200);
         rect(225 - camera.x, 200 - camera.y, 465, 200);
           
-          renderTabs(randIndexWordList, questionType);
+        renderTabs(questionType, randIndexWordList, randIndexInt, randIndexChar);
            
         if (renderPlayerButton("==", "\"==\" will work!", 200, 500)) {
           buttonPressed = 1;
@@ -118,8 +122,10 @@ class EqualsOrEquals extends Stage {
           buttonPressed = 0;
           correctButton = 0;
           randIndexWordList = (int)(Math.random()*WORD_LIST.length);
-          questionType = (int)(Math.random()*2);
-          renderTabs(randIndexWordList, questionType);
+          randIndexInt = (int)(Math.random()*10);
+          randIndexChar = (int)(Math.random()*26+97);
+          questionType = (int)(Math.random()*7);
+          renderTabs(questionType, randIndexWordList, randIndexInt, randIndexChar);
         }
         break;
     }
@@ -132,7 +138,7 @@ class EqualsOrEquals extends Stage {
     return true;
   }
   
-  void renderTabs(int index, int rand) {
+  void renderTabs(int rand, int... index) {
     fill(200);
     textSize(18);
     switch(rand) {
@@ -142,20 +148,52 @@ class EqualsOrEquals extends Stage {
         text("if (o _____ m) {", 250 - camera.x, 325 - camera.y);
         text("//code goes here", 275 - camera.x, 350 - camera.y);
         text("}", 250 - camera.x, 375 - camera.y);
-        correctButton = 1;
+        correctButton = 3;
         break;
       case 1:
-        text("String s = \"" + WORD_LIST[index] + "\";", 250 - camera.x, 225 - camera.y);
-        text("String y = new String(\"" + WORD_LIST[index] + "\");", 250 - camera.x, 275 - camera.y);
+        text("String s = \"" + WORD_LIST[index[0]] + "\";", 250 - camera.x, 225 - camera.y);
+        text("String o = new String(\"" + WORD_LIST[index[0]] + "\");", 250 - camera.x, 275 - camera.y);
         text("if (s _____ o) {", 250 - camera.x, 325 - camera.y);
         text("//code goes here", 275 - camera.x, 350 - camera.y);
         text("}", 250 - camera.x, 375 - camera.y);
         correctButton = 2;
         break;
       case 2:
-        text("String s = \"" + WORD_LIST[index] + "\";", 250 - camera.x, 225 - camera.y);
-        text("String y = new String(\"" + WORD_LIST[index] + "\");", 250 - camera.x, 275 - camera.y);
-        text("if (s _____ o) {", 250 - camera.x, 325 - camera.y);
+        text("String s = \"" + WORD_LIST[index[0]] + "\";", 250 - camera.x, 225 - camera.y);
+        text("String y = s;", 250 - camera.x, 275 - camera.y);
+        text("if (s _____ y) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y);
+        text("}", 250 - camera.x, 375 - camera.y);
+        correctButton = 3;
+        break;
+      case 3:
+        text("String s = \"" + WORD_LIST[index[0]] + "\";", 250 - camera.x, 225 - camera.y);
+        text("String t = \"" + WORD_LIST[index[0]] + "\";", 250 - camera.x, 275 - camera.y);
+        text("if (s _____ t) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y);
+        text("}", 250 - camera.x, 375 - camera.y);
+        correctButton = 3;
+        break;
+      case 4:
+        text("int i = " + index[1] + ";", 250 - camera.x, 225 - camera.y);
+        text("int j = " + index[1] + ";", 250 - camera.x, 275 - camera.y);
+        text("if (i _____ j) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y); 
+        text("}", 250 - camera.x, 375 - camera.y); 
+        correctButton = 1;
+        break;
+      case 5:
+        text("char c = " + (char)(index[2]) + ";", 250 - camera.x, 225 - camera.y);
+        text("char d = " + (char)(index[2]) + ";", 250 - camera.x, 275 - camera.y);
+        text("if (c _____ d) {", 250 - camera.x, 325 - camera.y);
+        text("//code goes here", 275 - camera.x, 350 - camera.y); 
+        text("}", 250 - camera.x, 375 - camera.y); 
+        correctButton = 1;
+        break;
+      case 6:
+        text("String s = new String(\"" + WORD_LIST[index[0]] + "\");", 250 - camera.x, 225 - camera.y);
+        text("String w = new String(\"" + WORD_LIST[index[0]] + "\");", 250 - camera.x, 275 - camera.y);
+        text("if (s _____ w) {", 250 - camera.x, 325 - camera.y);
         text("//code goes here", 275 - camera.x, 350 - camera.y);
         text("}", 250 - camera.x, 375 - camera.y);
         correctButton = 2;
