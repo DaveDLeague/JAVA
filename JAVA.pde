@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/* //<>// //<>// //<>// //<>//
  TODO: 
  finish imports shack
  -make game more procedural and logical, 'na mean?
@@ -223,7 +223,7 @@ void setup() {
   , 500, 250));
   stageImages.add(new StageImage("pond.png", new Initializer() { 
     public void init() { 
-      currentStage = new EqualsOrEquals();
+      currentStage = new EncapsulatedOrImmutable();
     }
   }
   , 100, 950));
