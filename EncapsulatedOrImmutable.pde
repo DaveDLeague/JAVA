@@ -6,9 +6,11 @@ class EncapsulatedOrImmutable extends Stage {
   final int gameState = 3;
   
   int tutorialPart = 0;
+  boolean button1 = false;
+  boolean button2 = false;
   
   EncapsulatedOrImmutable() {
-    exitX = 600;
+    exitX = 700;
     exitY = 200;
     exitW = 50;
     exitH = 90;
@@ -51,6 +53,7 @@ class EncapsulatedOrImmutable extends Stage {
           tutorialPart = 0;
           currentStageState = tutorialState;
         } else if (renderDialogChoice("Yep, I already know.")) {
+          tutorialPart = 2;
           currentStageState = tutorialState;
         }
         break;
@@ -64,24 +67,37 @@ class EncapsulatedOrImmutable extends Stage {
             break;
           case 1:
             renderTextBox("An immutable class uses the same principles as an encapsulated class,", "but you can't change any data of an object made from immutable class.", "This means that immutable classes have no setter methods,", "and its member variables are marked final as well as private.");
-            if (renderDialogChoice("Is there anything else I need to know?")) {
-              tutorialPart++;
-            }
-            break;
-          case 2:
-            renderTextBox("Just one more thing - you can't extend immutable classes.", "This means that the class should also be marked final.");
             if (renderDialogChoice("Okay, I understand now!")) {
               tutorialPart++;
             }
             break;
-          case 3:
+          case 2:
             renderTextBox("To test your knowledge, I'll give you a class and", "ask you to either make it encapsulated or immutable.");
             if (renderDialogChoice("That sounds good, let's do it!")) {
               currentStageState = gameState;
             }
+            break;
         }
         break;
       case gameState:
+        fill(225, 180, 190);
+        textSize(20);
+        text("Make this class encapsulated!", 150, 30);
+        fill(250);
+        textSize(36);
+        text("public class Class1 {", 100, 70);
+        if (renderPlayerButton(buttonText(button1), "Press SPACE to Switch", 150, 95)) {
+          button1 = !button1;
+        }
+        fill(250);
+        textSize(36);
+        text("int x;", 290, 125);
+        if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 170)) {
+          button2 = !button2;
+        }
+        fill(250);
+        textSize(36);
+        text("void setX(int x){", 290, 200);
         break;
     }
     if (checkForExit()) {
@@ -91,6 +107,14 @@ class EncapsulatedOrImmutable extends Stage {
       }
     }
     return true;
+  }
+  
+  private String buttonText(boolean b) {
+    if (b) {
+      return "private";
+    } else {
+      return "public";
+    }
   }
   
 }
