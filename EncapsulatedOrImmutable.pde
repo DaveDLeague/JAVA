@@ -6,19 +6,20 @@ class EncapsulatedOrImmutable extends Stage {
   final int gameState = 3;
   
   int tutorialPart = 0;
-  boolean button1 = false;
-  boolean button2 = false;
+  int button1 = 0;
+  int button2 = 0;
+  int button3 = 0;
   
   EncapsulatedOrImmutable() {
     exitX = 700;
-    exitY = 200;
+    exitY = 150;
     exitW = 50;
     exitH = 90;
     player.x = exitX;
     player.y = exitY;
     camera.x = 0;
     camera.y = 0;
-    hostX = 50;
+    hostX = 750;
     hostY = 450;
     host = loadImage("crab.png");
     background = new Background(resolutionWidth, resolutionHeight);
@@ -80,24 +81,40 @@ class EncapsulatedOrImmutable extends Stage {
         }
         break;
       case gameState:
-        fill(225, 180, 190);
-        textSize(20);
-        text("Make this class encapsulated!", 150, 30);
         fill(250);
         textSize(36);
         text("public class Class1 {", 100, 70);
         if (renderPlayerButton(buttonText(button1), "Press SPACE to Switch", 150, 95)) {
-          button1 = !button1;
+          button1++;
         }
         fill(250);
         textSize(36);
-        text("int x;", 290, 125);
-        if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 170)) {
-          button2 = !button2;
+        text("int x;", 315, 125);
+        if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 160)) {
+          button2++;
         }
         fill(250);
         textSize(36);
-        text("void setX(int x){", 290, 200);
+        text("void setX(int x){", 315, 190);
+        text("this.x = x;", 200, 250);
+        text("}", 135, 300);
+        if (renderPlayerButton(buttonText(button3), "Press SPACE to Switch", 150, 335)) {
+          button3++;
+        }
+        fill(250);
+        textSize(36);
+        text("int getX(){", 315, 365);
+        text("return x;", 200, 420);
+        text("}", 135, 470);
+        text("}", 100, 530);
+        
+        fill(225, 200, 180);
+        textSize(24);
+        if (checkIfEncapsulated()) {
+          text("Great!", 765, 400);
+        } else {
+          text("Make this class encapsulated!", 625, 400);
+        }
         break;
     }
     if (checkForExit()) {
@@ -109,11 +126,17 @@ class EncapsulatedOrImmutable extends Stage {
     return true;
   }
   
-  private String buttonText(boolean b) {
-    if (b) {
+  private boolean checkIfEncapsulated() {
+    return (button1 % 3 == 0) && (button2 % 3 == 1) && (button3 % 3 == 1);
+  }
+  
+  private String buttonText(int b) {
+    if (b % 3 == 0) {
       return "private";
-    } else {
+    } else if (b % 3 == 1) {
       return "public";
+    } else {
+      return "REMOVE";
     }
   }
   
