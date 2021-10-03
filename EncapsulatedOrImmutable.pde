@@ -9,6 +9,7 @@ class EncapsulatedOrImmutable extends Stage {
   int button1 = 0;
   int button2 = 0;
   int button3 = 0;
+  int encapsulateOrImmutable = 0;
   
   EncapsulatedOrImmutable() {
     exitX = 700;
@@ -39,6 +40,10 @@ class EncapsulatedOrImmutable extends Stage {
     image(player.image, player.x, player.y, player.w, player.h);
     switch(currentStageState) {
       case searchState:
+        encapsulateOrImmutable = (int)(Math.random()*3);
+        button1 = 1;
+        button2 = 1;
+        button3 = 1;
         if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, host.width, host.height)) {
           fill(255);
           textSize(promptTextSize);
@@ -81,40 +86,75 @@ class EncapsulatedOrImmutable extends Stage {
         }
         break;
       case gameState:
-        fill(250);
-        textSize(36);
-        text("public class Class1 {", 100, 70);
-        if (renderPlayerButton(buttonText(button1), "Press SPACE to Switch", 150, 95)) {
-          button1++;
-        }
-        fill(250);
-        textSize(36);
-        text("int x;", 315, 125);
-        if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 160)) {
-          button2++;
-        }
-        fill(250);
-        textSize(36);
-        text("void setX(int x){", 315, 190);
-        text("this.x = x;", 200, 250);
-        text("}", 135, 300);
-        if (renderPlayerButton(buttonText(button3), "Press SPACE to Switch", 150, 335)) {
-          button3++;
-        }
-        fill(250);
-        textSize(36);
-        text("int getX(){", 315, 365);
-        text("return x;", 200, 420);
-        text("}", 135, 470);
-        text("}", 100, 530);
+        if (encapsulateOrImmutable == 0 || encapsulateOrImmutable == 1) {
+          fill(250);
+          textSize(36);
+          text("public class Class1 {", 100, 70);
+          if (renderPlayerButton(buttonText(button1), "Press SPACE to Switch", 150, 95)) {
+            button1++;
+          }
+          fill(250);
+          textSize(36);
+          text("int x;", 315, 125);
+          if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 160)) {
+            button2++;
+          }
+          fill(250);
+          textSize(36);
+          text("void setX(int x){", 315, 190);
+          text("this.x = x;", 200, 250);
+          text("}", 135, 300);
+          if (renderPlayerButton(buttonText(button3), "Press SPACE to Switch", 150, 335)) {
+            button3++;
+          }
+          fill(250);
+          textSize(36);
+          text("int getX(){", 315, 365);
+          text("return x;", 200, 420);
+          text("}", 135, 470);
+          text("}", 100, 530);
         
-        fill(225, 200, 180);
-        textSize(24);
-        if (checkIfEncapsulated()) {
-          text("Great!", 765, 400);
-        } else {
-          text("Make this class encapsulated!", 625, 400);
+          fill(225, 200, 180);
+          textSize(24);
+          if (checkIfCompleted(encapsulateOrImmutable)) {
+            text("Great!", 765, 400);
+          } else if (encapsulateOrImmutable == 0) {
+            text("Make this class encapsulated!", 625, 400);
+          } else if (encapsulateOrImmutable == 1) {
+            text("Make this class immutable!", 625, 400);
+          }
+        } else if (encapsulateOrImmutable == 2) {
+          fill(250);
+          textSize(36);
+          text("public class Class1 {", 100, 70);
+          if (renderPlayerButton(buttonText(button1), "Press SPACE to Switch", 150, 95)) {
+            button1++;
+          }
+          fill(250);
+          textSize(36);
+          text("int x;", 315, 125);
+          if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 160)) {
+            button2++;
+          }
+          fill(250);
+          textSize(36);
+          text("int y;", 315, 190);
+          if (renderPlayerButton(buttonText(button3), "Press SPACE to Switch", 150, 225)) {
+            button3++;
+          }
+          fill(250);
+          textSize(36);
+          text("int z;", 315, 255);
+          text("}", 100, 320);
+          fill(225, 200, 180);
+          textSize(24);
+          if (checkIfCompleted(encapsulateOrImmutable)) {
+            text("Great!", 765, 400);
+          } else {
+            text("Make this class immutable!", 625, 400);
+          }
         }
+        
         break;
     }
     if (checkForExit()) {
@@ -126,9 +166,18 @@ class EncapsulatedOrImmutable extends Stage {
     return true;
   }
   
-  private boolean checkIfEncapsulated() {
-    return (button1 % 3 == 0) && (button2 % 3 == 1) && (button3 % 3 == 1);
+  private boolean checkIfCompleted(int c) {
+    switch(c) {
+      case 0:
+        return (button1 % 3 == 0) && (button2 % 3 == 1) && (button3 % 3 == 1);
+      case 1:
+        return (button1 % 3 == 0) && (button2 % 3 == 2) && (button3 % 3 == 1);
+      case 2:
+        return (button1 % 3 == 0) && (button2 % 3 == 0) && (button3 % 3 == 0);
+    }
+    return false;
   }
+  
   
   private String buttonText(int b) {
     if (b % 3 == 0) {
