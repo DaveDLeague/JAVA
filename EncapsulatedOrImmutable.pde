@@ -6,9 +6,9 @@ class EncapsulatedOrImmutable extends Stage {
   final int gameState = 3;
   
   int tutorialPart = 0;
-  int button1 = 0;
-  int button2 = 0;
-  int button3 = 0;
+  int button1;
+  int button2;
+  int button3;
   int encapsulateOrImmutable = 0;
   
   EncapsulatedOrImmutable() {
@@ -40,10 +40,10 @@ class EncapsulatedOrImmutable extends Stage {
     image(player.image, player.x, player.y, player.w, player.h);
     switch(currentStageState) {
       case searchState:
-        encapsulateOrImmutable = (int)(Math.random()*3);
-        button1 = 1;
-        button2 = 1;
-        button3 = 1;
+        encapsulateOrImmutable = (int)(Math.random()*4);
+        button1 = 2;
+        button2 = 2;
+        button3 = 2;
         if (checkIntersection(player.x, player.y, player.w, player.h, cx, cy, host.width, host.height)) {
           fill(255);
           textSize(promptTextSize);
@@ -113,7 +113,6 @@ class EncapsulatedOrImmutable extends Stage {
           text("return x;", 200, 420);
           text("}", 135, 470);
           text("}", 100, 530);
-        
           fill(225, 200, 180);
           textSize(24);
           if (checkIfCompleted(encapsulateOrImmutable)) {
@@ -151,6 +150,40 @@ class EncapsulatedOrImmutable extends Stage {
           if (checkIfCompleted(encapsulateOrImmutable)) {
             text("Great!", 765, 400);
           } else {
+            text("Make this class encapsulated!", 625, 400);
+          }
+        } else if (encapsulateOrImmutable == 3) {
+          fill(250);
+          textSize(36);
+          text("public class Class1 {", 100, 70);
+          if (renderPlayerButton(buttonText(button1), "Press SPACE to Switch", 150, 95)) {
+            button1++;
+          }
+          fill(250);
+          textSize(36);
+          text("String s;", 315, 125);
+          if (renderPlayerButton(buttonText(button2), "Press SPACE to Switch", 150, 160)) {
+            button2++;
+          }
+          fill(250);
+          textSize(36);
+          text("Class1(String s){", 315, 190);
+          text("this.s = s;", 200, 250);
+          text("}", 135, 300);
+          if (renderPlayerButton(buttonText(button3), "Press SPACE to Switch", 150, 335)) {
+            button3++;
+          }
+          fill(250);
+          textSize(36);
+          text("String getS(){", 315, 365);
+          text("return s;", 200, 420);
+          text("}", 135, 470);
+          text("}", 100, 530);
+          fill(225, 200, 180);
+          textSize(24);
+          if (checkIfCompleted(encapsulateOrImmutable)) {
+            text("Great!", 765, 400);
+          } else {
             text("Make this class immutable!", 625, 400);
           }
         }
@@ -174,6 +207,8 @@ class EncapsulatedOrImmutable extends Stage {
         return (button1 % 3 == 0) && (button2 % 3 == 2) && (button3 % 3 == 1);
       case 2:
         return (button1 % 3 == 0) && (button2 % 3 == 0) && (button3 % 3 == 0);
+      case 3:
+        return (button1 % 3 == 0) && (button2 % 3 == 1) && (button3 % 3 == 1);
     }
     return false;
   }
