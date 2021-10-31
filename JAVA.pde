@@ -223,7 +223,7 @@ void setup() {
   , 500, 250));
   stageImages.add(new StageImage("pond.png", new Initializer() { 
     public void init() { 
-      currentStage = new EncapsulatedOrImmutable();
+      currentStage = new Polymorphism();
     }
   }
   , 100, 950));
