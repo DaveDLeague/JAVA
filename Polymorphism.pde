@@ -7,9 +7,15 @@ class Polymorphism extends Stage {
   
   int tutorialPart = 0;
   ArrayList<String> a = new ArrayList<String>();
+  int class1 = 0;
+  int class2 = 0;
+  int class3 = 0;
+  int none = 0;
+  String className = "";
+  boolean reset = true;
   
   Polymorphism() {
-    exitX = 100;
+    exitX = 75;
     exitY = 400;
     exitW = 50;
     exitH = 90;
@@ -17,7 +23,7 @@ class Polymorphism extends Stage {
     player.y = exitY;
     camera.x = 0;
     camera.y = 0;
-    hostX = exitX + 700;
+    hostX = exitX + 750;
     hostY = exitY;
     host = loadImage("hamster.png");
     background = new Background(resolutionWidth, resolutionHeight);
@@ -89,15 +95,33 @@ class Polymorphism extends Stage {
         }
         break;
       case gameState:
+        if (reset) {
+          reset = false;
+          className = pickRandomClass();
+          class1 = 0;
+          class2 = 0;
+          class3 = 0;
+          none = 0;
+        }
         fill(250);
         textSize(24);
-        text("public class Class1 {}", 100, 100);
-        text("public class Class2 extends Class1 {}", 100, 130);
-        text("public class Class3 extends Class2 implements IntB {}", 100, 160);
-        text("public interface IntA {}", 100, 190);
-        text("public interface IntB extends IntA {}", 100, 220);
-        if (renderPlayerButton(switchText(0), "Press SPACE to Select", 200, 425)) {
-            
+        text("class Class1 {}", 100, 100);
+        text("class Class2 extends Class1 {}", 100, 130);
+        text("class Class3 extends Class2 implements IntB {}", 100, 160);
+        text("interface IntA {}", 100, 190);
+        text("interface IntB extends IntA {}", 100, 220);
+        text("Which class(es) or interface(s) can polymorph into " + className + "?", 150, 375);
+        if (renderPlayerButton("Class1", switchText(class1), 175, 425, switchColor(class1), color(255))) {
+            class1++;
+        }
+        if (renderPlayerButton("Class2", switchText(class2), 350, 425, switchColor(class2), color(255))) {
+            class2++;
+        }
+        if (renderPlayerButton("Class3", switchText(class3), 525, 425, switchColor(class3), color(255))) {
+            class3++;
+        }
+        if (renderPlayerButton("None", switchText(none), 700, 425, switchColor(none), color(255))) {
+            none++;
         }
         break;
     }
@@ -111,7 +135,47 @@ class Polymorphism extends Stage {
     return true;
   }
   
+  private color switchColor(int i) {
+    if (i % 2 == 0) {
+      return color(0, 0, 255);
+    } else {
+      return color(210, 0, 210);
+    }
+  }
+  
   private String switchText(int i) {
-    return "";
+    if (i % 2 == 0) {
+      return "Press SPACE to Select";
+    } else {
+      return "Press SPACE to Deselect";
+    }
+  }
+  
+  private String pickRandomClass() {
+    int i = (int)(Math.random()*5);
+    switch (i) {
+      case 0:
+        return "Class1";
+      case 1:
+        return "Class2";
+      case 2:
+        return "Class3";
+      case 3:
+        return "IntA";
+      case 4:
+        return "IntB";
+      default:
+        return "";
+    }
+  }
+  
+  //make sure to test everything
+  private boolean[] checkAnswer(String className) {
+    switch (className) {
+      case "Class1":
+        return new boolean[]{true, true, true, false, false};
+      default:
+        return new boolean[]{false, false, false, false, false};
+    }
   }
 }
