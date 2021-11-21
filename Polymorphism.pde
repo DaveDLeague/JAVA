@@ -6,13 +6,17 @@ class Polymorphism extends Stage {
   final int gameState = 3;
   
   int tutorialPart = 0;
-  ArrayList<String> a = new ArrayList<String>();
+  ArrayList<String> names = new ArrayList<String>();
   int class1 = 0;
   int class2 = 0;
   int class3 = 0;
+  String name1 = "";
+  String name2 = "";
+  String name3 = "";
   int none = 0;
   String className = "";
   boolean reset = true;
+  int score = 0;
   
   Polymorphism() {
     exitX = 75;
@@ -23,17 +27,17 @@ class Polymorphism extends Stage {
     player.y = exitY;
     camera.x = 0;
     camera.y = 0;
-    hostX = exitX + 750;
+    hostX = exitX + 700;
     hostY = exitY;
     host = loadImage("hamster.png");
     background = new Background(resolutionWidth, resolutionHeight);
     background.clr = color(#f56464);
     currentBackground = background;
-    a.add("Class1");
-    a.add("Class2");
-    a.add("Class3");
-    a.add("IntA");
-    a.add("IntB");
+    names.add("Class1");
+    names.add("Class2");
+    names.add("Class3");
+    names.add("IntA");
+    names.add("IntB");
   }
   
   boolean update() {
@@ -87,7 +91,7 @@ class Polymorphism extends Stage {
             }
             break;
           case 3:
-            renderTextBox("To test your knowledge, I'll ...");
+            renderTextBox("To test your knowledge, I'll give you some classes and interfaces and", "quiz you on which class can polymorph into what!");
             if (renderDialogChoice("Okay, let's do it!")) {
               currentStageState = gameState;
             }
@@ -101,6 +105,15 @@ class Polymorphism extends Stage {
           class1 = 0;
           class2 = 0;
           class3 = 0;
+          name1 = names.remove((int)(Math.random()*names.size()));
+          name2 = names.remove((int)(Math.random()*names.size()));
+          name3 = names.remove((int)(Math.random()*names.size()));
+          names.clear();
+          names.add("Class1");
+          names.add("Class2");
+          names.add("Class3");
+          names.add("IntA");
+          names.add("IntB");
           none = 0;
         }
         fill(250);
@@ -110,18 +123,35 @@ class Polymorphism extends Stage {
         text("class Class3 extends Class2 implements IntB {}", 100, 160);
         text("interface IntA {}", 100, 190);
         text("interface IntB extends IntA {}", 100, 220);
-        text("Which class(es) or interface(s) can polymorph into " + className + "?", 150, 375);
-        if (renderPlayerButton("Class1", switchText(class1), 175, 425, switchColor(class1), color(255))) {
+        text("Which class(es) or interface(s) can polymorph into " + className + "?", 150, 275);
+        text("Score: " + score, 650, 475);
+        if (renderPlayerButton(name1, switchText(class1), 175, 325, switchColor(class1), color(255))) {
             class1++;
         }
-        if (renderPlayerButton("Class2", switchText(class2), 350, 425, switchColor(class2), color(255))) {
+        if (renderPlayerButton(name2, switchText(class2), 350, 325, switchColor(class2), color(255))) {
             class2++;
         }
-        if (renderPlayerButton("Class3", switchText(class3), 525, 425, switchColor(class3), color(255))) {
+        if (renderPlayerButton(name3, switchText(class3), 525, 325, switchColor(class3), color(255))) {
             class3++;
         }
-        if (renderPlayerButton("None", switchText(none), 700, 425, switchColor(none), color(255))) {
+        if (renderPlayerButton("None", switchText(none), 700, 325, switchColor(none), color(255))) {
             none++;
+        }
+        boolean[] answers = checkAnswer(className);
+        if ((answers[names.indexOf(name1)] == false && answers[names.indexOf(name2)] == false && answers[names.indexOf(name3)] == false)) {
+          if (none%2 == 1) {
+            if (renderDialogChoice("You did it!")) {
+              score++;
+              reset = true;
+            }
+          }
+        } else {
+          if (((class1%2 == 1) == answers[names.indexOf(name1)]) && ((class2%2 == 1) == answers[names.indexOf(name2)]) && ((class3%2 == 1) == answers[names.indexOf(name3)]) && (none%2 == 0)) {
+            if (renderDialogChoice("You did it!")) {
+              score++;
+              reset = true;
+            }
+          }
         }
         break;
     }
@@ -169,11 +199,18 @@ class Polymorphism extends Stage {
     }
   }
   
-  //make sure to test everything
   private boolean[] checkAnswer(String className) {
     switch (className) {
       case "Class1":
         return new boolean[]{true, true, true, false, false};
+      case "Class2":
+        return new boolean[]{false, true, true, false, false};
+      case "Class3":
+        return new boolean[]{false, false, true, false, false};
+      case "IntA":
+        return new boolean[]{false, false, false, true, true};
+      case "IntB":
+        return new boolean[]{false, false, false, false, true};
       default:
         return new boolean[]{false, false, false, false, false};
     }
