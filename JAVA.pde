@@ -1,22 +1,23 @@
 /* //<>//
  TODO: 
+ fix bug when loading a saved game in the middle of a current game
  finish imports shack
- -make game more procedural and logical, 'na mean?
+ -make game more procedural and logical
  -make dialog explain the game better (explain how many stages)
  -position buttons better
  -display current stage
  -comments
- -add explanation of semicolon (make funny?)
+ -add explanation of semicolon 
  
  finish ternary tornado
  
  finish DVLighthouse
  - what is the output with default value of variables?
-   * creating local variables with same name as instance variable
-   * multiple variables defined on same line
-   * variable scope 
-   * static methods using non-static variables
-
+ * creating local variables with same name as instance variable
+ * multiple variables defined on same line
+ * variable scope 
+ * static methods using non-static variables
+ 
  fix bug for how-to-play and menu screen not returning to correct locations
  
  
@@ -32,22 +33,22 @@ stage ideas:
  
  elephant
  
-*general which-line-has-the-error game*
+ *general which-line-has-the-error game*
  
-proper package declarations
+ proper package declarations
  -removing unnecessary imports and adding in needed ones (java.lang)
  -accessing things from different packages
  -wildcards
  -different packages with same class name
-objects, references and garbage collection 
+ objects, references and garbage collection 
  -memory managed automatically
  -finalize() method
-constructors (and methods that look a lot like constructors...but aren't)
-encapsulation and immutability
-method overloading
-inheritance
+ constructors (and methods that look a lot like constructors...but aren't)
+ encapsulation and immutability
+ method overloading
+ inheritance
  -class extending and interface implementing saves duplicate code
-java being object oriented and platform independant 
+ java being object oriented and platform independant 
  -command Line compiling and and arguments (.java and .class[bytecode])
  -main method's String array
  -.class file can run on any computer with compatible JVM?
@@ -113,6 +114,10 @@ int selectedCharacter = 0;
 int scrollAmount;
 int currentlySelectedSavedGame;
 
+final int TOTAL_WORLDS = 6;
+int currentWorld = 0;
+WorldBuilder worlds[] = new WorldBuilder[TOTAL_WORLDS];
+
 int currentWidth = 0;
 int currentHeight = 0;
 boolean fullScreen = false;
@@ -122,6 +127,9 @@ boolean altDown = false;
 
 boolean saveGameDeletionVarification;
 boolean nameExistsNotice;
+
+boolean runningQuiz;
+
 String queuedDuplicateName;
 int saveGameDeltionIndex;
 
@@ -163,71 +171,16 @@ void setup() {
   alienImage = loadImage("alien.png");
 
   player = new Player(); 
-  worldMapBackground = new Background();
-
   camera = new Camera();
-  stageImages = new ArrayList<StageImage>();
-  stageImages.add(new StageImage("cave.png", new Initializer() { 
-    public void init() { 
-      currentStage = new VariablesCave();
-    }
-  }
-  , 50, 50));
-  stageImages.add(new StageImage("shack.png", new Initializer() { 
-    public void init() { 
-      currentStage = new ImportsShack();
-    }
-  }
-  , 1350, 50));
-  stageImages.add(new StageImage("hedge.png", new Initializer() { 
-    public void init() { 
-      currentStage = new MainMethodsMaze();
-    }
-  }
-  , 200, 550));
-  stageImages.add(new StageImage("bridge.png", new Initializer() { 
-    public void init() { 
-      currentStage = new OOOBridge();
-    }
-  }
-  , 840, 100));
-  stageImages.add(new StageImage("volcano.png", new Initializer() { 
-    public void init() { 
-      currentStage = new CommandLineVolcano();
-    }
-  }
-  , 1700, 215));
-  stageImages.add(new StageImage("lighthouse.png", new Initializer() { 
-    public void init() { 
-      currentStage = new DefaultValueLighthouse();
-    }
-  }
-  , 1450, 900));
-  stageImages.add(new StageImage("castle.png", new Initializer() { 
-    public void init() { 
-      currentStage = new MainMethodsMaze();
-    }
-  }
-  , 1200, 500));
-  stageImages.add(new StageImage("tornado.png", new Initializer() { 
-    public void init() { 
-      currentStage = new TernaryTornado();
-    }
-  }
-  , 900, 900));
-  stageImages.add(new StageImage("manhole.png", new Initializer() { 
-    public void init() { 
-      currentStage = new NumberConstantSewer();
-    }
-  }
-  , 500, 250));
-  stageImages.add(new StageImage("pond.png", new Initializer() { 
-    public void init() { 
-      currentStage = new MainMethodsMaze();
-    }
-  }
-  , 100, 950));
+  
+  worlds[0] = new World1();
+  worlds[1] = new World2();
+  worlds[2] = new World3();
+  worlds[3] = new World4();
+  worlds[4] = new World5();
+  worlds[5] = new World6();
 
+  worlds[0].build();
 
   //fullScreen();
   fullScreen(P2D);
@@ -248,10 +201,6 @@ void setup() {
   player.savedX = player.x;
   player.savedY = player.y;
   player.setImage(robotImage);
-
-  worldMapBackground.image = loadImage("terrain.png");
-  worldMapBackground.w = 1920;
-  worldMapBackground.h = 1080;
 
   currentBackground = worldMapBackground;
   savedGames = getSavedGameStates();
@@ -374,7 +323,7 @@ void draw() {
             loadGameScrollAmt -= 20;
           }
         } 
-        
+
         SaveState s = savedGames.get(i);
         fill(boxColor);
         rect(x, y, w, h, 20);
@@ -399,13 +348,13 @@ void draw() {
         }
         y += h + margin;
       }
-      
+
       if (keyPressed && keyCode == DEL_KEY) {
-          keyPressed = false;
-          keyCode = 0;
-          saveGameDeletionVarification = true;
-       }
-        
+        keyPressed = false;
+        keyCode = 0;
+        saveGameDeletionVarification = true;
+      }
+
       strokeWeight(1);
 
       if (y <= resolutionHeight - margin) {
@@ -518,6 +467,8 @@ void draw() {
           else if (selectedCharacter == 1) player.setImage(alienImage);
           player.name = input;
           currentState = GameStates.WORLD_MAP_STATE;
+          currentWorld = 0;
+          worlds[currentWorld].build();
           saveGame();
         }
       }
@@ -591,7 +542,7 @@ void draw() {
         //if(mousePressed){
         //  println(mouseX + camera.x, mouseY + camera.y); 
         //}
-        
+
         player.update();
         camera.update();
 
@@ -608,23 +559,49 @@ void draw() {
             c.initializer.init();
           }
         }
+        boolean worldComplete = true;
         for (int i = 0; i < stageImages.size(); i++) {
           StageImage s = stageImages.get(i);
           if (s.completed) {
             drawCheck(s.x - camera.x, s.y - camera.y);
+          } else {
+            worldComplete = false;
           }
+        }
+        if (worldComplete) {
+          currentState = GameStates.BETWEEN_WORLDS_QUIZ_STATE;
         }
         image(player.image, player.x, player.y, player.w, player.h);
       } else {
         if (!currentStage.update()) {
-           
-          if(currentStage.completed){
+
+          if (currentStage.completed) {
             currentStageImage.completed = true;
             saveGame();
           }
           currentStage = null;
         }
       }
+      break;
+    }
+  case BETWEEN_WORLDS_QUIZ_STATE:
+    {
+      background(50, 100, 200);
+      fill(255);
+      textSize(36);
+      centeredText("CONGRATULATIONS!", 100);
+      textSize(24);
+      centeredText("You have completed the world!", 200);
+      centeredText("Press enter to begin the quiz to move on to the next world.", 300);
+      if (checkEnterInput()) {
+        runningQuiz = true; 
+        currentState = GameStates.QUIZ_RUNNING_STATE;
+        new QuizDisplay();
+      }
+      break;
+    }
+  case QUIZ_RUNNING_STATE:
+    {
       break;
     }
   }

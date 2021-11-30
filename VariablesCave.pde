@@ -506,6 +506,9 @@ class VariablesCave extends Stage {
         ret = false;
       }
     }
-    return ret;
+    //////TEMPORARY////////////
+   /////////DELETE THIS///////////
+   return true;
+    //return ret;
   }
 }
