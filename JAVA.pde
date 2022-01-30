@@ -223,7 +223,7 @@ void setup() {
   , 500, 250));
   stageImages.add(new StageImage("pond.png", new Initializer() { 
     public void init() { 
-      currentStage = new Polymorphism();
+      currentStage = new ArrayArrayList();
     }
   }
   , 100, 950));
