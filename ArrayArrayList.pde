@@ -80,11 +80,13 @@ class ArrayArrayList extends Stage {
             if (renderDialogChoice("Ok, I think I've got it now...")) {
               tutorialPart++;
             }
+            break;
           case 5:
             renderTextBox("[Game Instructions]");
             if (renderDialogChoice("Alright, let's do it!")) {
               tutorialPart++;
             }
+            break;
         }
         break;
     }
