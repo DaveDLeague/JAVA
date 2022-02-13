@@ -1,3 +1,5 @@
+import java.util.*;
+
 class ArrayArrayList extends Stage {
   
   final int searchState = 0;
@@ -6,6 +8,11 @@ class ArrayArrayList extends Stage {
   final int gameState = 3;
   
   int tutorialPart = 0;
+  int score = 0;
+  ArrayList<Integer> questionNumbers = new ArrayList<Integer>(Arrays.asList(0, 1, 2));
+  boolean drawNumber = false;
+  boolean quizOver = false;
+  int questionIndex = 0;
 
   ArrayArrayList() {
     exitX = 100;
@@ -22,6 +29,7 @@ class ArrayArrayList extends Stage {
     background = new Background(resolutionWidth*1.1, resolutionHeight*1.1);
     background.clr = color(#9d58c4);
     currentBackground = background;
+    
   }
   
   boolean update() {
@@ -82,13 +90,130 @@ class ArrayArrayList extends Stage {
             }
             break;
           case 5:
-            renderTextBox("[Game Instructions]");
+            renderTextBox("Alright, it's time for a quiz! I'll give you a characteristic and you have to decide", "whether it describes an Array or an ArrayList, or both!");
             if (renderDialogChoice("Alright, let's do it!")) {
-              tutorialPart++;
+              currentStageState = gameState;
             }
             break;
         }
         break;
+      case gameState:
+        if (!drawNumber) 
+          if (!questionNumbers.isEmpty()) {
+            questionIndex = questionNumbers.remove((int)Math.random()*questionNumbers.size());
+            drawNumber = true;
+          } else {
+            quizOver = true;
+          }
+        if (quizOver) {
+          renderTextBox("Yay :)");
+        } else {
+          switch(questionIndex) {
+            case 0:
+              renderTextBox("It has a fixed size.");
+              if (renderDialogChoice("Array!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+            case 1:
+              renderTextBox("It uses the method \".get()\" to return the object at a certain index.");
+              if (renderDialogChoice("Array!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+            case 2:
+              renderTextBox("It can change size.");
+              if (renderDialogChoice("Array!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+            case 3:
+              renderTextBox("It can be multi-dimensional.");
+              if (renderDialogChoice("Array!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+            case 4:
+              renderTextBox("The index of the first value is 0.");
+              if (renderDialogChoice("Array!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                score++;
+                drawNumber = false;
+              }
+            case 5:
+              renderTextBox("It can be initialized using a literal.");
+              if (renderDialogChoice("Array!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+            case 6:
+              renderTextBox("It can be directly converted between the two types of lists.", "e.g. Array->ArrayList, ArrayList->Array");
+              if (renderDialogChoice("Array!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+            case 7:
+              renderTextBox("It can hold primitives.");
+              if (renderDialogChoice("Array!")) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!")) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!")){ 
+                drawNumber = false;
+              }
+              break;
+          }
+        }
     }
     return true;
   }
