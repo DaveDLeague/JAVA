@@ -9,7 +9,7 @@ class ArrayArrayList extends Stage {
   
   int tutorialPart = 0;
   int score = 0;
-  ArrayList<Integer> questionNumbers = new ArrayList<Integer>(Arrays.asList(0, 1, 2));
+  ArrayList<Integer> questionNumbers = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7));
   boolean drawNumber = false;
   boolean quizOver = false;
   int questionIndex = 0;
@@ -98,117 +98,133 @@ class ArrayArrayList extends Stage {
         }
         break;
       case gameState:
-        if (!drawNumber) 
+        text("Score: " + score, 650, 475);
+        if (!drawNumber) {
           if (!questionNumbers.isEmpty()) {
-            questionIndex = questionNumbers.remove((int)Math.random()*questionNumbers.size());
+            questionIndex = questionNumbers.remove((int)(Math.random()*questionNumbers.size()));
             drawNumber = true;
           } else {
             quizOver = true;
           }
+        }
         if (quizOver) {
-          renderTextBox("Yay :)");
+          renderTextBox("Nice job!");
         } else {
           switch(questionIndex) {
             case 0:
               renderTextBox("It has a fixed size.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 score++;
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)){ 
                 drawNumber = false;
               }
               break;
             case 1:
               renderTextBox("It uses the method \".get()\" to return the object at a certain index.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 score++;
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 drawNumber = false;
               }
               break;
             case 2:
               renderTextBox("It can change size.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 score++;
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 drawNumber = false;
               }
               break;
             case 3:
               renderTextBox("It can be multi-dimensional.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 score++;
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 drawNumber = false;
               }
               break;
             case 4:
               renderTextBox("The index of the first value is 0.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 score++;
                 drawNumber = false;
               }
+              break;
             case 5:
               renderTextBox("It can be initialized using a literal.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 score++;
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 drawNumber = false;
               }
               break;
             case 6:
-              renderTextBox("It can be directly converted between the two types of lists.", "e.g. Array->ArrayList, ArrayList->Array");
-              if (renderDialogChoice("Array!")) {
+              renderTextBox("You can change the value at a specified index.");
+              if (renderDialogChoice("Array!", 475, 325)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 score++;
-                drawNumber = false;
-              }
-              if (renderDialogChoice("Both!")){ 
                 drawNumber = false;
               }
               break;
             case 7:
               renderTextBox("It can hold primitives.");
-              if (renderDialogChoice("Array!")) {
+              if (renderDialogChoice("Array!", 475, 325)) {
                 score++;
                 drawNumber = false;
               }
-              if (renderDialogChoice("ArrayList!")) {
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
                 drawNumber = false;
               }
-              if (renderDialogChoice("Both!")){ 
+              if (renderDialogChoice("Both!", 482, 455)) { 
+                drawNumber = false;
+              }
+              break;
+            case 8:
+              renderTextBox("It uses the method \".indexOf()\" to find the index of a certain value.");
+              if (renderDialogChoice("Array!", 475, 325)) {
+                drawNumber = false;
+              }
+              if (renderDialogChoice("ArrayList!", 455, 390)) {
+                score++;
+                drawNumber = false;
+              }
+              if (renderDialogChoice("Both!", 482, 455)) { 
                 drawNumber = false;
               }
               break;
